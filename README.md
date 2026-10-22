@@ -1,4 +1,4 @@
-# Health in Perspective
+# Xeyo — Health in Perspective
 
 A real, account-based health workspace: WHOOP measurements, a nutrition journal, private reports and structured blood-test results. Vite + JavaScript, Supabase Auth/Postgres/Storage, and a Deno Edge Function. There is no demo login or sample data path.
 
@@ -54,3 +54,11 @@ No diagnosis, photo-derived body composition, or food-derived glucose/inflammati
 ## Sharing this source
 
 Only public configuration belongs in frontend environment variables. `.env.local`, secrets, build output and user data are excluded from Git. The existing `.openai/hosting.json` identifies the current hosted Site: remove it before creating an unrelated deployment. The setup files mention the current operator and staging project; replace these with your own details for a fork. Do not place keys in issues, screenshots, commits or chat.
+
+## Xeyo interface
+
+The dashboard uses the clear-glass styles in `src/xeyo.css`. The static orange sun is reused for branding and voice input. Nutrition is an inline conversation with the daily balance and food journal beside it; at desktop widths above 1100px and viewport heights of 660px or more the page fills one viewport, with the conversation and journal scrolling independently as they grow. Smaller screens reflow vertically. All meal estimates remain editable and removable.
+
+The compact dashboard charts show up to the latest 21 actual measurements; the detail panel retains its 7/30/90-day history. HRV and sleep use bars, while other signals use lines with an area fill. No synthetic points are inserted.
+
+Custom domain `xeyo.ai` has been registered with Sites; DNS activation is pending access to the authoritative Cloudflare zone. The existing hosted URL remains active. Authentication defaults and API origins must be switched only after the domain serves this application.
