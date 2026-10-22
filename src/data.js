@@ -7,7 +7,7 @@ export const db=configured?createClient(import.meta.env.VITE_SUPABASE_URL,import
 export let demo=false,user=null;
 const sample=[{id:'sample-1',name:'Greek yogurt, berries & granola',calories:340,protein:24,carbs:43,fat:9,meal_type:'Breakfast',logged_on:localDay(),source:'Sample data'},{id:'sample-2',name:'Salmon & roasted vegetable bowl',calories:610,protein:39,carbs:58,fat:25,meal_type:'Lunch',logged_on:localDay(),source:'Sample data'}];
 let demoMeals=[...sample];
-export function enterDemo(){demo=true;user={id:'demo',user_metadata:{name:'Tobia'}}}
+export function enterDemo(){demo=true;user={id:'demo',user_metadata:{name:'Preview'}}}
 export async function session(){if(!db)return null;let {data,error}=await db.auth.getSession();if(error)throw error;user=data.session?.user||null;demo=false;return user}
 export async function signOut(){if(db&&!demo){const {error}=await db.auth.signOut();if(error)throw error}user=null;demo=false;demoMeals=[...sample]}
 export async function meals(){if(demo)return demoMeals;const {data,error}=await db.from('meals').select('*').eq('logged_on',localDay()).order('created_at',{ascending:false});if(error)throw error;return data}

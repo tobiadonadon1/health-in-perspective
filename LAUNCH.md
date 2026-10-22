@@ -11,7 +11,7 @@ This is an application foundation and hosted preview, **not a production-ready h
 - Private PDF/photo storage and short-lived downloads; delete-record flow.
 - User-owned meals/records and read-only imported measurements protected by PostgreSQL row-level security.
 - Server-side WHOOP OAuth, one-use state, AES-GCM encrypted tokens, refresh, import of up to 25 recent recovery/sleep records, manual sync and local disconnect.
-- Fictional demo workspace isolated from live accounts. Demo meals are deliberately in-memory, not persistent.
+- Fictional interface preview is available only via `?preview=1`, with the generic name Preview. It is not offered on normal sign-in/sign-up screens. Preview meals are deliberately in-memory, not persistent.
 
 ## Not complete / not verified live
 - Supabase is connected. `neka-staging` (`pisvrssqmlspuahyvbrx`) was created in the user-selected `healthapp` organization in US East. Core tables, ownership policies and the `health-api` Edge Function are deployed.
@@ -41,6 +41,7 @@ This is an application foundation and hosted preview, **not a production-ready h
 `npm run build` creates static hosting output in `dist/`.
 
 ## Verification performed
+- Registration fix: dedicated email-verification screen, per-address resend cooldown persisted within the tab, duplicate-send prevention, confirmation help, recovery state and callback handling. Five regression tests cover email states and rate limits without sending messages. Live logs confirmed the reported signup returned 200 and emitted `mail.send`; subsequent attempts hit the provider’s 57/43-second cooldown. Account existence and pending confirmation were verified, without changing email-verification requirements.
 - Visual revision checked at 1440 × 900 and 390 × 844: portrait metric markers, metric period switching, digestive detail → nutrition navigation, portrait/3D display switch, and sign-in presentation. Fixed a masked-out anatomy image and mobile glow overflow; mobile document width now equals the 390 px viewport. Browser console had no errors.
 - Vite production build.
 - Node domain tests: nutrition validation, per-100g serving conversion, totals, upload restrictions and HTML escaping.
@@ -48,6 +49,7 @@ This is an application foundation and hosted preview, **not a production-ready h
 - Browser checks at desktop and 390 px phone width: sample meal creation/removal and totals, account configuration gating, accessible navigation, modal sizing, metric periods, actual 3D rotation. Fixed issues found during these checks.
 - Live staging SQL test (`tests/staging-core-rls.sql`): synthetic users isolated, ownership reassignment and forged measurements denied, token tables inaccessible. Fixtures are rolled back. Storage awaits provisioning.
 - Live HTTP tests: anonymous meals read 401; unsigned/invalid API tokens 401; short signup password 422 with the required 12-character minimum. No confirmation email was sent by these tests.
+- Security advisor also flags leaked-password protection as disabled (plan-gated; no upgrade purchased). [Password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
 - Security advisor reports three expected informational notices: RLS with no client policies on server-only `wearable_secrets`, `oauth_states`, and `api_usage`. Their deny-by-default state is intentional. [Advisor explanation](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
 - Deno type-check of the Edge Function. External provider requests and actual email delivery remain unverified.
 
