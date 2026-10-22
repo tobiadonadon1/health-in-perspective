@@ -42,7 +42,8 @@ This is an application foundation and hosted preview, **not a production-ready h
 - Vite production build.
 - Node domain tests: nutrition validation, per-100g serving conversion, totals, upload restrictions and HTML escaping.
 - PostgreSQL (PGlite) execution of the actual schema with two user roles: cross-user SELECT/INSERT/UPDATE denied, foreign-file access denied, forged wearable writes denied, secrets inaccessible, anonymous access denied, 40/hour API credit limit enforced. This is local SQL verification, not a substitute for testing the hosted Supabase project.
-- Browser sample meal creation and totals update; account configuration gating; responsive and 3D visual checks.
+- Browser checks at desktop and 390 px phone width: sample meal creation/removal and totals, account configuration gating, accessible navigation, modal sizing, metric periods, actual 3D rotation. Fixed issues found during these checks.
+- Deno type-check of the Edge Function. External provider requests and actual email delivery remain unverified.
 
 ## Sources
 - WHOOP: https://developer.whoop.com/docs/developing/oauth/ and https://developer.whoop.com/api/
