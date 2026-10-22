@@ -1,4 +1,4 @@
--- Apply to a dedicated Supabase project, then run tests/rls.sql with actual test users.
+-- Apply to a dedicated Supabase project, then run tests/staging-rls.sql (synthetic fixtures rolled back).
 create table public.meals (
  id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id) on delete cascade,
  name text not null check (length(name) between 1 and 200), calories numeric not null check(calories between 0 and 10000),
@@ -39,6 +39,7 @@ revoke all on public.health_readings from anon;
 revoke insert,update,delete on public.health_readings from authenticated;
 create table public.wearable_secrets (user_id uuid not null references auth.users(id) on delete cascade,provider text not null,encrypted_tokens text not null,updated_at timestamptz default now(),primary key(user_id,provider));
 create table public.oauth_states (state text primary key,user_id uuid not null references auth.users(id) on delete cascade,expires_at timestamptz not null);
+create index oauth_states_user on public.oauth_states(user_id);
 create table public.api_usage(user_id uuid not null references auth.users(id) on delete cascade,bucket timestamptz not null,requests int not null default 1,primary key(user_id,bucket));
 alter table public.wearable_secrets enable row level security;
 alter table public.oauth_states enable row level security;

@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 const env=(n:string)=>Deno.env.get(n)||'';
-const origin=env('APP_ORIGIN');
+const origin=env('APP_ORIGIN') || 'https://neka-health-platform.tobi10donadon.chatgpt.site';
 const headers={'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin','Content-Type':'application/json','Cache-Control':'no-store'};
 const respond=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status,headers});
 const admin=()=>createClient(env('SUPABASE_URL'),env('SUPABASE_SERVICE_ROLE_KEY'),{auth:{persistSession:false,autoRefreshToken:false}});
