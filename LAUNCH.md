@@ -9,6 +9,8 @@ This is a real account-based application under activation, not a completed publi
 - Persisted dated nutrition journal and complete JSON export.
 - No sample account, demo data or preview login.
 - WHOOP server OAuth, encrypted tokens, refresh, exact return-origin validation, one-use expiring state, 90-day paginated imports, manual sync and provider revocation on disconnect.
+- WHOOP developer application registered with read-only recovery/sleep scopes and the production callback. Client credentials and token encryption key saved in Supabase server secrets; never in the frontend or Git.
+- Public website and public GitHub source are available. GitHub Actions passed on the deployed source.
 - Charts display recorded data only; unavailable integrations and AI controls are not presented as working.
 - Branded confirmation and password-reset email HTML prepared in supabase/templates; not active until custom SMTP or a qualifying plan is configured.
 - Data-use notice at /privacy.html.
@@ -20,9 +22,9 @@ This is a real account-based application under activation, not a completed publi
 - HTTP CORS allows configured localhost, rejects unrelated origins; invalid user tokens and anonymous database reads are rejected.
 
 ## Activation still required
-- WHOOP app credentials and a live member authorization/import test. WHOOP sandbox membership limits apply until provider approval.
+- A live WHOOP member authorization/import test. The application is configured; WHOOP's initial sandbox permits 10 connected members until the provider approves a higher tier.
 - Custom transactional email sender. Supabase default delivery cannot register arbitrary public addresses; styling is disabled on the current free/default-mail configuration. Do not change VITE_AUTH_AUDIENCE to public until non-team delivery is tested.
-- Actual account sign-in and file upload/download browser checks with a confirmed account.
+- The owner's account is confirmed and has signed in. The test browser still needs an authenticated session to verify the full WHOOP and file upload/download flows.
 - AI/USDA credentials for optional automation. Manual nutrition is functional independently.
 - Fitbit/Google Health and an Apple HealthKit companion are not implemented.
 - Account erasure is currently an operator request. Monitoring, backups, retention decisions and broader production hardening remain required before commercial launch.

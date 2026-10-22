@@ -4,7 +4,9 @@ A real, account-based health workspace: WHOOP measurements, a nutrition journal,
 
 ## Current status
 
-Account services, private storage, per-user data policies and the API are deployed to the connected Supabase project. Live SQL isolation tests pass. Public enrollment still requires a transactional email sender. WHOOP requires the operator's developer application credentials and a live authorization test. Until configured, the UI accurately shows activation pending. Fitbit and Apple Watch are not available in this release.
+Account services, private storage, per-user data policies and the API are deployed to the connected Supabase project. Live SQL isolation tests pass. The operator's WHOOP application is registered and its credentials are configured on the server; the first member authorization and import still need live verification. WHOOP initially allows up to 10 connected members in its sandbox. Public enrollment still requires an email sender and delivery verification. Fitbit and Apple Watch are not available in this release.
+
+Hosted app: https://neka-health-platform.tobi10donadon.chatgpt.site/ · Source: https://github.com/tobiadonadon1/health-in-perspective
 
 ## Local development
 
