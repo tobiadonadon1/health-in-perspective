@@ -26,7 +26,13 @@ export function mapWhoopReadings(userId,recovery,sleeps){
   if(v.score_state!=='SCORED'||!v.score||!v.id||!Number.isFinite(Date.parse(v.end)))continue;
   const base={user_id:userId,source:'WHOOP',external_id:String(v.id),observed_at:v.end},stage=v.score.stage_summary;
   if(stage){const values=['total_light_sleep_time_milli','total_slow_wave_sleep_time_milli','total_rem_sleep_time_milli'].map(k=>stage[k]);if(values.every(x=>Number.isFinite(x)&&x>=0))add(base,v.nap?'nap':'sleep','hours',values.reduce((a,b)=>a+b,0)/3600000)}
-  if(!v.nap){add(base,'respiratory_rate','breaths/min',v.score.respiratory_rate);add(base,'sleep_performance','%',v.score.sleep_performance_percentage)}
+  if(!v.nap){
+   add(base,'respiratory_rate','breaths/min',v.score.respiratory_rate);
+   for(const [field,kind] of [['sleep_performance_percentage','sleep_performance'],['sleep_efficiency_percentage','sleep_efficiency'],['sleep_consistency_percentage','sleep_consistency']])add(base,kind,'%',v.score[field]);
+   if(stage){for(const [field,kind,unit,divisor] of [['total_slow_wave_sleep_time_milli','sleep_deep','hours',3600000],['total_rem_sleep_time_milli','sleep_rem','hours',3600000],['total_light_sleep_time_milli','sleep_light','hours',3600000],['total_awake_time_milli','sleep_awake','min',60000],['disturbance_count','sleep_disturbances','',1]])if(Number.isFinite(stage[field])&&stage[field]>=0)add(base,kind,unit,stage[field]/divisor);}
+   const needed=v.score.sleep_needed;
+   if(needed){if(Number.isFinite(needed.need_from_sleep_debt_milli)&&needed.need_from_sleep_debt_milli>=0)add(base,'sleep_debt','min',needed.need_from_sleep_debt_milli/60000);const parts=['baseline_milli','need_from_sleep_debt_milli','need_from_recent_strain_milli','need_from_recent_nap_milli'].map(k=>needed[k]);if(parts.every(Number.isFinite)&&parts.reduce((a,b)=>a+b,0)>=0)add(base,'sleep_needed','hours',parts.reduce((a,b)=>a+b,0)/3600000);}
+  }
  }
  return rows;
 }

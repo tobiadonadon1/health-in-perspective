@@ -1,106 +1,64 @@
 import {escapeHTML as esc, localDay, totals, validateMeal} from './domain.js';
-
-const nutrients=[['calories','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g']];
 const $=s=>document.querySelector(s);
-export function createMealLogger({showModal,heading,icon,api,save,getDay,getCapabilities,connectAI}){
-  let state,version=0,recorder,stream,timer,previewUrl;
-  function stopCapture(){clearInterval(timer);if(recorder){recorder.onstop=null;recorder.onerror=null;if(recorder.state==='recording')recorder.stop()}stream?.getTracks().forEach(t=>t.stop());recorder=null;stream=null;}
-  function cancel(){version++;stopCapture();if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;}
-  function error(message){const el=$('#meal-error');if(el)el.textContent=message;}
-  function header(title='What’s on your plate?'){return heading(title,'Nutrition / Your daily journal');}
-  function open(mode='describe'){
-    cancel();state={mode,text:'',image:null,estimate:null,meal_type:'Lunch',logged_on:getDay()};render();
-  }
-  function render(){
-    const enabled=getCapabilities().mealAnalysis,voice=getCapabilities().transcription;
-    const tabs=[['describe','Describe',icon('food')],['photo','Photo',icon('camera')],['voice','Speak',icon('mic')],['manual','Enter facts',icon('plus')]];
-    showModal(`${header()}<p>A photo, a few words, or a quick voice note. Make it part of your day.</p><div class="meal-tabs" role="tablist" aria-label="How to log your meal">${tabs.map(([mode,label,symbol])=>`<button type="button" role="tab" aria-selected="${state.mode===mode}" data-log-mode="${mode}">${symbol}${label}</button>`).join('')}</div>${state.mode==='manual'?manualForm():`<form id="meal-capture">${state.mode==='photo'?`<label class="meal-photo-picker">${previewUrl?`<img src="${previewUrl}" alt="Your meal, ready to analyze">`:`<span class="capture-icon">${icon('camera')}</span><strong>Let’s see what’s on your plate.</strong><span>Choose a meal photo or a nutrition label</span>`}<input id="meal-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Meal photo"></label>`:''}${state.mode==='voice'?`<div class="voice-capture"><div class="voice-orbit">${icon('mic')}</div><h3>Tell me what you ate.</h3><p>Include portions, drinks and any brand names you know.</p><button type="button" class="btn light" id="meal-record" ${!enabled||!voice?'disabled':''}>${icon('mic')} Start recording</button><span id="recording-time" role="status">Up to 60 seconds</span></div>`:''}<label class="field">${state.mode==='photo'?'Anything else? (optional)':state.mode==='voice'?'Your words':'What did you eat?'}<textarea id="meal-description" maxlength="4000" rows="4" placeholder="I had two eggs, a slice of sourdough with butter, and an oat milk cappuccino." ${state.mode==='voice'?'aria-label="Your words"':''}>${esc(state.text)}</textarea></label><div class="meal-examples"><span>Small details help.</span><span>Portion size</span><span>Cooking oils</span><span>Brand name</span></div>${!enabled?'<div class="assistant-pending"><strong>Bring your own AI.</strong> Connect your OpenAI API key to analyze photos, descriptions and voice notes. <button type="button" id="connect-personal-ai">Connect my key</button> · <button type="button" id="manual-fallback">Enter facts instead</button></div>':''}<p class="mini-note">${state.mode==='voice'?'Audio is sent to OpenAI after you stop recording. ':''}Your submitted photo and description are sent to OpenAI to estimate nutrition. Review portions before saving. Photos and audio are not saved in your journal.</p><p id="meal-error" class="meal-error" role="alert"></p><div class="dialog-footer"><span class="meal-private">${icon('shield')} Your private food journal</span><button class="btn" type="submit" ${!enabled?'disabled':''}>Analyze meal ${icon('arrow')}</button></div></form>`}`,true);
-    document.querySelectorAll('[data-log-mode]').forEach(b=>b.onclick=()=>{state.text=$('#meal-description')?.value??state.text;version++;stopCapture();state.mode=b.dataset.logMode;render()});
-    if($('#connect-personal-ai'))$('#connect-personal-ai').onclick=()=>{cancel();connectAI()};
-    if($('#manual-fallback'))$('#manual-fallback').onclick=()=>{state.mode='manual';render()};
-    if($('#manual-meal'))bindManual();
-    if($('#meal-capture'))$('#meal-capture').onsubmit=e=>{e.preventDefault();state.text=$('#meal-description').value;analyze()};
-    if($('#meal-photo'))$('#meal-photo').onchange=async e=>{
-      const file=e.target.files[0];if(!file)return;
-      state.text=$('#meal-description').value;const requestVersion=++version;
-      try{
-        const encoded=await encodePhoto(file);
-        if(version!==requestVersion)return;
-        if(previewUrl)URL.revokeObjectURL(previewUrl);
-        previewUrl=URL.createObjectURL(file);state.image=encoded;render();
-      }catch(e){if(version===requestVersion)error(e.message)}
-    };
-    if($('#meal-record'))$('#meal-record').onclick=record;
-  }
-  function lockCapture(label){const form=$('#meal-capture');if(!form)return;form.querySelectorAll('button,input,textarea').forEach(el=>el.disabled=true);const submit=form.querySelector('[type=submit]');submit.textContent=label;document.querySelectorAll('[data-log-mode]').forEach(el=>el.disabled=true);}
-  async function analyze(correction=''){
-    if(!getCapabilities().mealAnalysis)return error('Connect your OpenAI API key to use meal analysis.');
-    if(!state.text.trim()&&!state.image)return error('Describe your meal or add a photo first.');
-    stopCapture();const requestVersion=++version;lockCapture('Looking at your meal…');
-    try{
-      const result=await api('nutrition-analyze',{text:state.text,image:state.image||undefined,correction,previous:correction?state.estimate:undefined});
-      if(version!==requestVersion)return;
-      state.estimate=result.meal;
-      if(!result.meal.items.length){render();error(result.meal.question||'No food was identified. Try another image or describe your meal.');return;}
-      review();
-    }catch(e){if(version===requestVersion){render();error(e.message)}}
-  }
-  function dayFields(){return `<div class="form-grid meal-day-fields"><label class="field">Meal<select name="meal_type">${['Breakfast','Lunch','Dinner','Snack'].map(n=>`<option ${state.meal_type===n?'selected':''}>${n}</option>`).join('')}</select></label><label class="field">Date<input name="logged_on" type="date" required max="${localDay()}" value="${state.logged_on}"></label></div>`;}
-  function summary(rows){const total=totals(rows);return `<div class="meal-estimate-total">${nutrients.map(([key,label,unit])=>`<div><span>${label}</span><strong>${Math.round(total[key])}<small>${unit}</small></strong></div>`).join('')}</div>`;}
-  function review(){
-    const estimate=state.estimate;
-    showModal(`${header('A closer look at your meal.')}<div class="meal-review-title"><h3>${esc(estimate.title)}</h3><span class="tag warm">Estimated nutrition</span></div><div id="meal-summary">${summary(estimate.items)}</div><form id="meal-review"><div class="meal-items">${estimate.items.map((item,i)=>`<fieldset class="meal-review-item" data-item="${i}"><legend>Food ${i+1}</legend><div class="item-name-row"><label class="field">Food<input name="name" required maxlength="200" value="${esc(item.name)}"></label><button type="button" class="icon-btn" data-remove-item="${i}" aria-label="Remove ${esc(item.name)}">${icon('trash')}</button></div><label class="field portion-field">Portion used<input name="portion" required maxlength="240" value="${esc(item.portion)}"></label><div class="item-macros">${nutrients.map(([key,label,unit])=>`<label>${label}<span><input aria-label="${label} for food ${i+1}" name="${key}" type="number" min="0" max="10000" step=".1" required value="${item[key]}">${unit}</span></label>`).join('')}</div></fieldset>`).join('')}</div>${estimate.assumptions.length?`<div class="meal-assumptions"><strong>What I assumed</strong><ul>${estimate.assumptions.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`:''}${estimate.question?`<p class="mini-note">${esc(estimate.question)}</p>`:''}<details class="meal-refine"><summary>Change something in your own words</summary><textarea id="meal-correction" maxlength="2000" rows="2" placeholder="Actually, I only ate half the rice and used olive oil."></textarea><button class="btn light" type="button" id="refine-meal">Update estimate</button></details>${dayFields()}<p class="mini-note">Changing a portion description alone does not recalculate macros. Use “Update estimate” to recalculate, or edit the values directly.</p><p id="meal-error" class="meal-error" role="alert"></p><div class="dialog-footer"><button type="button" class="text-button" id="meal-back">Back to your meal</button><button class="btn" type="submit">Save to journal ${icon('plus')}</button></div></form>`,true);
-    const readItems=()=>[...document.querySelectorAll('[data-item]')].map(el=>Object.fromEntries([...el.querySelectorAll('input')].map(input=>[input.name,input.value])));
-    $('#meal-review').oninput=()=>{$('#meal-summary').innerHTML=summary(readItems());};
-    document.querySelectorAll('[data-remove-item]').forEach(b=>b.onclick=()=>{const el=b.closest('fieldset');el.remove();$('#meal-summary').innerHTML=summary(readItems());});
-    $('#meal-back').onclick=()=>render();
-    $('#refine-meal').onclick=async()=>{
-      const correction=$('#meal-correction').value.trim();if(!correction)return error('Describe what should change.');
-      try{const items=readItems().map(item=>({...validateMeal(item),portion:item.portion,confidence:'medium'}));state.estimate={...estimate,items};}catch(e){return error(e.message)}
-      const fields=new FormData($('#meal-review'));state.meal_type=fields.get('meal_type');state.logged_on=fields.get('logged_on');const btn=$('#refine-meal');document.querySelectorAll('#meal-review button,#meal-review input,#meal-review textarea,#meal-review select').forEach(el=>el.disabled=true);btn.textContent='Updating…';await analyze(correction);
-    };
-    $('#meal-review').onsubmit=async e=>{
-      e.preventDefault();const form=e.target,b=form.querySelector('[type=submit]');if(b.disabled)return;
-      const fields=new FormData(form);const items=readItems();if(!items.length)return error('Keep at least one food to save.');
-      b.disabled=true;b.textContent='Saving…';
-      try{await save(items.map(item=>({...validateMeal(item),source:('AI estimate · '+item.portion+' · reviewed').slice(0,500),meal_type:fields.get('meal_type'),logged_on:fields.get('logged_on')})));}catch(e){error(e.message);b.disabled=false;b.textContent='Save to journal';}
-    };
-  }
-  function manualForm(){return `<form id="manual-meal"><label class="field">Meal name<input name="name" required maxlength="200" placeholder="e.g. Yogurt with berries"></label><div class="form-grid">${nutrients.map(([key,label,unit])=>`<label class="field">${label} (${unit})<input name="${key}" type="number" required min="0" max="10000" step=".1"></label>`).join('')}</div>${dayFields()}<p id="meal-error" class="meal-error" role="alert"></p><div class="dialog-footer"><p>Enter the nutrition facts for the portion you ate.</p><button class="btn" type="submit">Save meal</button></div></form>`;}
-  function bindManual(){$('#manual-meal').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('[type=submit]');if(b.disabled)return;b.disabled=true;try{await save([{...Object.fromEntries(new FormData(e.target)),source:'Nutrition facts'}])}catch(e){error(e.message);b.disabled=false}};}
-  async function record(){
-    const b=$('#meal-record');if(recorder?.state==='recording'){recorder.stop();return;}
-    if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder)return error('This browser does not support recording. You can type the same description.');
-    const requestVersion=++version;b.disabled=true;
-    try{
-      const audio=await navigator.mediaDevices.getUserMedia({audio:true});
-      if(version!==requestVersion){audio.getTracks().forEach(t=>t.stop());return;}
-      stream=audio;const mime=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t));
-      recorder=new MediaRecorder(audio,mime?{mimeType:mime}:undefined);const chunks=[];const active=recorder;
-      active.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-      active.onstop=async()=>{
-        clearInterval(timer);audio.getTracks().forEach(t=>t.stop());stream=null;recorder=null;if(version!==requestVersion)return;
-        lockCapture('Listening to your note…');
-        try{
-          const file=new Blob(chunks,{type:active.mimeType});if(!file.size||file.size>5*1024*1024)throw Error('Please record between one second and one minute.');
-          const result=await api('transcribe',{audio:await toDataURL(file)});if(version!==requestVersion)return;
-          if(typeof result.text!=='string'||!result.text.trim())throw Error('No words were recognized. Please try again.');
-          state.text=result.text.slice(0,4000);render();await analyze();
-        }catch(e){if(version===requestVersion){render();error(e.message)}}
-      };
-      active.onerror=()=>{stopCapture();render();error('Recording stopped unexpectedly. Please try again.');};
-      active.start();b.disabled=false;b.textContent='Stop & analyze';let seconds=0;
-      $('#recording-time').textContent='Recording · 0:00';$('#meal-capture [type=submit]').disabled=true;
-      timer=setInterval(()=>{seconds++;const label=$('#recording-time');if(label)label.textContent=`Recording · 0:${String(seconds).padStart(2,'0')}`;if(seconds>=60)active.stop();},1000);
-    }catch(e){stopCapture();if(b.isConnected)b.disabled=false;error(e.name==='NotAllowedError'?'Microphone access was not granted. You can type your meal instead.':e.message);}
-  }
-  return {open,cancel};
+const orb='<span class="orb" aria-hidden="true"><i class="orb-energy"></i><i class="orb-light"></i></span>';
+export function createMealLogger({showModal,heading,icon,api,save,remove,update,getDay,getCapabilities,connectAI}){
+ let messages=[],version=0,recording=null,audioStream=null,timer,photo=null,preview=null,busy=false,pending=null,hold=false,voiceStarting=false;
+ function stopAudio(discard=true){clearTimeout(timer);if(recording){if(discard)recording.onstop=null;if(recording.state==='recording')recording.stop()}audioStream?.getTracks().forEach(t=>t.stop());recording=null;audioStream=null;}
+ function cancel(){version++;hold=false;voiceStarting=false;stopAudio();if(preview)URL.revokeObjectURL(preview);preview=null;photo=null;busy=false;}
+ function open(){cancel();messages=[];pending=null;render();}
+ function messageHTML(m,i){if(m.type==='user')return `<div class="chat-message user">${m.photo?'<span class="chat-photo-note">Meal photo attached</span>':''}${esc(m.text)}</div>`;
+ if(m.type==='meal'){const t=totals(m.items);return `<article class="chat-meal"><div class="chat-meal-top"><span class="tag">${m.removed?'Removed from journal':'Logged · '+esc(m.day)}</span><span class="mini-note">AI estimate</span></div><h3>${esc(m.title)}</h3><div class="chat-macros"><strong>${Math.round(t.calories)}<small>kcal</small></strong><span>${Math.round(t.protein)}g<small>protein</small></span><span>${Math.round(t.carbs)}g<small>carbs</small></span><span>${Math.round(t.fat)}g<small>fat</small></span></div><p>${m.items.map(x=>esc(x.name)+' · '+esc(x.portion||'')).join('<br>')}</p>${m.assumptions?.length?`<details class="chat-assumptions"><summary>Portions & assumptions</summary><p>${m.assumptions.map(esc).join('<br>')}</p></details>`:''}${!m.removed?`<div class="chat-meal-actions"><button type="button" data-edit-meal="${i}">Edit values</button><button type="button" data-undo-meal="${i}">Undo</button></div>`:''}<div id="meal-edit-${i}"></div></article>`}
+ return `<div class="chat-message assistant ${m.type==='error'?'chat-error':''}">${esc(m.text)}</div>`;
+ }
+ function render(){
+  const connected=getCapabilities().mealAnalysis;
+  showModal(`<div class="meal-chat">${heading('What did you eat?','Your nutrition companion')}<p>Tell me in your own words. I’ll take care of the numbers.</p><div class="meal-conversation" aria-live="polite">${messages.length?messages.map(messageHTML).join(''):`<div class="chat-welcome">${orb}<h3>A little conversation.<br>A clearer picture.</h3><p>“I had a chicken bowl with rice and avocado.”</p></div>`}${busy?'<div class="chat-thinking" role="status"><span></span> Working out your meal…</div>':''}</div><div class="chat-attachment" ${preview?'':'hidden'}>${preview?`<img src="${preview}" alt="Attached meal photo"><span>Meal photo</span><button type="button" id="remove-photo" aria-label="Remove photo">${icon('close')}</button>`:''}</div><form id="meal-chat-form"><textarea id="meal-description" aria-label="Message your nutrition companion" rows="2" maxlength="4000" placeholder="I ate…" ${busy?'disabled':''}></textarea><div class="chat-composer-actions"><label class="chat-attach" title="Attach a meal photo" aria-label="Attach a meal photo">${icon('plus')}<input id="meal-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Attach a meal photo" ${busy?'disabled':''}></label><span id="voice-label">Hold to talk</span><button type="button" id="meal-talk" class="chat-talk" aria-label="Hold to talk; press Space to start or stop recording" ${busy||!connected?'disabled':''}>${orb}</button><button type="submit" class="chat-send" aria-label="Send meal" ${busy||!connected?'disabled':''}>${icon('arrow')}</button></div></form>${!connected?'<p class="chat-connect">One-time setup: <button id="connect-personal-ai" type="button">connect your OpenAI key</button> to start.</p>':'<p class="chat-disclosure">Estimated macros, saved to your journal. You can edit or undo. Photos and audio are processed by OpenAI.</p>'}<p id="meal-error" class="meal-error" role="alert"></p></div>`,true);
+  $('#meal-chat-form').onsubmit=e=>{e.preventDefault();submit()};
+  $('#meal-description').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}};
+  $('#meal-photo').onchange=async e=>{const file=e.target.files[0];if(!file)return;const token=version,text=$('#meal-description').value;try{const encoded=await encodePhoto(file);if(token!==version)return;if(preview)URL.revokeObjectURL(preview);preview=URL.createObjectURL(file);photo=encoded;render();$('#meal-description').value=text}catch(e){error(e.message)}};
+  if($('#remove-photo'))$('#remove-photo').onclick=()=>{const text=$('#meal-description').value;if(preview)URL.revokeObjectURL(preview);photo=null;preview=null;render();$('#meal-description').value=text};
+  if($('#connect-personal-ai'))$('#connect-personal-ai').onclick=()=>{cancel();connectAI()};
+  const talk=$('#meal-talk');talk.onpointerdown=e=>{e.preventDefault();if(busy)return;hold=true;talk.setPointerCapture(e.pointerId);beginVoice()};
+  talk.onpointerup=()=>{hold=false;stopAudio(false)};talk.onpointercancel=()=>{hold=false;stopAudio();voiceStatus('Hold to talk')};
+  talk.onkeydown=e=>{if([' ','Enter'].includes(e.key)&&!e.repeat){e.preventDefault();if(recording){hold=false;stopAudio(false)}else{hold=true;beginVoice()}}};
+  document.querySelectorAll('[data-undo-meal]').forEach(b=>b.onclick=async()=>{const m=messages[+b.dataset.undoMeal];b.disabled=true;try{await remove(m.saved.map(r=>r.id));m.removed=true;render()}catch(e){b.disabled=false;error(e.message)}});
+  document.querySelectorAll('[data-edit-meal]').forEach(b=>b.onclick=()=>edit(+b.dataset.editMeal));
+  const conversation=$('.meal-conversation');conversation.scrollTop=conversation.scrollHeight;
+ }
+ function error(text){const e=$('#meal-error');if(e)e.textContent=text}
+ function voiceStatus(text){const e=$('#voice-label');if(e)e.textContent=text;$('#meal-talk')?.classList.toggle('recording',text.startsWith('Listening'));}
+ async function submit(transcript){
+  if(busy)return;if(!getCapabilities().mealAnalysis)return error('Connect your OpenAI key to start.');
+  const text=transcript??$('#meal-description').value.trim();if(!text&&!photo)return;hold=false;stopAudio();
+  const token=version,image=photo;messages.push({type:'user',text,photo:!!image});busy=true;
+  if(preview)URL.revokeObjectURL(preview);preview=null;photo=null;render();
+  try{
+   const response=await api('nutrition-analyze',pending?{text:pending.text,image:pending.image,previous:pending.estimate,correction:text}:{text,image:image||undefined});
+   if(token!==version)return;const meal=response.meal;
+   if(!meal.items.length||meal.question){pending={text:pending?.text||text,image:pending?.image||image,estimate:meal};messages.push({type:'assistant',text:meal.question||'Tell me a little more about your meal and portion.'});}
+   else{
+    const day=getDay(),hour=new Date().getHours(),type=hour<11?'Breakfast':hour<16?'Lunch':hour<22?'Dinner':'Snack';
+    const rows=meal.items.map(item=>({...validateMeal(item),source:('AI estimate · '+item.portion).slice(0,500),meal_type:type,logged_on:day}));
+    const saved=await save(rows);if(token!==version)return;messages.push({type:'meal',title:meal.title,items:meal.items,assumptions:meal.assumptions,day,saved});pending=null;
+   }
+  }catch(e){if(token!==version)return;messages.push({type:'error',text:e.message+' Your meal was not logged.'});}
+  finally{if(token===version){busy=false;render();$('#meal-description').focus()}}
+ }
+ async function beginVoice(){
+  if(recording||busy||voiceStarting)return;if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder)return error('Voice recording is not supported here. Type your meal instead.');
+  const token=version;voiceStarting=true;voiceStatus('Opening microphone…');
+  try{
+   const stream=await navigator.mediaDevices.getUserMedia({audio:true});if(token!==version||!hold){stream.getTracks().forEach(t=>t.stop());voiceStatus('Hold to talk');return}
+   audioStream=stream;const mime=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+   const recorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined),chunks=[];recording=recorder;const started=Date.now();
+   recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+   recorder.onstop=async()=>{clearTimeout(timer);stream.getTracks().forEach(t=>t.stop());recording=null;audioStream=null;if(token!==version)return;voiceStatus('Hold to talk');if(Date.now()-started<600)return error('Hold the orb while speaking, then release to send.');busy=true;render();try{const file=new Blob(chunks,{type:recorder.mimeType});if(!file.size||file.size>5*1024*1024)throw Error('Keep your voice note under one minute.');const r=await api('transcribe',{audio:await toDataURL(file)});if(token!==version)return;if(!r.text?.trim())throw Error('I didn’t catch that. Try again or type your meal.');busy=false;await submit(r.text.slice(0,4000))}catch(e){if(token===version){busy=false;render();error(e.message)}}};
+   recorder.onerror=()=>{stopAudio();voiceStatus('Hold to talk');error('Recording stopped. Please try again.')};
+   recorder.start();voiceStatus('Listening… release to log');timer=setTimeout(()=>{hold=false;stopAudio(false)},60000);
+  }catch(e){stopAudio();voiceStatus('Hold to talk');error(e.name==='NotAllowedError'?'Allow microphone access to talk, or type your meal.':e.message)}finally{if(token===version)voiceStarting=false}
+ }
+ function edit(index){const m=messages[index],host=$('#meal-edit-'+index);host.innerHTML=`<form class="chat-edit-form">${m.items.map((x,i)=>`<fieldset><legend>${esc(x.name)}</legend>${['calories','protein','carbs','fat'].map(k=>`<label>${k}<input aria-label="${k} for ${esc(x.name)}" name="${i}-${k}" type="number" min="0" max="10000" step=".1" required value="${x[k]}"></label>`).join('')}</fieldset>`).join('')}<button class="btn light" type="submit">Save changes</button></form>`;host.querySelector('form').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const values=new FormData(e.target),items=m.items.map((x,i)=>({...x,...Object.fromEntries(['calories','protein','carbs','fat'].map(k=>[k,Number(values.get(i+'-'+k))]))}));await update(items.map((x,i)=>({...m.saved[i],...validateMeal(x),source:'AI estimate · values edited'})));m.items=items;render()}catch(e){b.disabled=false;error(e.message)}};}
+ return {open,cancel};
 }
 function toDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('This file could not be read.'));reader.readAsDataURL(file)});}
-async function encodePhoto(file){
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>10*1024*1024)throw Error('Choose a JPG, PNG or WebP photo under 10 MB.');
-  const bitmap=await createImageBitmap(file),scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));
-  const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
-  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
-  return canvas.toDataURL('image/jpeg',.85);
-}
+async function encodePhoto(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>10*1024*1024)throw Error('Choose a JPG, PNG or WebP photo under 10 MB.');const bitmap=await createImageBitmap(file),scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();return canvas.toDataURL('image/jpeg',.85);}
