@@ -3,7 +3,7 @@
 Status checked 2026-10-22. This is a multi-user web experiment. It has no subscription billing or public enrollment enabled yet. “Neka” is a working product name; no company identity is assumed.
 
 ## Ownership
-Owner-provided account/contact email: `tobia@donadon.com`. No separate app domain has been selected. DNS control of `donadon.com` is not yet confirmed; do not treat the email address as proof of domain ownership or configure it as a verified sender.
+Owner-provided account/contact email: `tobia@donadon.com`. No separate app domain has been selected. The owner confirmed they cannot edit DNS records for `donadon.com`; do not treat the email address as proof of domain ownership or configure it as a verified sender.
 
 The application owner creates one developer application per provider and environment. Each customer authorizes their own ordinary wearable account through OAuth. Customers do not create developer accounts or give Neka their wearable password. Tokens and health records are scoped to each Neka user.
 

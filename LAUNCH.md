@@ -3,8 +3,8 @@
 This is an application foundation and hosted preview, **not a production-ready health service**. Supabase account services are connected to a staging project. Verification email remains restricted to approved test addresses until a custom sender is configured. The hosted site remains private.
 
 ## Implemented
-- New sage/peach translucent visual treatment, orange animated sphere, desktop/mobile layouts.
-- Real local 3D scanned bust with orbit/zoom controls and attribution; no image-plane illusion. Appearance is a display material, not a body-composition measurement.
+- Luminous sage/peach glass surfaces, smooth orange energy orb with no visible wordmark, desktop/mobile layouts. Generated editorial human portrait on Home/sign-in, with clickable health signals. Dedicated proportion-preserving digestive illustration in a compact card.
+- Optional real local 3D scanned bust in Body → 3D study, with orbit/zoom controls and attribution; no image-plane illusion. Appearance is a display material, not a body-composition measurement.
 - Account UI wired to Supabase email/password sign-up, sign-in, email confirmation and password reset. Disabled if configuration is absent.
 - Nutrition label entry, meal deletion, daily calorie/macronutrient totals and energy-share chart.
 - Server-side USDA search; optional AI food-query extraction; AI label extraction and audio transcription. Explicit review before saving. Mixed meals are logged ingredient by ingredient.
@@ -41,6 +41,7 @@ This is an application foundation and hosted preview, **not a production-ready h
 `npm run build` creates static hosting output in `dist/`.
 
 ## Verification performed
+- Visual revision checked at 1440 × 900 and 390 × 844: portrait metric markers, metric period switching, digestive detail → nutrition navigation, portrait/3D display switch, and sign-in presentation. Fixed a masked-out anatomy image and mobile glow overflow; mobile document width now equals the 390 px viewport. Browser console had no errors.
 - Vite production build.
 - Node domain tests: nutrition validation, per-100g serving conversion, totals, upload restrictions and HTML escaping.
 - PostgreSQL (PGlite) execution of the actual schema with two user roles: cross-user SELECT/INSERT/UPDATE denied, foreign-file access denied, forged wearable writes denied, secrets inaccessible, anonymous access denied, 40/hour API credit limit enforced. This is local SQL verification, not a substitute for testing the hosted Supabase project.
