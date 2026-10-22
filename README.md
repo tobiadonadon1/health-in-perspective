@@ -53,7 +53,7 @@ No diagnosis, photo-derived body composition, or food-derived glucose/inflammati
 
 ## Sharing this source
 
-Only public configuration belongs in frontend environment variables. `.env.local`, secrets, build output and user data are excluded from Git. The existing `.openai/hosting.json` identifies the current hosted Site: remove it before creating an unrelated deployment. The setup files mention the current operator and staging project; replace these with your own details for a fork. Do not place keys in issues, screenshots, commits or chat.
+Only public configuration belongs in frontend environment variables. `.env.local`, secrets, build output and user data are excluded from Git. The tracked `.env.production` contains only public UI flags for Xeyo's verified deployment; forks should override these in `.env.production.local` to match their email confirmation and private storage setup. The existing `.openai/hosting.json` identifies the current hosted Site: remove it before creating an unrelated deployment. The setup files mention the current operator and staging project; replace these with your own details for a fork. Do not place keys in issues, screenshots, commits or chat.
 
 ## Xeyo interface
 
@@ -61,4 +61,4 @@ The dashboard uses the clear-glass styles in `src/xeyo.css`. The static orange s
 
 The compact dashboard charts show up to the latest 21 actual measurements; the detail panel retains its 7/30/90-day history. HRV and sleep use bars, while other signals use lines with an area fill. No synthetic points are inserted.
 
-Custom domain `xeyo.ai` has been registered with Sites; DNS activation is pending access to the authoritative Cloudflare zone. The existing hosted URL remains active. Authentication defaults and API origins must be switched only after the domain serves this application.
+The live application is available at https://xeyo.ai/ and https://www.xeyo.ai/, with active HTTPS certificates. GoDaddy manages DNS through `ns71.domaincontrol.com` and `ns72.domaincontrol.com`. Supabase's Site URL is `https://xeyo.ai`; exact sign-in and password-recovery redirects allow both hostnames, the existing hosted URL, and local development. The health API permits these same origins. The WHOOP callback remains on the Supabase Edge Function, so the provider's callback URL does not change when the frontend domain changes.
