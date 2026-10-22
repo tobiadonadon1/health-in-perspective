@@ -1,3 +1,11 @@
 [functions.health-api]
 verify_jwt = false
 # Function validates every POST token with auth.getUser. GET OAuth callback validates a one-time server-side state.
+
+[auth.email.template.confirmation]
+subject = "Your health workspace — confirm your email"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Reset your health workspace password"
+content_path = "./supabase/templates/recovery.html"
