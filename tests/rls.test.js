@@ -1,0 +1,18 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {PGlite} from '@electric-sql/pglite';
+test('real PostgreSQL RLS isolates two users and private files',async()=>{const db=new PGlite();try{await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create schema storage;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;grant usage on schema auth,public,storage to authenticated,anon,service_role;grant execute on function auth.uid() to authenticated,anon;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;grant select,insert,delete on storage.objects to authenticated;create function storage.foldername(name text) returns text[] language sql immutable as $$ select string_to_array(name,'/') $$;insert into auth.users values ('11111111-1111-4111-8111-111111111111'),('22222222-2222-4222-8222-222222222222');`);
+await db.exec(fs.readFileSync('database/schema.sql','utf8'));
+const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222';
+await db.exec(`set role authenticated;set request.jwt.claim.sub='${a}';insert into public.meals(user_id,name,calories,protein,carbs,fat,meal_type,source) values('${a}','Test meal',200,10,20,5,'Lunch','Test label');insert into storage.objects(bucket_id,name) values('health-records','${a}/report.pdf');`);
+assert.equal((await db.query('select * from public.meals')).rows.length,1);
+await assert.rejects(db.exec(`insert into public.meals(user_id,name,calories,protein,carbs,fat,meal_type,source) values('${b}','Attack',200,10,20,5,'Lunch','Test')`));
+await assert.rejects(db.exec(`update public.meals set user_id='${b}'`));
+await assert.rejects(db.exec(`insert into public.health_readings(user_id,kind,value,unit,source,external_id,observed_at) values('${a}','hrv',999,'ms','WHOOP','forged',now())`));
+await assert.rejects(db.exec('select * from public.wearable_secrets'));
+await assert.rejects(db.exec(`select public.take_api_credit('${a}')`));
+await db.exec(`set request.jwt.claim.sub='${b}'`);
+assert.equal((await db.query('select * from public.meals')).rows.length,0);
+assert.equal((await db.query('select * from storage.objects')).rows.length,0);
+await assert.rejects(db.exec(`insert into storage.objects(bucket_id,name) values('health-records','${a}/attack.pdf')`));
+await db.exec('reset role;set role anon');await assert.rejects(db.query('select * from public.meals'));
+await db.exec('reset role;set role service_role');for(let i=0;i<40;i++)assert.equal((await db.query(`select public.take_api_credit('${a}') as ok`)).rows[0].ok,true);assert.equal((await db.query(`select public.take_api_credit('${a}') as ok`)).rows[0].ok,false);
+}finally{await db.close()}});

@@ -1,0 +1,16 @@
+Infinite — 3D Head Scan
+Creator: Lee Perry-Smith / Infinite-Realities
+Based on a work at www.triplegangers.com
+
+License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+https://creativecommons.org/licenses/by/3.0/
+
+Source: three.js examples
+https://github.com/mrdoob/three.js/tree/dev/examples/models/gltf/LeePerrySmith
+
+File: LeePerrySmith.glb
+Original geometry retained. Display changes: normalized scale, rotated presentation,
+and replacement of original material with a neutral sage clay shader. No photographic
+texture is used. This artwork does not represent the user and is not a medical scan.
+
+The original license notice is preserved in LeePerrySmith_License.txt.
