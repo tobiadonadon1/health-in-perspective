@@ -5,4 +5,4 @@ export const metrics=[
 ].map(([kind,name,unit,color,stroke,group])=>({kind,name,unit,color,stroke,group}));
 export const defaultBoard=['resting_hr','spo2','hrv','sleep','recovery','respiratory_rate'];
 export function normalizeBoard(value){if(!Array.isArray(value))return [...defaultBoard];const allowed=new Set(metrics.map(m=>m.kind));const rows=[...new Set(value)].filter(k=>allowed.has(k)).slice(0,12);return rows.length?rows:[...defaultBoard];}
-export const formatValue=(value,kind)=>['steps','sleep_disturbances','active_energy'].includes(kind)?Math.round(Number(value)).toLocaleString():Number(Number(value).toFixed(['sleep','sleep_deep','sleep_rem','sleep_light','sleep_needed','nap'].includes(kind)?1:2)).toLocaleString();
+export const formatValue=(value,kind)=>['steps','sleep_disturbances','active_energy'].includes(kind)?Math.round(Number(value)).toLocaleString('en-US'):Number(Number(value).toFixed(['sleep','sleep_deep','sleep_rem','sleep_light','sleep_needed','nap'].includes(kind)?1:2)).toLocaleString('en-US');

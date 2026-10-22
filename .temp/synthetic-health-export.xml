@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HealthData locale="en_US"><Record type="HKQuantityTypeIdentifierRestingHeartRate" sourceName="Synthetic QA watch" unit="count/min" value="60" startDate="2026-10-21 07:00:00 -0400" endDate="2026-10-21 07:00:00 -0400"/><Record type="HKQuantityTypeIdentifierBodyFatPercentage" sourceName="Synthetic QA scale" unit="%" value="0.18" startDate="2026-10-21 07:00:00 -0400" endDate="2026-10-21 07:00:00 -0400"/></HealthData>
