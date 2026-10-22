@@ -25,6 +25,8 @@ do $$ begin
    values(current_setting('neka.test_a')::uuid,'hrv',999,'ms','WHOOP','qa-forged',now());
   raise exception 'Client-forged wearable measurement allowed';
  exception when insufficient_privilege then null; end;
+ begin perform 1 from public.ai_credentials;raise exception 'Personal AI key table exposed';
+ exception when insufficient_privilege then null; end;
  begin perform 1 from public.wearable_secrets;raise exception 'Token table exposed';
  exception when insufficient_privilege then null; end;
 end $$;

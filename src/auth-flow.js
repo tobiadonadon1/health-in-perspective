@@ -53,7 +53,7 @@ export function createEmailFlow(auth, storage, now = Date.now) {
 }
 
 export function authMessage(error) {
-  if (error?.code === 'invalid_credentials') return 'Email or password is incorrect. If you just registered, confirm your email first, then use the password from your first signup.';
+  if (error?.code === 'invalid_credentials') return 'Email or password is incorrect. Use the password you chose when creating this account.';
   if (error?.code === 'email_address_not_authorized') return 'Email delivery is not enabled for this address yet. Public registration needs the app’s email service to be configured.';
   if (error?.code === 'email_not_confirmed') return 'Confirm your email before signing in.';
   return error?.message || 'Something went wrong. Please try again.';

@@ -2,6 +2,7 @@ import {createClient} from '@supabase/supabase-js';
 import {validateMeal,validateUpload,validateLabResult,localDay} from './domain.js';
 export const configured=!!(import.meta.env.VITE_SUPABASE_URL&&import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
 export const storageReady=import.meta.env.VITE_STORAGE_READY === 'true';
+export const emailConfirmation=import.meta.env.VITE_EMAIL_CONFIRMATION !== 'false';
 export const testMode=import.meta.env.VITE_AUTH_AUDIENCE !== 'public';
 export const db=configured?createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY):null;
 export let user=null;
@@ -10,6 +11,7 @@ export async function signOut(){if(db){const {error}=await db.auth.signOut();if(
 export async function meals(day=localDay()){const {data,error}=await db.from('meals').select('*').eq('logged_on',day).order('created_at',{ascending:false});if(error)throw error;return data}
 export async function saveMeal(m){m=validateMeal(m);const row={name:m.name,calories:m.calories,protein:m.protein,carbs:m.carbs,fat:m.fat,source:m.source||'Nutrition label',meal_type:m.meal_type||'Snack',logged_on:m.logged_on||localDay()};const {error}=await db.from('meals').insert({...row,user_id:user.id});if(error)throw error}
 export async function removeMeal(id){const {error}=await db.from('meals').delete().eq('id',id);if(error)throw error}
+export async function saveMeals(items){if(!Array.isArray(items)||!items.length||items.length>20)throw Error('Save between 1 and 20 foods at a time.');const rows=items.map(validateMeal).map(m=>({user_id:user.id,name:m.name,calories:m.calories,protein:m.protein,carbs:m.carbs,fat:m.fat,source:m.source||'Nutrition facts',meal_type:m.meal_type||'Snack',logged_on:m.logged_on||localDay()}));const {error}=await db.from('meals').insert(rows);if(error)throw error}
 export async function readings(){const {data,error}=await db.from('health_readings').select('*').order('observed_at',{ascending:false}).limit(1000);if(error)throw error;return data}
 export async function records(){const {data,error}=await db.from('records').select('*').order('created_at',{ascending:false});if(error)throw error;return data}
 export async function labResults(){const {data,error}=await db.from('lab_results').select('*').order('collected_on',{ascending:false});if(error)throw error;return data}

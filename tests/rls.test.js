@@ -11,6 +11,8 @@ await assert.rejects(db.exec(`insert into public.meals(user_id,name,calories,pro
 await assert.rejects(db.exec(`update public.meals set user_id='${b}'`));
 await assert.rejects(db.exec(`insert into public.health_readings(user_id,kind,value,unit,source,external_id,observed_at) values('${a}','hrv',999,'ms','WHOOP','forged',now())`));
 await assert.rejects(db.exec('select * from public.wearable_secrets'));
+await assert.rejects(db.exec('select * from public.ai_credentials'));
+await assert.rejects(db.exec(`insert into public.ai_credentials(user_id,encrypted_key) values('${a}','forged')`));
 await assert.rejects(db.exec(`select public.take_api_credit('${a}')`));
 await db.exec(`set request.jwt.claim.sub='${b}'`);
 assert.equal((await db.query('select * from public.meals')).rows.length,0);

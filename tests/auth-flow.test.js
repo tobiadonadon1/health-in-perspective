@@ -18,6 +18,7 @@ test('server countdown is respected and resend uses resend endpoint, not signup'
   assert.equal((await flow.send(request)).limited,true);assert.equal(calls,1);time+=43000;assert.equal((await flow.send(request)).limited,false);assert.equal(calls,2);
 });
 test('hourly limits do not encourage one-minute retry loops',()=>assert.equal(emailRateLimit({code:'over_email_send_rate_limit',message:'Email rate limit exceeded'}),3600));
+test('signup with confirmation disabled immediately returns the session without an email step',async()=>{const saved=storage(),session={user:{id:'test-user'}};const flow=createEmailFlow({signUp:async()=>({data:{session},error:null})},saved);const result=await flow.send({email:'test@example.com',signup:{name:'Test',password:'test-only-password'},origin:'https://app.test'});assert.equal(result.session,session);assert.equal(flow.get(),null);assert.deepEqual(saved.values(),[]);});
 test('recovery has its own redirect and state, and bad storage is discarded',async()=>{
   let called=false;const saved=storage();saved.setItem('health-email-flow-v1','invalid json');
   const flow=createEmailFlow({resetPasswordForEmail:async(email,options)=>{called=true;assert.equal(options.redirectTo,'https://app.test/?reset=1');return {data:{},error:null};}},saved,()=>1000);

@@ -1,3 +1,6 @@
+[auth.email]
+enable_confirmations = false
+
 [functions.health-api]
 verify_jwt = false
 # Function validates every POST token with auth.getUser. GET OAuth callback validates a one-time server-side state.

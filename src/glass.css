@@ -3,11 +3,10 @@
 body{background:radial-gradient(ellipse at 42% 40%,#e3ecd95c,transparent 48%),radial-gradient(ellipse at 90% 8%,#f9e1d44d,transparent 46%),linear-gradient(135deg,#f8f9f7,#edf1ef 70%,#f8f7f3);background-attachment:fixed}
 .sidebar{background:linear-gradient(110deg,#ffffff8a,#ffffff35);backdrop-filter:blur(26px) saturate(140%);-webkit-backdrop-filter:blur(26px) saturate(140%);border-right:1px solid #ffffffc7;box-shadow:1px 0 0 #d6ded652}
 .brand{width:fit-content;min-height:44px;padding:0 9px;margin-bottom:30px}
-.orb{width:37px;height:37px;isolation:isolate;overflow:hidden;perspective:none;background:radial-gradient(circle at 34% 24%,#fff4db 0,#ffd18f 19%,#ff8d42 48%,#f25a2b 74%,#be431f 100%);box-shadow:inset 0 1px 3px #fff9eae6,inset -3px -4px 9px #ba391a66,0 3px 9px #d96c3230,0 0 23px #ffb36330}
-.orb i{border:0;border-radius:50%;animation:none}
-.orb .orb-energy{inset:-40%;background:conic-gradient(from 25deg,transparent 5%,#fff6d3b8 20%,transparent 43%,#f54c186e 61%,#ffe0a4a8 78%,transparent 95%);filter:blur(5px);animation:energy-flow 12s linear infinite}
-.orb .orb-light{inset:0;background:radial-gradient(ellipse at 30% 17%,#ffffffd9,transparent 30%),radial-gradient(ellipse at 77% 80%,#fff1b566,transparent 45%);box-shadow:inset 0 0 0 1px #fff6da55}
-@keyframes energy-flow{to{transform:rotate(360deg)}}
+.orb{width:35px;height:35px;isolation:isolate;overflow:visible;perspective:none;animation:none;transform:none;background:radial-gradient(ellipse at 72% 38%,#fff700 0%,#ffe500 23%,#ffc200 43%,#ff8500 65%,#f65b08 82%,#cf350b 100%);box-shadow:0 0 6px 1px #ffb20a70,0 0 19px 6px #ff8c1650,0 0 33px 12px #ff7c1720}
+.orb i{position:absolute;border:0;border-radius:50%;animation:none!important;transform:none;pointer-events:none}
+.orb .orb-energy{inset:-13px;z-index:-1;background:radial-gradient(ellipse at 65% 40%,#ffae3455,#ff6a2338 38%,transparent 72%);filter:blur(7px);opacity:.85}
+.orb .orb-light{inset:1px;background:linear-gradient(105deg,#a729172e,transparent 45%);filter:blur(1px);box-shadow:none}
 .nav button{color:#717b76}.nav button.active{background:linear-gradient(125deg,#ffffffd6,#dfe8df8c);box-shadow:inset 0 1px 0 #fff,0 3px 12px #62776408;color:#34473c}.nav button:hover{background:#ffffff80}.nav-label{color:#8c9690}.mini-user{border-color:#dce3dc7a}.avatar-letter{background:linear-gradient(135deg,#f7faf3,#d5e2cf);box-shadow:inset 0 1px 1px #fff,0 2px 5px #3f5c4212}
 .header{margin-bottom:24px}.header-actions{color:#7c8580}.hello{color:#858e89}.header h1{font-size:36px}.header p{color:#7e8782}
 .icon-btn,.btn.light{background:linear-gradient(135deg,#ffffffc9,#ffffff50);border:1px solid #ffffffdd;box-shadow:inset 0 1px 1px #fff,0 2px 8px #3f51410a;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
