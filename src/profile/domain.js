@@ -1,5 +1,5 @@
 export const representations = [
- {id:'photo',title:'Your own image',description:'A private photo, for a space that feels like you.',label:'Default'},
+ {id:'photo',title:'Your own portrait',description:'Your likeness, rendered in the Xeyo style from a photo.',label:'Default'},
  {id:'digital',title:'A digital human',description:'An interactive, illustrative 3D human. No photo needed.'},
  {id:'stats',title:'Just the statistics',description:'Your measurements take the whole stage.'}
 ];

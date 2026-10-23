@@ -17,5 +17,16 @@ try{
  r=await request('/rest/v1/rpc/peer_percentiles',{method:'POST',token,body:{}});assert.equal(r.status,200);assert.equal(r.body.status,'ok');assert.equal(r.body.metrics.length,0);
  r=await request('/rest/v1/rpc/peer_percentiles',{method:'POST',body:{}});assert.ok([401,403].includes(r.status));
  r=await request('/functions/v1/health-api',{method:'POST',body:{action:'chat-status'}});assert.equal(r.status,401);
+ const layout={version:1,widgets:[{id:'hrv',size:'large'},{id:'nutrition',size:'medium'}]};
+ r=await request('/auth/v1/user',{method:'PUT',token,body:{data:{dashboard_layout:layout}}});assert.equal(r.status,200);
+ r=await request('/auth/v1/user',{token});assert.deepEqual(r.body.user_metadata.dashboard_layout,layout);
+ const referenceId=crypto.randomUUID();r=await request('/rest/v1/records',{method:'POST',token,body:{id:referenceId,user_id:uid,name:'QA reference metadata only',path:uid+'/qa-reference.png',kind:'photo',mime:'image/png'}});assert.equal(r.status,201);
+ r=await request('/functions/v1/health-api',{method:'POST',token,body:{action:'portrait-status',sourceId:referenceId}});assert.equal(r.status,200);assert.equal(r.body.connected,false);assert.equal(r.body.job,null);
+ r=await request('/functions/v1/health-api',{method:'POST',token,body:{action:'portrait-start',sourceId:referenceId,consent:true}});assert.equal(r.status,400);assert.match(r.body.error,/Connect your own OpenAI API key/);
+ r=await request('/functions/v1/health-api',{method:'POST',token,body:{action:'portrait-status',sourceId:crypto.randomUUID()}});assert.equal(r.status,400);assert.match(r.body.error,/unavailable/);
+ r=await request('/rest/v1/portrait_renders',{method:'POST',token,body:{user_id:uid,source_record_id:referenceId,status:'processing'}});assert.equal(r.status,403);
+ r=await request('/rest/v1/rpc/claim_whoop_sync',{method:'POST',token,body:{owner:uid}});assert.equal(r.status,403);
+ r=await request('/functions/v1/health-api',{method:'POST',token,body:{action:'whoop-sync'}});assert.equal(r.status,400);
+ console.log('PASS: real widget preference persistence, private portrait status, missing-key handling, inaccessible photo denial, render write denial and sync lease isolation.');
  await request('/auth/v1/logout',{method:'POST',token});console.log('PASS: real signup, persisted profile, cohort opt-in, private chat permissions, authenticated API and missing-key error.');
 }catch(e){console.error('FAIL:',e.message);process.exitCode=1}
