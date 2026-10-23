@@ -1,6 +1,7 @@
+// Keep the stored digital key so existing profiles receive the replacement automatically.
 export const representations = [
  {id:'photo',title:'Your own portrait',description:'Your likeness, rendered in the Xeyo style from a photo.',label:'Default'},
- {id:'digital',title:'A digital human',description:'An interactive, illustrative 3D human. No photo needed.'},
+ {id:'digital',title:'Vitruvian man',description:'A classical figure, reimagined in the Xeyo palette. No photo needed.'},
  {id:'stats',title:'Just the statistics',description:'Your measurements take the whole stage.'}
 ];
 export function validateProfile(input){

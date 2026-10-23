@@ -1,0 +1,22 @@
+/* Generated Vitruvian artwork replaces the legacy WebGL bust for stored digital profiles. */
+.art-digital{align-items:center;background:radial-gradient(ellipse at 50% 68%,#cbd9c65c,transparent 70%)}
+.art-digital .vitruvian-preview{display:block;width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 3px 6px #5e746712)}
+.vitruvian-scene .portrait-halo{inset:14% 5% 15%;background:radial-gradient(ellipse,#cfdbc63b,transparent 70%);filter:blur(28px)}
+.vitruvian-scene .vitruvian-figure{width:min(100cqw,calc(100cqh - 75px));height:min(100cqw,calc(100cqh - 75px));top:calc((100% - 65px)/2);transform:translate(-50%,-50%)}
+.vitruvian-image{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;filter:drop-shadow(0 8px 12px #53664a10)}
+.body-visual>.vitruvian-scene{height:510px;min-height:390px}
+.body-visual .vitruvian-figure{width:min(100cqw,100cqh);height:min(100cqw,100cqh);top:50%}
+.vitruvian-figure .signal-copy{padding:4px 7px;background:linear-gradient(90deg,#f2f6edb0,#f2f6ed00);border-radius:8px}
+.vitruvian-figure .signal-heart{left:0;top:calc(34% + 38px);width:54%}
+.vitruvian-figure .signal-heart .signal-copy{left:0;top:50%}
+.vitruvian-figure .signal-heart .signal-dot{top:calc(50% - 38px)}
+.vitruvian-figure .signal-heart .signal-line{top:calc(50% - 38px);height:39px;clip-path:polygon(0 97%,22% 97%,100% 0,100% 3%,22% 100%,0 100%)}
+.vitruvian-figure .signal-oxygen{left:0;top:calc(31% - 20px);width:43%}
+.vitruvian-figure .signal-oxygen .signal-copy{top:50%}
+.vitruvian-figure .signal-oxygen .signal-dot{top:calc(50% + 20px)}
+.vitruvian-figure .signal-oxygen .signal-line{top:50%;height:21px;clip-path:polygon(0 0,26% 0,100% 96%,100% 100%,26% 5%,0 5%)}
+.vitruvian-figure .signal-breathing{left:50%;top:27%;width:50%;right:0}
+.vitruvian-hero .hero-overline{font-size:11px}
+@media(max-height:780px) and (min-width:1000px){.art-digital .vitruvian-preview{height:94px;width:94px}}
+@media(max-width:650px){.art-digital .vitruvian-preview{width:89px;height:89px}}
+@media(max-width:560px){.vitruvian-scene .vitruvian-figure{width:min(100cqw,calc(100cqh - 60px));height:min(100cqw,calc(100cqh - 60px));top:calc((100% - 55px)/2)}.body-visual>.vitruvian-scene{height:350px;min-height:350px}.body-visual .vitruvian-figure{width:100cqw;height:100cqw;top:50%}.vitruvian-figure .signal-copy{font-size:7px;padding:3px 5px}.vitruvian-figure .signal-copy strong{font-size:15px}}
