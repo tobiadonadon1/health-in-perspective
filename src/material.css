@@ -1,0 +1,80 @@
+/* Clear, lightly tinted glass. Reflections are narrow; the main surface stays open. */
+:root{
+  --glass-surface:linear-gradient(128deg,#ffffff32 0%,#ffffff0a 45%,#ffffff20 100%);
+  --glass-shadow:inset 0 1px 0 #fffffff2,inset 1px 0 0 #ffffff7a,inset 0 -1px 0 #69827a35,inset 0 -3px 5px #ffffff6b,inset -1px 0 0 #ffffff85,0 8px 22px -14px #344e4c50,0 1px 3px #344e4c0a;
+}
+.metric,.metric.green,.metric.peach,.metric.blue,.metric.pink,.panel,.gut-card,.integration,.macro{
+  --glass-tint:201,216,208;
+  position:relative;isolation:isolate;
+  border:0;
+  background:radial-gradient(ellipse 100% 95% at 80% 112%,rgba(var(--glass-tint),.48),transparent 72%),var(--glass-surface);
+  box-shadow:var(--glass-shadow);
+  backdrop-filter:blur(18px) saturate(155%);
+  -webkit-backdrop-filter:blur(18px) saturate(155%);
+}
+.metric.green{--glass-tint:122,200,99}
+.metric.peach{--glass-tint:249,176,87}
+.metric.blue{--glass-tint:132,167,213}
+.metric.pink{--glass-tint:219,142,169}
+.metric::before,.panel::before,.integration::before,.macro::before{
+  content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
+  opacity:1;box-shadow:none;
+  background:radial-gradient(ellipse 95% 75% at 10% -56%,#ffffffed 28%,#ffffff45 68%,transparent 73%),linear-gradient(122deg,transparent 14%,#ffffff63 18%,#ffffff18 25%,transparent 36% 78%,#ffffff18 100%),radial-gradient(ellipse 90% 32% at 65% 111%,#ffffffbf 0%,transparent 78%);
+}
+.metric::after,.panel::after,.integration::after,.macro::after{
+  content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;height:auto;width:auto;opacity:.9;padding:1px;
+  background:linear-gradient(132deg,#fff 0%,#ffffff25 22%,#758e7f25 45%,#ffffff12 65%,#ffffffe0 86%,#ffffff25 100%);
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;
+  box-shadow:none;
+}
+.metric:hover{background-color:#ffffff10;box-shadow:var(--glass-shadow),0 12px 30px -18px #3e5d4f60;transform:translateY(-1px)}
+.metric-top,.panel h3{color:#293d35}
+.metric-meta,.metric-source,.metric-footer{color:#5e7466}
+.metric-origin{color:#617568}
+.journal-widget,.journal-companion{background:radial-gradient(ellipse at 95% 100%,#9dbdbb24,transparent 68%),var(--glass-surface)!important}
+.journal-compose,.journal-entry,.daily-balance,.meal-journal,.nutrition-assistant{background:var(--glass-surface)}
+.journal-empty{background:linear-gradient(128deg,#ffffff28,#ffffff08);border-color:#ffffff65;box-shadow:inset 0 1px 0 #ffffffad}
+.profile-section .panel{background:var(--glass-surface)}
+.journal-writing{background:linear-gradient(130deg,#ffffff36,#ffffff14);border-color:#6d867b22}
+.journal-compose textarea::placeholder{color:#829087}
+.journal-companion .eyebrow{color:#647e7b}
+/* A steel/teal pulse badge replaces the multi-colour flower. */
+.journal-bloom:before{background:radial-gradient(circle,#92b6af1f,transparent 68%)}
+.journal-bloom svg{filter:drop-shadow(0 2px 3px #3d655a0e)}
+.journal-bloom svg .pulse-frame{fill:#e1eeeb38;stroke:#5c8c8559;stroke-width:1.4}
+.journal-bloom svg .pulse-trace{fill:none;stroke:#457f79;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.journal-bloom svg .pulse-terminal{fill:#457f79;stroke:none}
+.journal-companion-art .bloom-large,.journal-empty .bloom-large{transform:none}
+.journal-companion-art>i{display:none}
+.journal-companion-art{justify-content:start;place-items:center start;height:87px;margin-bottom:22px}
+/* Anchor callouts to the rendered 2:3 portrait, rather than the surrounding column. */
+.portrait-anchored{container-type:size}
+.portrait-figure{position:absolute;top:0;left:50%;transform:translateX(-50%);width:min(100cqw,66.6667cqh);height:min(100cqh,150cqw)}
+.portrait-figure .human-portrait{width:100%;height:100%;object-fit:contain;object-position:center top}
+.portrait-figure .body-signal{position:absolute;height:44px;padding:0;display:block;transform:translateY(-50%);overflow:visible}
+.portrait-figure .signal-dot{position:absolute;top:50%;transform:translateY(-50%);width:16px;height:16px}
+.portrait-figure .signal-copy{position:absolute;top:50%;transform:translateY(-50%);font-size:9px;line-height:1.5;text-shadow:0 1px 8px #fff,0 0 15px #fff9}
+.portrait-figure .signal-copy strong{font-size:19px;line-height:1.4}
+.portrait-figure .signal-copy small{font-size:9px}
+.portrait-figure .signal-line{position:absolute;display:block;top:50%;height:1px;margin:0;width:auto;background:linear-gradient(90deg,#708c7145,#c6ae7d9e)}
+.portrait-figure .signal-heart{top:73%;left:0;right:auto;width:68%}
+.portrait-figure .signal-heart .signal-copy{left:0}
+.portrait-figure .signal-heart .signal-line{left:56px;right:13px;width:auto}
+.portrait-figure .signal-heart .signal-dot{right:-8px}
+.portrait-figure .signal-oxygen{top:49%;left:0;right:auto;width:35%;gap:0}
+.portrait-figure .signal-oxygen .signal-copy{left:0}
+.portrait-figure .signal-oxygen .signal-line{left:69px;right:13px;width:auto}
+.portrait-figure .signal-oxygen .signal-dot{right:-8px}
+.portrait-figure .signal-breathing{top:55%;left:62%;right:0;width:38%}
+.portrait-figure .signal-breathing .signal-dot{left:-8px}
+.portrait-figure .signal-breathing .signal-line{left:13px;right:59px;width:auto}
+.portrait-figure .signal-breathing .signal-copy{right:0}
+.portrait-figure .body-signal:hover .signal-dot,.portrait-figure .body-signal:focus-visible .signal-dot{transform:translateY(-50%) scale(1.12)}
+@media(max-width:560px){
+  .portrait-figure .signal-copy{font-size:8px}.portrait-figure .signal-copy strong{font-size:17px}
+  .portrait-figure .signal-copy small{font-size:8px}.portrait-figure .signal-oxygen .signal-line{left:58px;right:10px}
+  .portrait-figure .signal-breathing .signal-line{right:51px}.portrait-figure .signal-heart .signal-line{left:47px}
+}
+@media(prefers-reduced-motion:reduce){.metric:hover{transform:none}}
+@media(forced-colors:active){.metric,.panel,.integration,.macro{border:1px solid CanvasText;background:Canvas;box-shadow:none}.metric:before,.metric:after,.panel:before,.panel:after,.integration:before,.integration:after,.macro:before,.macro:after{display:none}.journal-bloom svg .pulse-trace{stroke:CanvasText}}
