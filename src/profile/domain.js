@@ -1,9 +1,13 @@
 // Keep the stored digital key so existing profiles receive the replacement automatically.
 export const representations = [
  {id:'photo',title:'Your own portrait',description:'Your likeness, rendered in the Xeyo style from a photo.',label:'Default'},
- {id:'digital',title:'Vitruvian man',description:'A classical figure, reimagined in the Xeyo palette. No photo needed.'},
+ {id:'digital',title:'Digital human',description:'A modern Vitruvian figure. Woman and man versions, no photo needed.'},
  {id:'stats',title:'Just the statistics',description:'Your measurements take the whole stage.'}
 ];
+export function digitalFigure(gender){
+ const woman=gender==='woman';
+ return {src:woman?'/images/vitruvian-woman-digital.png':'/images/vitruvian-man-digital.png',label:woman?'Digital woman':'Digital man',alt:woman?'Digital woman in a Vitruvian pose, rendered in pearlescent ivory':'Digital man in a Vitruvian pose, rendered in pearlescent ivory'};
+}
 export function validateProfile(input){
  if(!representations.some(r=>r.id===input.representation))throw Error('Choose how you want to see your dashboard.');
  if(!['woman','man','nonbinary','unspecified'].includes(input.gender))throw Error('Choose a gender option, or prefer not to say.');

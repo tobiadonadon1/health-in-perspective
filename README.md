@@ -66,7 +66,7 @@ The live application is available at https://xeyo.ai/ and https://www.xeyo.ai/, 
 
 ## Personal onboarding, averages and Chatbot
 
-New and existing accounts without a profile complete three steps: representation (private photo by default, Vitruvian Man illustration, or statistics only), gender/age, and optional peer participation. Changes persist in `profiles` and remain editable in Profile. The app currently accepts adults aged 18–120. A photo is a display preference, never an inferred body scan. Profile images use private `health-records` storage and renewable signed URLs.
+New and existing accounts without a profile complete three steps: representation (private photo by default, digital Vitruvian figure, or statistics only), gender/age, and optional peer participation. Changes persist in `profiles` and remain editable in Profile. The app currently accepts adults aged 18–120. A photo is a display preference, never an inferred body scan. Profile images use private `health-records` storage and renewable signed URLs.
 
 Apply `supabase/migrations/20261022230000_profiles_peers_chat.sql` to existing installations; fresh installations use the complete `database/schema.sql`. Deploy `health-api` with `chat.mjs` alongside its other modules. The public deployment has both changes applied. No new application-wide AI secret is needed: keys are provided by each user, encrypted with the existing `TOKEN_ENCRYPTION_KEY`, and never returned to the browser.
 
@@ -84,7 +84,7 @@ Validation: `npm test` includes PostgreSQL tests for profile isolation, photo ow
 
 ### Widget board, refresh and personal portraits
 
-The **Vitruvian man** representation replaces the generic WebGL bust on Home and Body. It uses a purpose-generated transparent illustration in the Xeyo palette, also shown in the selection screen. The persisted `digital` preference key is retained for compatibility: existing profiles automatically see the new artwork without a migration. Photo portraits and statistics-only layouts are unchanged.
+The **Digital human** representation replaces the generic WebGL bust on Home and Body. Purpose-generated, transparent male and female digital Vitruvian renders use the Xeyo palette, without the old circle and square. Selecting Woman during onboarding or profile editing previews and displays the female figure. The artwork remains a 2D asset rather than an interactive 3D model. The persisted `digital` preference key is retained for compatibility: existing profiles automatically see the new artwork without a migration. Photo portraits and statistics-only layouts are unchanged.
 
 
 - **Edit dashboard** opens an inline widget board. Add from a searchable gallery, remove, drag by the handle (mouse or touch), move with keyboard arrows, and choose small/medium/large. Done saves a versioned `dashboard_layout` to the signed-in user's metadata; Cancel discards the draft. Legacy metric choices migrate on first edit. Nutrition and journal cards are widgets too.

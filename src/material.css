@@ -1,21 +1,21 @@
 /* Clear, lightly tinted glass. Reflections are narrow; the main surface stays open. */
 :root{
-  --glass-surface:linear-gradient(128deg,#ffffff32 0%,#ffffff0a 45%,#ffffff20 100%);
+  --glass-surface:linear-gradient(128deg,#ffffffa6 0%,#fffaf54d 45%,#ffffff85 100%);
   --glass-shadow:inset 0 1px 0 #fffffff2,inset 1px 0 0 #ffffff7a,inset 0 -1px 0 #69827a35,inset 0 -3px 5px #ffffff6b,inset -1px 0 0 #ffffff85,0 8px 22px -14px #344e4c50,0 1px 3px #344e4c0a;
 }
 .metric,.metric.green,.metric.peach,.metric.blue,.metric.pink,.panel,.gut-card,.integration,.macro{
-  --glass-tint:201,216,208;
+  --glass-tint:249,225,206;
   position:relative;isolation:isolate;
   border:0;
-  background:radial-gradient(ellipse 100% 95% at 80% 112%,rgba(var(--glass-tint),.48),transparent 72%),var(--glass-surface);
+  background:radial-gradient(ellipse 100% 95% at 80% 112%,rgba(var(--glass-tint),.42),transparent 72%),var(--glass-surface);
   box-shadow:var(--glass-shadow);
   backdrop-filter:blur(18px) saturate(155%);
   -webkit-backdrop-filter:blur(18px) saturate(155%);
 }
-.metric.green{--glass-tint:122,200,99}
-.metric.peach{--glass-tint:249,176,87}
-.metric.blue{--glass-tint:132,167,213}
-.metric.pink{--glass-tint:219,142,169}
+.metric.green{--glass-tint:247,195,156}
+.metric.peach{--glass-tint:255,179,111}
+.metric.blue{--glass-tint:222,225,235}
+.metric.pink{--glass-tint:242,211,198}
 .metric::before,.panel::before,.integration::before,.macro::before{
   content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
   opacity:1;box-shadow:none;
@@ -32,7 +32,7 @@
 .metric-top,.panel h3{color:#293d35}
 .metric-meta,.metric-source,.metric-footer{color:#5e7466}
 .metric-origin{color:#617568}
-.journal-widget,.journal-companion{background:radial-gradient(ellipse at 95% 100%,#9dbdbb24,transparent 68%),var(--glass-surface)!important}
+.journal-widget,.journal-companion{background:radial-gradient(ellipse at 95% 100%,#efc4a738,transparent 68%),var(--glass-surface)!important}
 .journal-compose,.journal-entry,.daily-balance,.meal-journal,.nutrition-assistant{background:var(--glass-surface)}
 .journal-empty{background:linear-gradient(128deg,#ffffff28,#ffffff08);border-color:#ffffff65;box-shadow:inset 0 1px 0 #ffffffad}
 .profile-section .panel{background:var(--glass-surface)}
