@@ -2,7 +2,7 @@ import {journalBloom} from './journal-art.js';
 import {escapeHTML as esc,localDay} from './domain.js';
 export function journalWidget(entries,error=''){
  const latest=entries[0];
- return `<section class="panel journal-widget"><div class="panel-head"><h3>Your health journal</h3>${journalBloom()}</div><h2>${latest?'A little more context.':'How are you<br>feeling today?'}</h2><p class="journal-widget-note">${error?'Your journal is temporarily unavailable.':latest?esc(latest.content):'A thought, a feeling, a little context.'}</p><button class="gut-link" data-nav="Journal">${latest?'Open your journal':'Write a check-in'} ↗</button>${latest?`<small>${dayLabel(latest.logged_on)}</small>`:''}</section>`;
+ return `<section class="panel journal-widget journal-illustrated"><img class="journal-anatomy" src="/images/digestive-anatomy.png" alt=""><div class="panel-head"><h3>Your health journal</h3></div><h2>${latest?'A little more context.':'How are you<br>feeling today?'}</h2><p class="journal-widget-note">${error?'Your journal is temporarily unavailable.':latest?esc(latest.content):'A thought, a feeling, a little context.'}</p><button class="gut-link" data-nav="Journal">${latest?'Open your journal':'Write a check-in'} ↗</button>${latest?`<small>${dayLabel(latest.logged_on)}</small>`:''}</section>`;
 }
 export function createJournal({getCapabilities=()=>({}),load,save,remove,removeReflection,api,orb,showModal,heading,closeModal,onChanged,bindNav}){
  let draft='',editing=null,entryDay=localDay(),pending=false,entries=[],connection=null,statusError='',version=0;
