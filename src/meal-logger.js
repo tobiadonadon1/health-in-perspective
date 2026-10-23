@@ -1,6 +1,7 @@
+import {brandOrb} from './brand.js';
 import {escapeHTML as esc, localDay, totals, validateMeal} from './domain.js';
 const $=s=>document.querySelector(s);
-const orb='<span class="orb" aria-hidden="true"><i class="orb-energy"></i><i class="orb-light"></i></span>';
+const orb=brandOrb();
 export function createMealLogger({showModal,heading,icon,api,save,remove,update,getDay,getCapabilities,connectAI,getHost}){
  let messages=[],version=0,recording=null,audioStream=null,timer,photo=null,preview=null,busy=false,pending=null,hold=false,voiceStarting=false;
  function stopAudio(discard=true){clearTimeout(timer);if(recording){if(discard)recording.onstop=null;if(recording.state==='recording')recording.stop()}audioStream?.getTracks().forEach(t=>t.stop());recording=null;audioStream=null;}
