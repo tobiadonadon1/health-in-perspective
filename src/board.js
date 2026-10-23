@@ -1,5 +1,5 @@
 import {metrics,defaultBoard} from './metrics.js';
-export const extraWidgets=[{kind:'nutrition',name:'Today’s nutrition',group:'daily',color:'green',unit:''},{kind:'digestive',name:'Digestive wellbeing',group:'daily',color:'peach',unit:''}];
+export const extraWidgets=[{kind:'nutrition',name:'Today’s nutrition',group:'daily',color:'green',unit:''},{kind:'digestive',name:'Health journal',group:'daily',color:'peach',unit:''}];
 export const widgetCatalog=[...metrics,...extraWidgets];
 const allowed=new Set(widgetCatalog.map(m=>m.kind));
 export function normalizeLayout(value,legacy){

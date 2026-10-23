@@ -27,6 +27,16 @@ try{
  r=await request('/rest/v1/portrait_renders',{method:'POST',token,body:{user_id:uid,source_record_id:referenceId,status:'processing'}});assert.equal(r.status,403);
  r=await request('/rest/v1/rpc/claim_whoop_sync',{method:'POST',token,body:{owner:uid}});assert.equal(r.status,403);
  r=await request('/functions/v1/health-api',{method:'POST',token,body:{action:'whoop-sync'}});assert.equal(r.status,400);
+
+ const note=crypto.randomUUID();
+ r=await request('/rest/v1/journal_entries',{method:'POST',token,body:{id:note,user_id:uid,content:'Disposable integration test note',logged_on:'2026-10-23'}});assert.equal(r.status,201);
+ r=await request('/rest/v1/journal_entries?select=*,journal_reflections(*)',{token});assert.equal(r.status,200);assert.equal(r.body[0].content,'Disposable integration test note');
+ r=await request('/functions/v1/health-api',{method:'POST',token,body:{action:'journal-reflect',entry_id:note,include_context:true}});assert.equal(r.status,400);assert.match(r.body.error,/note is saved/);
+ r=await request('/rest/v1/journal_entries?id=eq.'+note,{method:'PATCH',token,body:{content:'Edited integration test note'}});assert.equal(r.status,200);assert.equal(r.body[0].content,'Edited integration test note');
+ r=await request('/rest/v1/journal_reflections',{method:'POST',token,body:{entry_id:note,user_id:uid,entry_content:'Edited integration test note',provider:'openai',model:'test'}});assert.equal(r.status,403);
+ r=await request('/rest/v1/journal_entries?id=eq.'+note,{method:'DELETE',token});assert.equal(r.status,200);
+ r=await request('/rest/v1/journal_entries?select=id',{token});assert.equal(r.body.length,0);
+ console.log('PASS: real journal create, load, edit, delete, missing-key recovery and forged-reflection rejection.');
  console.log('PASS: real widget preference persistence, private portrait status, missing-key handling, inaccessible photo denial, render write denial and sync lease isolation.');
  await request('/auth/v1/logout',{method:'POST',token});console.log('PASS: real signup, persisted profile, cohort opt-in, private chat permissions, authenticated API and missing-key error.');
 }catch(e){console.error('FAIL:',e.message);process.exitCode=1}

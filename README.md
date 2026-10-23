@@ -91,3 +91,12 @@ Validation: `npm test` includes PostgreSQL tests for profile isolation, photo ow
 - Deploy `20261023140255_portrait_renders_and_sync_leases.sql`, then all `health-api` modules, then the frontend. Fresh installations can use `database/schema.sql`.
 
 Provider references: [OpenAI image edits](https://developers.openai.com/api/reference/resources/images/methods/edit), [Supabase background tasks](https://supabase.com/docs/guides/functions/background-tasks), [Edge runtime limits](https://supabase.com/docs/guides/functions/limits).
+
+
+### Journal and interactive trends
+- Metric details support pointer/touch scrubbing and keyboard arrows / Home / End. The headline shows the selected reading’s UTC date and original value; periods filter actual observations from the same source and unit. The dashed guide is the mean of daily means, excluding missing days. Every metric has a short explanation and an official source link.
+- The Health journal widget replaces the old digestive card while preserving existing dashboard layouts (`digestive` remains its stored widget ID). Notes support private creation, editing, deletion and export. AI reflections use the user’s Chatbot provider, falling back to their OpenAI nutrition connection. Wearable context is opt-in for each reflection. No AI key is required to save notes.
+- `journal_entries` has ownership RLS. Clients cannot write generated reflections. The server checks ownership before looking up credentials. A unique active reflection prevents duplicate concurrent provider calls, and stale jobs can retry after three minutes. Editing a note removes its prior reflection; a database trigger rejects a late response for changed/deleted content.
+- The original human remains as a labelled style preview until a personal portrait is approved. Personal generation still requires a user-selected photo and their OpenAI key. Portrait style v2 uses natural bare shoulders and a non-sexual crop above the breast line, with no invented clothing or body-fat measurements.
+
+Release verification: `npm test` covers chart selection, source separation, journal context, all three provider adapters, cross-user journal access and stale reflection rejection. `node tests/live-personal-api.mjs` creates a disposable account for live persistence checks; delete the printed cleanup user ID using the admin connector after running. Real paid AI responses require a funded user API connection and are not substituted with sample output.
