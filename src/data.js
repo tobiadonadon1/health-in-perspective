@@ -1,4 +1,5 @@
 import {validateProfile} from './profile/domain.js';
+import {validateMeasurement} from './body-measurements.js';
 import {createClient} from '@supabase/supabase-js';
 import {validateMeal,validateUpload,validateLabResult,localDay} from './domain.js';
 export const configured=!!(import.meta.env.VITE_SUPABASE_URL&&import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
@@ -13,7 +14,7 @@ export async function meals(day=localDay()){const {data,error}=await db.from('me
 export async function saveMeal(m){m=validateMeal(m);const row={name:m.name,calories:m.calories,protein:m.protein,carbs:m.carbs,fat:m.fat,source:m.source||'Nutrition label',meal_type:m.meal_type||'Snack',logged_on:m.logged_on||localDay()};const {error}=await db.from('meals').insert({...row,user_id:user.id});if(error)throw error}
 export async function removeMeal(id){const {error}=await db.from('meals').delete().eq('id',id);if(error)throw error}
 export async function saveMeals(items){if(!Array.isArray(items)||!items.length||items.length>20)throw Error('Save between 1 and 20 foods at a time.');const rows=items.map(validateMeal).map(m=>({id:crypto.randomUUID(),user_id:user.id,name:m.name,calories:m.calories,protein:m.protein,carbs:m.carbs,fat:m.fat,source:m.source||'Nutrition facts',meal_type:m.meal_type||'Snack',logged_on:m.logged_on||localDay()}));const {data:inserted,error}=await db.from('meals').insert(rows).select();if(error)throw error;return rows.map(row=>inserted.find(r=>r.id===row.id))}
-export async function readings(){let rows=[];for(let offset=0;offset<10000;offset+=1000){const {data,error}=await db.from('health_readings').select('*').gte('observed_at',new Date(Date.now()-366*86400000).toISOString()).order('observed_at',{ascending:false}).order('id').range(offset,offset+999);if(error)throw error;rows.push(...data);if(data.length<1000)break}return rows}
+export async function readings(){let rows=[];for(let offset=0;offset<10000;offset+=1000){const {data,error}=await db.from('health_readings').select('*').or(`observed_at.gte.${new Date(Date.now()-366*86400000).toISOString()},source.eq."Manual entry"`).order('observed_at',{ascending:false}).order('id').range(offset,offset+999);if(error)throw error;rows.push(...data);if(data.length<1000)break}return rows}
 export async function saveDashboard(kinds){const r=await db.auth.updateUser({data:{dashboard:kinds}});if(r.error)throw r.error;user=r.data.user;}
 export async function records(){const {data,error}=await db.from('records').select('*').order('created_at',{ascending:false});if(error)throw error;return data}
 export async function labResults(){const {data,error}=await db.from('lab_results').select('*').order('collected_on',{ascending:false});if(error)throw error;return data}
@@ -41,3 +42,5 @@ export async function journalEntries(){const {data,error}=await db.from('journal
 export async function saveJournal({id,content,logged_on}){content=String(content||'').trim();if(!content||content.length>4000)throw Error('Write a note of 1–4,000 characters.');if(!/^\d{4}-\d{2}-\d{2}$/.test(logged_on)||logged_on>localDay())throw Error('Choose today or an earlier date.');const row={content,logged_on};const result=id?await db.from('journal_entries').update(row).eq('id',id).select().single():await db.from('journal_entries').insert({...row,user_id:user.id}).select().single();if(result.error)throw result.error;return result.data}
 export async function deleteJournal(id){const {error}=await db.from('journal_entries').delete().eq('id',id);if(error)throw error}
 export async function deleteReflection(id){const {error}=await db.from('journal_reflections').delete().eq('entry_id',id);if(error)throw error}
+export async function saveBodyMeasurement(input){const m=validateMeasurement(input);const {data,error}=await db.rpc('save_body_measurement',{p_id:m.id,p_kind:m.kind,p_value:m.value,p_measured_on:m.measured_on});if(error)throw error;return data}
+export async function removeBodyMeasurement(id){const {error}=await db.rpc('remove_body_measurement',{p_id:id});if(error)throw error}

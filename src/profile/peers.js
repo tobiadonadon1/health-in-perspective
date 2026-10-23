@@ -2,7 +2,7 @@ import {escapeHTML as esc} from '../domain.js';
 import {metrics,formatValue} from '../metrics.js';
 export function peerPage(result){
  const status=result?.status;
- const intro=`<div class="page-top"><div><h2>Your place in the picture.</h2><p>A private percentile leaderboard, among Xeyo members your age.</p></div><button class="btn light" data-action="profile-settings">Comparison preferences ↗</button></div>`;
+ const intro=`<div class="page-top"><div><h2>Your place in the picture.</h2><p>Your private comparison with Xeyo members your age.</p></div><button class="btn light" data-action="profile-settings">Comparison preferences ↗</button></div>`;
  if(!result)return intro+'<section class="panel empty"><p role="status">Finding your age group…</p></section>';
  if(status==='error')return intro+`<section class="panel empty"><p role="alert">${esc(result.message)}</p><button class="btn light" data-action="retry-peers">Try again</button></section>`;
  if(status!=='ok')return intro+`<section class="panel peers-empty"><div class="peer-orbit" aria-hidden="true"><i></i></div><h2>${status==='age_refresh_required'?'A little update, first.':'Your comparison is yours to choose.'}</h2><p>${status==='age_refresh_required'?'Confirm your age in preferences so we use the right group.':'Join anonymous comparisons in your preferences. Your name and individual readings stay private.'}</p><button class="btn" data-action="profile-settings">${status==='age_refresh_required'?'Update age':'Choose my preferences'} ↗</button></section>`;

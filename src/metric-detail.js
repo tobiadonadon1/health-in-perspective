@@ -36,7 +36,7 @@ export function openMetricDetail({metric:m,reading:r,readings,showModal,heading}
    host.querySelector('#metric-point-date').textContent=row?date(row,true):'No reading';
    host.querySelector('#metric-point-value').innerHTML=(row?formatValue(row.value,m.kind):'—')+`<small> ${esc(r.unit)}</small>`;
    const delta=row?Number(row.value)-stats.mean:0;
-   host.querySelector('#metric-point-comparison').textContent=row?(Math.abs(delta)<.005?'At your period average':`${formatValue(Math.abs(delta),m.kind)} ${r.unit} ${delta>0?'above':'below'} average`):'';
+   host.querySelector('#metric-point-comparison').textContent=row?(formatValue(Math.abs(delta),m.kind)==='0'?'At your period average':`${formatValue(Math.abs(delta),m.kind)} ${r.unit} ${delta>0?'above':'below'} average`):'';
    if(!row)return;
    host.querySelector('#trend-crosshair').setAttribute('x1',x(row));host.querySelector('#trend-crosshair').setAttribute('x2',x(row));
    for(const id of ['trend-point','trend-point-halo']){const point=host.querySelector('#'+id);point.setAttribute('cx',x(row));point.setAttribute('cy',y(+row.value));}

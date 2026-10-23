@@ -1,0 +1,21 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {PGlite} from '@electric-sql/pglite';
+import {formatValue} from '../src/metrics.js';import {validateMeasurement} from '../src/body-measurements.js';import {boardRows,normalizeLayout} from '../src/board.js';
+test('metric presentation rounds wearables but preserves useful decimal measurements',()=>{for(const [kind,n,out] of [['spo2',96.68,'97'],['hrv',32.81,'33'],['respiratory_rate',15.64,'16'],['sleep_efficiency',96.93,'97'],['sleep',7.87,'7.9'],['weight',72.45,'72.5'],['body_fat',18.3,'18.3'],['skin_temperature',33.56,'33.6'],['steps',8420.1,'8,420']])assert.equal(formatValue(n,kind),out);assert.equal(formatValue(null,'hrv'),'—');});
+test('manual measurements reject unsupported metrics, impossible values and invalid dates',()=>{const valid={id:'a',kind:'weight',value:'72.4',measured_on:'2026-10-01'};assert.equal(validateMeasurement(valid).value,72.4);for(const change of [{kind:'hrv'},{value:''},{value:'NaN'},{value:0},{kind:'body_fat',value:101},{measured_on:'2026-02-31'},{measured_on:'2099-01-01'}])assert.throws(()=>validateMeasurement({...valid,...change}));});
+test('dashboard fits only layouts with at most three packed rows',()=>{assert.equal(boardRows(normalizeLayout()),3);assert.equal(boardRows({widgets:[{size:'small'},{size:'large'},{size:'medium'},{size:'small'},{size:'medium'}]}),4);assert.equal(boardRows({widgets:[]}),0);});
+test('manual measurement RPC isolates accounts and cannot alter provider readings',async()=>{
+ const db=new PGlite(),a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222',id='33333333-3333-4333-8333-333333333333',provider='44444444-4444-4444-8444-444444444444';
+ try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth,public to authenticated,anon;grant execute on function auth.uid() to authenticated;insert into auth.users values('${a}'),('${b}');`);
+ const schema=fs.readFileSync('database/schema.sql','utf8');await db.exec(schema.slice(schema.indexOf('create table public.health_readings'),schema.indexOf('create table public.wearable_secrets')));
+ await db.exec(fs.readFileSync('supabase/migrations/20261023165718_manual_body_measurements.sql','utf8'));
+ await db.exec(`insert into health_readings values('${provider}','${a}','weight',70,'kg','WHOOP','provider','2026-10-01');set role authenticated;set request.jwt.claim.sub='${a}'`);
+ const call=(kind,value,date='2026-10-01',rid=id)=>`select * from public.save_body_measurement('${rid}','${kind}',${value},'${date}')`;
+ assert.equal((await db.query(call('weight',72.4))).rows[0].source,'Manual entry');await db.query(call('weight',73.2));assert.equal((await db.query('select count(*)::int as n from health_readings')).rows[0].n,2);
+ for(const [kind,value,date,rid] of [['hrv',45],['weight',0],['body_fat',101],['weight',"'NaN'"],['weight',72,'2099-01-01'],['weight',74,'2026-10-01',provider],['body_fat',18]])await assert.rejects(db.query(call(kind,value,date,rid)));
+ await assert.rejects(db.exec(`update health_readings set value=99`));await assert.rejects(db.exec(`delete from health_readings`));
+ await db.exec(`set request.jwt.claim.sub='${b}'`);assert.equal((await db.query('select * from health_readings')).rows.length,0);await assert.rejects(db.query(call('weight',95)));await assert.rejects(db.query(`select remove_body_measurement('${id}')`));
+ await db.exec(`set request.jwt.claim.sub='${a}'`);await assert.rejects(db.query(`select remove_body_measurement('${provider}')`));await db.query(`select remove_body_measurement('${id}')`);assert.equal((await db.query('select * from health_readings')).rows[0].value,'70');
+ await db.exec(`set request.jwt.claim.sub=''`);await assert.rejects(db.query(call('weight',70)));await db.exec('reset role;set role anon');await assert.rejects(db.query(call('weight',70)));
+ }finally{await db.close()}
+});

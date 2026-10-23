@@ -2,6 +2,7 @@ import {metrics,defaultBoard} from './metrics.js';
 export const extraWidgets=[{kind:'nutrition',name:'Today’s nutrition',group:'daily',color:'green',unit:''},{kind:'digestive',name:'Health journal',group:'daily',color:'peach',unit:''}];
 export const widgetCatalog=[...metrics,...extraWidgets];
 const allowed=new Set(widgetCatalog.map(m=>m.kind));
+export function boardRows(layout){let rows=0,used=0;for(const w of layout.widgets){const span={small:2,medium:3,large:6}[w.size]||2;if(!used||used+span>6){rows++;used=0}used+=span;if(used===6)used=0}return rows;}
 export function normalizeLayout(value,legacy){
  const defaults=[...(Array.isArray(legacy)&&legacy.length?legacy:defaultBoard).filter(id=>allowed.has(id)).map(id=>({id,size:'small'})),{id:'nutrition',size:'medium'},{id:'digestive',size:'medium'}];
  if(!value||value.version!==1||!Array.isArray(value.widgets))return {version:1,widgets:defaults};
