@@ -82,7 +82,18 @@ function choosePortraitPhoto(){
  showModal(`${heading('Start with a photo of you.','Your personal portrait')}<p>Choose a clear photo of yourself with your face and shoulders visible. We use it for your likeness and the original human for the portrait’s lighting and composition.</p><form id="portrait-photo-form"><label class="upload-zone" style="margin-top:24px">${icon('camera')}<span>Choose your photo</span><input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label><p class="mini-note">JPG, PNG or WebP · Up to 10 MB · Stored privately. The photo is sent to OpenAI only when you choose Generate.</p><div id="form-error"></div><div class="dialog-footer"><span class="mini-note">Your likeness. Soft light. Bare shoulders.</span><button type="submit" class="btn">Continue to portrait studio ↗</button></div></form>`);
  $('#portrait-photo-form').onsubmit=e=>{e.preventDefault();busy(e.target,async()=>{await data.saveProfile({...profile,representation:'photo'},e.target.elements.photo.files[0]);await refresh();closeModal();await render();portraitStudio();})};
 }
-function profileSetup(){mealLogger.cancel();const previous=profile?.photo_record_id;let photoChanged=false;openOnboarding({app,profile,photos:records.filter(r=>r.kind==='photo'),orb,save:async(draft,file)=>{await data.saveProfile(draft,file);await refresh();photoChanged=profile?.representation==='photo'&&profile?.photo_record_id&&profile.photo_record_id!==previous;},done:async()=>{page='Home';await render();window.scrollTo(0,0);if(photoChanged)portraitStudio();},signOut:actions.logout});}
+function profileSetup(){
+ mealLogger.cancel();const previous=profile?.photo_record_id;
+ openOnboarding({app,profile,photos:records.filter(r=>r.kind==='photo'),orb,save:data.saveProfile,done:async saved=>{
+  const photoChanged=saved?.representation==='photo'&&saved.photo_record_id&&saved.photo_record_id!==previous;
+  if(saved){profile=saved;if(saved.photo_record_id!==previous)portraitURL=null;portraitChecked=Date.now();}
+  page='Home';await render();window.scrollTo(0,0);
+  // Setup is complete once the profile is confirmed. Background data failures belong
+  // to the dashboard's refresh control, not to the onboarding save button.
+  if(saved)void refreshConnected();
+  if(photoChanged)portraitStudio();
+ },signOut:actions.logout});
+}
 
 async function loadPeers(){try{peerResult=await data.peerPercentiles()}catch(e){peerResult={status:'error',message:e.message}}const host=$('#profile-peers');if(page==='Profile'&&host){host.innerHTML=peerPage(peerResult);wire(host);}}
 function dashboardWidget(id){if(id==='nutrition')return `<section class="panel nutrition-timeline"><div class="panel-head"><h3>Today’s nutrition</h3><button class="meal-launch" data-action="meal" aria-label="Talk about a meal">${orb()}</button></div><div class="timeline">${'<i></i>'.repeat(12)}</div><div class="axis"><span>6:00</span><span>9:00</span><span>12:00</span><span>15:00</span><span>18:00</span><span>21:00</span></div>${mealData.length?mealData.slice(0,3).map(m=>`<div class="event"><i></i><div>${esc(m.meal_type)}<small>${esc(m.name)}</small></div><span class="right">${Math.round(m.calories)} kcal</span></div>`).join(''):'<div class="empty"><h3>A fresh start</h3><p>Log your first meal to see your day take shape.</p></div>'}</section>`;if(id==='digestive')return journalWidget(journalData,journalError);return cards([metrics.find(m=>m.kind===id)],true);}
@@ -154,7 +165,7 @@ async function enterAccount() {
   emailFlow.clear();clearInterval(authTimer);authMode='account';
   const connectionResult=new URLSearchParams(location.search).get('connection');
   history.replaceState({},'',location.pathname);
-  await refresh();if(!profile){profileSetup();void refreshConnected();return;}page=connectionResult?'Integrations':'Home';await render();window.scrollTo(0,0);void refreshConnected();
+  await refresh();if(!profile){profileSetup();return;}page=connectionResult?'Integrations':'Home';await render();window.scrollTo(0,0);void refreshConnected();
   if(connectionResult)toast(connectionResult==='connected'?'WHOOP connected and synchronized':connectionResult==='denied'?'WHOOP authorization was cancelled':connectionResult==='connected-needs-sync'?'WHOOP connected. Choose Sync now to import readings.':'WHOOP connection could not be completed. Try again.');
   } finally { enteringAccount=false; }
 }

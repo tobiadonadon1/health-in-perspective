@@ -1,9 +1,11 @@
 import {escapeHTML as esc} from '../domain.js';
 import {representations,validateProfile,digitalFigure} from './domain.js';
+import {createOnboardingSubmitter} from './persistence.js';
 
 export function openOnboarding({app,profile,photos=[],save,done,signOut,orb}){
  let step=0,selectedFile=null,saving=false;
  let draft={representation:'photo',gender:'',age:'',peer_opt_in:false,photo_record_id:null,...profile};
+ const submit=createOnboardingSubmitter({save,done});
  function render(){
   app.innerHTML=`<main class="onboarding"><header class="onboard-header"><div class="brand">${orb()}<span class="brand-name">Xeyo</span></div><button class="text-button" id="onboard-exit">${profile?'Back to workspace':'Sign out'}</button></header><section class="onboard-card panel"><div class="onboard-progress" aria-label="Step ${step+1} of 3">${['Your perspective','A little about you','Your community'].map((s,i)=>`<span class="${i<=step?'active':''}" ${i===step?'aria-current="step"':''}><b>0${i+1}</b>${s}</span>`).join('')}</div><div class="eyebrow">MAKE THIS SPACE YOURS</div><h1>${['How would you like to see yourself?','The context behind your numbers.','Your progress, in perspective.'][step]}</h1><p class="onboard-intro">${['Choose a view for your Home and Body pages. You can change it anytime.','A few details help make your workspace more personal.','See where your readings sit among people your age. Participation is optional.'][step]}</p><form id="onboard-form">
   ${step===0?`<fieldset class="representation-options"><legend class="sr-only">Dashboard representation</legend>${representations.map(r=>`<label class="representation-option"><input type="radio" name="representation" value="${r.id}" ${draft.representation===r.id?'checked':''}><span class="representation-art art-${r.id}">${r.id==='stats'?'<i></i><i></i><i></i><i></i>':r.id==='digital'?`<img class="vitruvian-preview" src="${digitalFigure(draft.gender).src}" alt="" width="256" height="256">`:'<span class="human-shape"></span>'}</span><span class="representation-copy"><strong>${r.title}${r.label?`<small>${r.label}</small>`:''}</strong><span>${r.description}</span></span><span class="choice-check">✓</span></label>`).join('')}</fieldset><div class="onboard-photo" ${draft.representation==='photo'?'':'hidden'}><div><h3>The reference for your portrait</h3><p>Choose a clear photo of just you. We use it to create your portrait with the original model as the style reference.</p></div><label class="btn light photo-picker">${selectedFile?esc(selectedFile.name):'Choose photo'}<input id="onboard-file" type="file" accept="image/jpeg,image/png,image/webp"></label>${selectedFile?'<span class="tag">Ready to upload</span>':''}${photos.length?`<label class="field">Or use a saved photo<select id="saved-photo"><option value="">Choose later</option>${photos.map(p=>`<option value="${p.id}" ${draft.photo_record_id===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>`:''}<small>After saving, open the portrait studio to generate and review your likeness using your own OpenAI key. Your photo stays private; it is not displayed on your dashboard. You can do this later.</small></div>`:''}
@@ -18,9 +20,15 @@ export function openOnboarding({app,profile,photos=[],save,done,signOut,orb}){
   const saved=document.querySelector('#saved-photo');if(saved)saved.onchange=()=>{draft.photo_record_id=saved.value||null;selectedFile=null;render()};
   document.querySelector('#onboard-form').onsubmit=async e=>{
    e.preventDefault();if(saving)return;capture();if(step<2){step++;render();return;}
-   const b=e.target.querySelector('[type=submit]');saving=true;b.disabled=true;b.textContent='Saving your workspace…';
-   try{await save(validateProfile(draft),draft.representation==='photo'?selectedFile:null);await done();}
-   catch(error){document.querySelector('#onboard-error').textContent=error.message;b.disabled=false;b.textContent='Try again';}finally{saving=false}
+   const b=e.target.querySelector('[type=submit]'),back=document.querySelector('#onboard-back'),exit=document.querySelector('#onboard-exit'),errorBox=document.querySelector('#onboard-error');
+   saving=true;b.disabled=true;back.disabled=true;exit.disabled=true;errorBox.textContent='';b.textContent='Saving your workspace…';
+   try{await submit(validateProfile(draft),draft.representation==='photo'?selectedFile:null);}
+   catch(error){
+    if(errorBox.isConnected){errorBox.textContent=error.message;
+     if(error.code==='PHOTO_UPLOAD_FAILED'){const skip=document.createElement('button');skip.type='button';skip.className='btn light';skip.textContent='Continue without photo';skip.onclick=()=>{selectedFile=null;document.querySelector('#onboard-form').requestSubmit()};errorBox.append(document.createElement('br'),skip);}
+     b.disabled=false;b.textContent='Try again';back.disabled=false;exit.disabled=false;
+    }
+   }finally{saving=false}
   };
   document.querySelector('h1').setAttribute('tabindex','-1');document.querySelector('h1').focus({preventScroll:true});window.scrollTo(0,0);
  }

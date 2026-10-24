@@ -1,4 +1,4 @@
-import {validateProfile} from './profile/domain.js';
+import {createProfileSaver} from './profile/persistence.js';
 import {validateMeasurement} from './body-measurements.js';
 import {createClient} from '@supabase/supabase-js';
 import {validateMeal,validateUpload,validateLabResult,localDay} from './domain.js';
@@ -30,7 +30,7 @@ export async function removeMeals(ids){const {error}=await db.from('meals').dele
 export async function updateMeals(items){const rows=items.map(validateMeal).map(m=>({id:m.id,user_id:user.id,name:m.name,calories:m.calories,protein:m.protein,carbs:m.carbs,fat:m.fat,meal_type:m.meal_type,logged_on:m.logged_on,source:m.source}));const {error}=await db.from('meals').upsert(rows);if(error)throw error}
 
 export async function profile(){const {data,error}=await db.from('profiles').select('*').eq('user_id',user.id).maybeSingle();if(error)throw error;return data}
-export async function saveProfile(input,file){const row=validateProfile(input);if(file)row.photo_record_id=await uploadRecord(file,'photo');const age_updated_on=localDay();const {error}=await db.from('profiles').upsert({...row,user_id:user.id,age_updated_on});if(error)throw error}
+export const saveProfile=createProfileSaver({db,getUser:()=>user,uploadRecord});
 export async function profilePhoto(profile){if(!profile?.photo_record_id||profile.representation!=='photo')return null;const {data:row,error}=await db.from('portrait_renders').select('output_path').eq('user_id',user.id).eq('source_record_id',profile.photo_record_id).eq('status','ready').not('accepted_at','is',null).order('accepted_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;if(!row)return null;const r=await db.storage.from('portrait-renders').createSignedUrl(row.output_path,3600);if(r.error)throw r.error;return r.data.signedUrl}
 
 export async function peerPercentiles(){const {data,error}=await db.rpc('peer_percentiles');if(error)throw error;return data}
