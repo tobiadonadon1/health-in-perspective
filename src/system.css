@@ -61,7 +61,30 @@
 }
 @media(forced-colors:active){.meal-dot,.macro-split i{forced-color-adjust:none;border:1px solid CanvasText}}
 
-/* Glass without diagonal streaks: the earlier layers painted a narrow 122° highlight band (::before) and a rim
-   that brightened along a 132° axis (::after); both read as diagonal lines. Light now falls straight down. */
-:is(.panel,.integration,.metric:not(.has-accent))::before{background:radial-gradient(95% 75% at 10% -56%,#ffffffed 28%,#ffffff45 68%,transparent 92%),radial-gradient(90% 32% at 65% 111%,#ffffff80,transparent 78%)}
-:is(.panel,.integration,.metric)::after{background:linear-gradient(180deg,#fff 0%,#ffffff40 38%,#ffffff1f 72%,#ffffff8c 100%)}
+
+/* Solid cards: every card is one flat fill. No sheen, rim light, inset highlight, gradient or blur. */
+:is(.panel,.integration,.metric)::before,:is(.panel,.integration,.metric)::after{background:none!important;box-shadow:none!important;opacity:0!important}
+:is(.panel,.integration,.metric,.widget-choice){background-image:none!important;background-color:var(--x-surface)!important;box-shadow:0 0 0 1px var(--x-line)!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.metric.has-accent{background-color:color-mix(in srgb,var(--accent) 16%,#fff)!important;box-shadow:none!important}
+.metric.has-accent:hover{background-color:color-mix(in srgb,var(--accent) 22%,#fff)!important;box-shadow:none!important}
+.metric.has-accent .metric-icon,.metric.has-accent .metric-delta{background:#fff;box-shadow:none}
+.metric.has-accent .metric-delta.flat{background:#ffffffb3}
+.widget-choice.has-accent{background-color:color-mix(in srgb,var(--accent) 12%,#fff)!important;box-shadow:none!important}
+.metric.green:not(.has-accent){background-color:#e6efe0!important}
+.metric.peach:not(.has-accent){background-color:#f8e6d6!important}
+.metric.blue:not(.has-accent){background-color:#e3e9f2!important}
+.metric.pink:not(.has-accent){background-color:#f5e3e6!important}
+.widget-content>.panel.nutrition-timeline{--accent:var(--x-meal);background:color-mix(in srgb,var(--x-meal) 13%,#fff)!important;box-shadow:none!important}
+.widget-content>.panel.journal-widget,.panel.journal-widget.journal-illustrated{background:#f8e1d6!important;box-shadow:none!important}
+.meal-dot{box-shadow:0 0 0 3px color-mix(in srgb,var(--x-meal) 13%,#fff)}
+
+/* Neutral navigation: no green tints, gradients or dot; the active page is a plain solid chip. */
+.sidebar{background:#fbfbfa!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;border-right:1px solid var(--x-line)!important}
+.nav button{color:#5f6562!important}
+.nav button:hover{background:#f0f0ee!important}
+.nav button.active{background:#ececea!important;box-shadow:none!important;color:var(--x-ink)!important}
+.nav button.active:after{display:none!important}
+.sidebar-account summary,.account-menu summary{background:none!important;box-shadow:none!important}
+.avatar-letter{background:#ececea!important;color:var(--x-ink-soft)!important;box-shadow:none!important}
+/* Inner writing surfaces follow the same rule: flat white with a hairline, no sheen. */
+#meal-chat-form,.journal-writing{background:#fff!important;box-shadow:0 0 0 1px var(--x-line)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
