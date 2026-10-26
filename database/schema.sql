@@ -165,7 +165,7 @@ grant execute on function public.peer_percentiles() to authenticated;
 
 create table public.chat_connections (
  user_id uuid primary key references auth.users(id) on delete cascade,
- provider text not null check(provider in ('openai','anthropic','gemini')),
+ provider text not null check(provider in ('openai','anthropic','gemini','openrouter','mistral','groq','xai','deepseek')),
  model text not null check(length(model) between 1 and 100),
  encrypted_key text not null,
  updated_at timestamptz not null default now()
@@ -250,7 +250,7 @@ create table public.journal_reflections (
  entry_id uuid not null unique,
  user_id uuid not null references auth.users(id) on delete cascade,
  entry_content text not null,
- provider text not null check(provider in ('openai','anthropic','gemini')),
+ provider text not null check(provider in ('openai','anthropic','gemini','openrouter','mistral','groq','xai','deepseek')),
  model text not null,
  context_shared boolean not null default false,
  status text not null default 'processing' check(status in ('processing','ready','failed')),

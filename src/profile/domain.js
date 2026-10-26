@@ -1,3 +1,4 @@
+import {chartNow} from '../domain.js';
 // Keep the stored digital key so existing profiles receive the replacement automatically.
 export const representations = [
  {id:'photo',title:'Your own portrait',description:'Your likeness, rendered in the Xeyo style from a photo.',label:'Default'},
@@ -15,7 +16,7 @@ export function validateProfile(input){
  return {representation:input.representation,gender:input.gender,age,peer_opt_in:input.peer_opt_in===true,photo_record_id:input.photo_record_id||null};
 }
 // Each UTC day contributes equally, even when a device reports more frequently.
-export function metricSummary(rows,{days=30,now=Date.now()}={}){
+export function metricSummary(rows,{days=30,now=chartNow()}={}){
  const daily=new Map();
  for(const r of rows){const time=Date.parse(r.observed_at),value=Number(r.value);if(r.value==null||!Number.isFinite(value)||!Number.isFinite(time)||time>now||time<now-days*86400000)continue;const key=new Date(time).toISOString().slice(0,10);const values=daily.get(key)||[];values.push(value);daily.set(key,values)}
  const values=[...daily.values()].map(a=>a.reduce((s,n)=>s+n,0)/a.length);

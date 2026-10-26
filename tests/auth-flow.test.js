@@ -29,3 +29,8 @@ test('concurrent signup is deduplicated and delivery failure is not reported as 
   const request={email:'a@example.com',signup:{name:'A',password:'secret'},origin:'https://app.test'};
   const a=flow.send(request);await flow.send(request);assert.equal(calls,1);finish({error:{code:'email_address_not_authorized',message:'not authorized'}});await assert.rejects(a);assert.equal(flow.get(),null);assert.match(authMessage({code:'email_address_not_authorized'}),/not enabled/);
 });
+test('a rate-limited signup is an error, not a pending verification', async () => {
+  const saved=storage();const flow=createEmailFlow({signUp:async()=>({error:{code:'over_email_send_rate_limit',message:'Email rate limit exceeded'}})},saved,()=>1000);
+  await assert.rejects(flow.send({email:'a@example.com',signup:{name:'A',password:'secret-password'},origin:'https://app.test'}),e=>e.code==='signup_rate_limited'&&/wait 60 minutes/.test(e.message));
+  assert.equal(flow.get(),null);assert.equal(flow.waitSeconds('a@example.com','signup'),0);
+});

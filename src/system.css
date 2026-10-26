@@ -1,0 +1,62 @@
+/* Xeyo system layer: shared tokens and the page frame. Loaded last, so it settles the earlier layers.
+   New components take their colours and sizes from these tokens instead of fresh hex values. */
+:root{
+  --x-ink:#1f2622;--x-ink-soft:#46524b;--x-muted:#6b726e;--x-line:#e6e8e6;--x-surface:#fff;
+  --x-protein:#a8c294;--x-carbs:#dcad79;--x-fat:#a8aed0;--x-meal:#ef8a2c;
+  --x-radius-sm:10px;--x-radius:18px
+}
+
+/* One header per page: title and context on the left, the page's own actions next to sync and account. */
+.shell>.header{display:flex;flex-wrap:wrap;align-items:flex-start;column-gap:12px}
+.shell>.header>div:first-child{flex:1 1 300px;min-width:0}
+.shell>.header>div:first-child>p{max-width:62ch;margin-top:2px}
+.page-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;align-self:center}
+.shell>.header .header-actions{align-self:center}
+.page-actions .nutrition-day-control{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--x-muted)}
+.page-actions .nutrition-day-control input{min-height:38px;border:1px solid var(--x-line);border-radius:var(--x-radius-sm);background:#ffffffc7;padding:0 12px;color:var(--x-ink);font:inherit;font-size:12px}
+.nav button{position:relative}
+.nav button>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* The active dot floats in the padding so long labels such as “Blood records” keep their full width. */
+.nav button.active:after{position:absolute;right:9px;top:50%;margin-top:-2px}
+
+/* Dashboard cards: the whole card is the link, so the corner arrow only competed with the name. */
+.dashboard-metric.metric.has-accent .metric-top>svg{display:none}
+.dashboard-metric .metric-delta{margin-left:auto}
+
+/* Today's nutrition: real totals, macro split and when each meal was logged. */
+.nutrition-total{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:18px;row-gap:7px;margin-top:10px}
+.nutrition-total>strong{grid-row:span 2;font-size:30px;font-weight:500;letter-spacing:-.04em;line-height:1;color:var(--x-ink);font-variant-numeric:tabular-nums}
+.nutrition-total>strong small{margin-left:4px;font-size:11px;font-weight:400;letter-spacing:0;color:var(--x-muted)}
+.macro-split{display:flex;gap:2px;height:6px;border-radius:6px;overflow:hidden;background:#eef0ec}
+.macro-split i{display:block;min-width:2px}
+.macro-split .protein,.macro-key .protein:before{background:var(--x-protein)}
+.macro-split .carbs,.macro-key .carbs:before{background:var(--x-carbs)}
+.macro-split .fat,.macro-key .fat:before{background:var(--x-fat)}
+.macro-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:10px;color:var(--x-muted);font-variant-numeric:tabular-nums}
+.macro-key span:before{content:'';display:inline-block;width:6px;height:6px;margin-right:5px;border-radius:50%;vertical-align:1px}
+.day-track{position:relative;height:20px;margin:16px 0 6px;background:linear-gradient(#e9ece8,#e9ece8) center/100% 2px no-repeat}
+.meal-dot{position:absolute;top:50%;left:var(--x);width:var(--size);height:var(--size);transform:translate(-50%,-50%);border-radius:50%;background:var(--accent,var(--x-meal));box-shadow:0 0 0 3px #fff,0 2px 6px #c0701f40}
+.nutrition-timeline .axis{display:flex;justify-content:space-between;font-size:9px;color:var(--x-muted)}
+.nutrition-timeline .event{margin-top:12px}
+
+/* Blood results: one row per test with the change since the previous result. */
+.lab-change{display:inline-flex;flex-direction:column;gap:3px;font-size:13px;color:var(--x-ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lab-change small{font-size:10px;color:var(--x-muted)}
+.lab-change.same{color:var(--x-muted)}
+
+/* Toast with an action (Undo). */
+#toast{display:flex;align-items:center;gap:14px}
+#toast.has-action.visible{pointer-events:auto}
+.toast-action{color:#fff;font-weight:600;text-decoration:underline;text-underline-offset:3px;padding:2px 0}
+
+/* Integrations: a connected source keeps its actions side by side. */
+.integration-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:auto}
+.integration .integration-actions .btn{margin:0}
+
+@media(max-width:760px){
+  .shell>.header>div:first-child{flex:1 1 0}
+  .page-actions{order:3;flex:1 1 100%;align-self:stretch;margin-top:12px}
+  .page-actions .btn{min-height:36px;font-size:11px;padding:9px 14px}
+  .page-actions .nutrition-day-control{flex:1;justify-content:space-between}
+}
+@media(forced-colors:active){.meal-dot,.macro-split i{forced-color-adjust:none;border:1px solid CanvasText}}

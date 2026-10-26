@@ -1,4 +1,4 @@
-import {escapeHTML as esc,metricSeries} from './domain.js';
+import {escapeHTML as esc,metricSeries,chartNow,dateLocale} from './domain.js';
 import {formatValue} from './metrics.js';
 import {metricSummary} from './profile/domain.js';
 import {metricExplanation} from './metric-explanations.js';
@@ -11,7 +11,7 @@ export function nearestPoint(rows,time){
  if(low>0&&time-Date.parse(rows[low-1].observed_at)<=Date.parse(rows[low].observed_at)-time)return low-1;
  return low;
 }
-export function chartRows(readings,reading,days,now=Date.now()){
+export function chartRows(readings,reading,days,now=chartNow()){
  return metricSeries(readings.filter(r=>r.value!=null&&r.source===reading.source&&r.unit===reading.unit),reading.kind,days,now);
 }
 export function openMetricDetail({metric:m,reading:r,readings,showModal,heading}){
@@ -50,4 +50,4 @@ export function openMetricDetail({metric:m,reading:r,readings,showModal,heading}
  }
  draw();
 }
-function date(row,full=false){return new Date(row.observed_at).toLocaleDateString('en-US',{timeZone:'UTC',month:full?'long':'short',day:'numeric',...(full?{year:'numeric'}:{})});}
+function date(row,full=false){return new Date(row.observed_at).toLocaleDateString(dateLocale,{timeZone:'UTC',month:full?'long':'short',day:'numeric',...(full?{year:'numeric'}:{})});}

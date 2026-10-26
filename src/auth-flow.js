@@ -42,6 +42,8 @@ export function createEmailFlow(auth, storage, now = Date.now) {
       else result = await auth.resend({ type: 'signup', email, options: { emailRedirectTo: origin + '/' } });
       if (result.error) {
         const seconds = emailRateLimit(result.error);
+        // A rate-limited signUp creates no account, so there is nothing to verify or resend yet.
+        if (seconds && signup) { const error = new Error(`Too many sign-up emails were requested. Please wait ${seconds >= 60 ? Math.ceil(seconds / 60) + ' minutes' : seconds + ' seconds'} and try again.`); error.code = 'signup_rate_limited'; throw error; }
         if (seconds) return { pending: record(email, type, seconds, 'unconfirmed'), limited: true, remaining: seconds };
         throw result.error;
       }

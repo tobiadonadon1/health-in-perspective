@@ -5,7 +5,7 @@ body{background:radial-gradient(ellipse 60% 70% at 100% 100%,#e4e9f080,transpare
   --glass-surface:linear-gradient(128deg,#fffffff2 0%,#ffffffb8 45%,#ffffffd9 100%);
   --glass-shadow:inset 0 1px 0 #fffffff2,inset 1px 0 0 #ffffff7a,inset 0 -1px 0 #69827a35,inset 0 -3px 5px #ffffff6b,inset -1px 0 0 #ffffff85,0 8px 22px -14px #344e4c50,0 1px 3px #344e4c0a;
 }
-.metric,.metric.green,.metric.peach,.metric.blue,.metric.pink,.panel,.gut-card,.integration,.macro{
+.metric,.metric.green,.metric.peach,.metric.blue,.metric.pink,.panel,.integration{
   --glass-tint:220,228,232;
   position:relative;isolation:isolate;
   border:0;
@@ -23,12 +23,12 @@ body{background:radial-gradient(ellipse 60% 70% at 100% 100%,#e4e9f080,transpare
 .metric[data-metric="sleep"],.metric[data-metric="sleep_consistency"],.metric[data-metric="sleep_light"]{--glass-tint:201,185,238}
 .metric[data-metric="respiratory_rate"]{--glass-tint:155,216,205}
 .nutrition-timeline{--glass-tint:250,206,148;background:radial-gradient(ellipse at 95% 100%,#f9d69e99,transparent 90%),var(--glass-surface)}
-.metric::before,.panel::before,.integration::before,.macro::before{
+.metric::before,.panel::before,.integration::before{
   content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
   opacity:1;box-shadow:none;
   background:radial-gradient(ellipse 95% 75% at 10% -56%,#ffffffed 28%,#ffffff45 68%,transparent 73%),linear-gradient(122deg,transparent 14%,#ffffff24 18%,#ffffff08 25%,transparent 36% 78%,#ffffff18 100%),radial-gradient(ellipse 90% 32% at 65% 111%,#ffffff80 0%,transparent 78%);
 }
-.metric::after,.panel::after,.integration::after,.macro::after{
+.metric::after,.panel::after,.integration::after{
   content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;height:auto;width:auto;opacity:.9;padding:1px;
   background:linear-gradient(132deg,#fff 0%,#ffffff25 22%,#758e7f25 45%,#ffffff12 65%,#ffffffe0 86%,#ffffff25 100%);
   mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;
@@ -90,4 +90,4 @@ body{background:radial-gradient(ellipse 60% 70% at 100% 100%,#e4e9f080,transpare
   .portrait-figure .signal-breathing .signal-line{right:51px}.portrait-figure .signal-heart .signal-line{left:47px}
 }
 @media(prefers-reduced-motion:reduce){.metric:hover{transform:none}}
-@media(forced-colors:active){.metric,.panel,.integration,.macro{border:1px solid CanvasText;background:Canvas;box-shadow:none}.metric:before,.metric:after,.panel:before,.panel:after,.integration:before,.integration:after,.macro:before,.macro:after{display:none}.journal-bloom svg .pulse-trace{stroke:CanvasText}}
+@media(forced-colors:active){.metric,.panel,.integration{border:1px solid CanvasText;background:Canvas;box-shadow:none}.metric:before,.metric:after,.panel:before,.panel:after,.integration:before,.integration:after{display:none}.journal-bloom svg .pulse-trace{stroke:CanvasText}}
