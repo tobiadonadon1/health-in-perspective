@@ -62,11 +62,11 @@ create table public.lab_results (
  id uuid primary key default gen_random_uuid(),
  user_id uuid not null references auth.users(id) on delete cascade,
  marker text not null check(length(trim(marker)) between 1 and 120),
- value numeric not null check(value >= 0 and value <= 1000000000),
+ value numeric not null check(value between -1000000000 and 1000000000),
  unit text not null check(length(trim(unit)) between 1 and 40),
  collected_on date not null,
- reference_low numeric check(reference_low >= 0 and reference_low <= 1000000000),
- reference_high numeric check(reference_high >= 0 and reference_high <= 1000000000),
+ reference_low numeric check(reference_low between -1000000000 and 1000000000),
+ reference_high numeric check(reference_high between -1000000000 and 1000000000),
  laboratory text not null default '' check(length(laboratory) <= 160),
  notes text not null default '' check(length(notes) <= 2000),
  created_at timestamptz not null default now(),
@@ -233,6 +233,7 @@ create table public.journal_entries (
  user_id uuid not null references auth.users(id) on delete cascade,
  content text not null check (char_length(btrim(content)) between 1 and 4000),
  logged_on date not null default current_date,
+ mood text check (mood in ('great','good','okay','low','rough')),
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
  unique(id,user_id)
@@ -241,7 +242,7 @@ create index journal_entries_owner_date on public.journal_entries(user_id,logged
 alter table public.journal_entries enable row level security;
 revoke all on public.journal_entries from anon,authenticated;
 grant select,delete on public.journal_entries to authenticated;
-grant insert(id,user_id,content,logged_on),update(content,logged_on) on public.journal_entries to authenticated;
+grant insert(id,user_id,content,logged_on,mood),update(content,logged_on,mood) on public.journal_entries to authenticated;
 grant all on public.journal_entries to service_role;
 create policy journal_owner on public.journal_entries for all to authenticated using(user_id=(select auth.uid())) with check(user_id=(select auth.uid()));
 

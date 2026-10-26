@@ -116,3 +116,12 @@ Release verification: `npm test` covers chart selection, source separation, jour
 - Import batches are up to 2,000 rows (the client falls back to 500 against an older function). Rows are capped at 25,000 per import, newest first.
 - Portrait studio offers a **3D avatar** style (default, `xeyo-avatar-3d-v1`) and the existing photoreal style. Both use the person's photo as identity and the existing framing/safety rules. Photos are re-encoded on the device before upload (max 2048 px JPEG, EXIF/GPS removed, HEIC accepted where the browser can decode it).
 - Dashboard cards use one accent and icon per metric (`src/metric-style.js`, `src/cards.css`), a neutral change-vs-30-day chip, and ring gauges for 0–100 scores. Colours identify the signal, never a judgement.
+
+### User-test fixes and features (2026-10-26)
+- Apply `supabase/migrations/20261026120000_journal_mood_and_signed_labs.sql` before deploying this frontend. It adds an optional `mood` to `journal_entries` (changing only the mood keeps an AI reflection) and lets lab results and reference limits be negative within the same ±1e9 bound.
+- Every section has an address (`/#/vitals`, `/#/labs`…). Plain paths such as `/vitals` or `/login` are redirected by `public/404.html` on hosts that serve it for unknown paths, and by the app itself on hosts that serve `index.html` for every path. Anything else shows a branded not-found page.
+- Without an AI key, chat explains what is missing and Send opens the connection; meals can always be added manually. Chat, meal analysis, journal reflections and the optional OpenAI key for portraits/voice share one **AI** setting.
+- Sample data (`src/demo.js`) is offered only while an account has no readings, is generated in the browser, labelled everywhere and never saved.
+- Readings older than three days show as "last recorded" and move to the end of their page; values outside about two standard deviations of the person's own 30-day range are marked unusual (`src/insights.js`). Home lists up to three such changes and a weekly summary.
+- Sleep page goals (sleep hours, recovery %) are stored in the account's `user_metadata.preferences`; sleep debt adds up shortfalls over the last 7 nights.
+- Forms show inline messages instead of browser bubbles (`src/form-errors.js`). Data export is available as JSON or a ZIP of CSV files.

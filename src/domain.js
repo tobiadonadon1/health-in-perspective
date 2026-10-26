@@ -9,9 +9,9 @@ export function localDay(d=new Date()){return `${d.getFullYear()}-${String(d.get
 
 export function validateLabResult(input){
  const marker=String(input.marker||'').trim(),unit=String(input.unit||'').trim();
- if(!marker||marker.length>120)throw Error('Enter the test name from your report.');
+ if(!marker)throw Error('Enter the test name from your report.');if(marker.length>120)throw Error('Keep the test name to 120 characters or fewer.');
  if(!unit||unit.length>40)throw Error('Enter the unit printed on your report.');
- const number=(v,optional=false)=>{if(v===null||v===undefined||String(v).trim()===''){if(optional)return null;throw Error('Enter a numeric result.')}const n=Number(v);if(!Number.isFinite(n)||n<0||n>1e9)throw Error('Enter a valid, nonnegative lab value.');return n};
+ const number=(v,optional=false)=>{if(v===null||v===undefined||String(v).trim()===''){if(optional)return null;throw Error('Enter a numeric result.')}const n=Number(v);if(!Number.isFinite(n)||Math.abs(n)>1e9)throw Error('Enter a valid lab value.');return n};
  const value=number(input.value),reference_low=number(input.reference_low,true),reference_high=number(input.reference_high,true);
  if(reference_low!==null&&reference_high!==null&&reference_low>reference_high)throw Error('The lower reference limit must not exceed the upper limit.');
  const collected_on=String(input.collected_on||'');const d=new Date(collected_on+'T12:00:00Z');

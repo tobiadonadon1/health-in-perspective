@@ -1,14 +1,19 @@
 const recovery={source:'WHOOP · Understanding recovery',url:'https://support.whoop.com/s/article/WHOOP-Recovery'};
 const sleep={source:'WHOOP · Understanding sleep',url:'https://support.whoop.com/s/article/WHOOP-Sleep?language=en_US'};
-const heart={source:'American Heart Association · Heart rate',url:'https://www.heart.org/en/health-topics/high-blood-pressure/the-facts-about-high-blood-pressure/all-about-heart-rate-pulse'};
+// Each signal links to a source about that signal, not to a device score that merely uses it.
+const heart={source:'MedlinePlus · Pulse',url:'https://medlineplus.gov/ency/article/003399.htm'};
+const hrvSource={source:'Cleveland Clinic · Heart rate variability',url:'https://my.clevelandclinic.org/health/articles/21773-heart-rate-variability-hrv'};
+const oxygen={source:'MedlinePlus · Pulse oximetry',url:'https://medlineplus.gov/lab-tests/pulse-oximetry/'};
+const vitals={source:'Cleveland Clinic · Vital signs',url:'https://my.clevelandclinic.org/health/articles/10881-vital-signs'};
+const temperature={source:'Apple · Wrist temperature during sleep',url:'https://support.apple.com/en-us/102674'};
 const apple={source:'Apple · Health measurements',url:'https://support.apple.com/en-us/120277'};
 const entries={
- resting_hr:['Your heartbeats per minute at rest. WHOOP estimates this during sleep.','Compare with your usual pattern. A change alone does not identify its cause.',recovery],
- hrv:['The variation in time between heartbeats, measured in milliseconds.','Your own baseline matters more than another person’s number. Compare like-for-like measurements from the same device.',recovery],
- spo2:['An estimate of the percentage of oxygen-saturated haemoglobin in your blood.','A wearable reading is a signal to put in context, not a diagnosis. Sensor fit and measurement conditions matter.',recovery],
+ resting_hr:['Your heartbeats per minute at rest. WHOOP estimates this during sleep.','Compare with your usual pattern. A change alone does not identify its cause.',heart],
+ hrv:['The variation in time between heartbeats, measured in milliseconds.','Your own baseline matters more than another person’s number. Compare like-for-like measurements from the same device.',hrvSource],
+ spo2:['An estimate of the percentage of oxygen-saturated haemoglobin in your blood.','A wearable reading is a signal to put in context, not a diagnosis. Sensor fit and measurement conditions matter.',oxygen],
  recovery:['WHOOP’s daily estimate of readiness, combining several overnight signals.','This is a device score, not a medical assessment. Consider it alongside how you feel.',recovery],
- respiratory_rate:['How many breaths you take per minute. WHOOP reports this during sleep.','Look for changes from your own pattern across several nights.',recovery],
- skin_temperature:['Temperature measured at the skin, rather than your internal body temperature.','Room temperature, device contact and your body’s daily rhythms can affect this reading.',recovery],
+ respiratory_rate:['How many breaths you take per minute. WHOOP reports this during sleep.','Look for changes from your own pattern across several nights.',vitals],
+ skin_temperature:['Temperature measured at the skin, rather than your internal body temperature.','Room temperature, device contact and your body’s daily rhythms can affect this reading.',temperature],
  sleep:['The time your device estimated you were asleep, excluding detected awake time.','Look at duration alongside regularity and how rested you feel.',sleep],
  sleep_performance:['WHOOP’s sleep score, combining sleep sufficiency, consistency, efficiency and sleep stress.','A percentage summarises several factors. Open the individual sleep metrics for more context.',sleep],
  sleep_efficiency:['The share of your time in bed that your device estimated you were asleep.','Time awake in bed lowers this percentage; it is different from total sleep duration.',sleep],

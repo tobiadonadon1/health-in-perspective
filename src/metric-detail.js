@@ -14,11 +14,15 @@ export function nearestPoint(rows,time){
 export function chartRows(readings,reading,days,now=chartNow()){
  return metricSeries(readings.filter(r=>r.value!=null&&r.source===reading.source&&r.unit===reading.unit),reading.kind,days,now);
 }
-export function openMetricDetail({metric:m,reading:r,readings,showModal,heading}){
+// siblings: the metrics on the page the detail was opened from, in order; open(kind) shows another one.
+export function openMetricDetail({metric:m,reading:r,readings,showModal,heading,siblings=[],open}){
  const info=metricExplanation(m.kind);
+ const at=siblings.findIndex(s=>s.kind===m.kind),prev=at>0?siblings[at-1]:null,next=at>=0&&at<siblings.length-1?siblings[at+1]:null;
+ const switcher=open&&siblings.length>1&&at>=0?`<nav class="metric-switch" aria-label="Other metrics"><button type="button" class="text-button" id="metric-prev" ${prev?`aria-label="Previous: ${esc(prev.name)}"`:'disabled'}>← ${prev?esc(prev.name):''}</button><span>${at+1} of ${siblings.length}</span><button type="button" class="text-button" id="metric-next" ${next?`aria-label="Next: ${esc(next.name)}"`:'disabled'}>${next?esc(next.name):''} →</button></nav>`:'';
+ const bindSwitch=()=>{if(!switcher)return;document.querySelector('#metric-prev')?.addEventListener('click',()=>prev&&open(prev.kind));document.querySelector('#metric-next')?.addEventListener('click',()=>next&&open(next.kind));document.querySelector('#modal .dialog').onkeydown=e=>{if(e.target.closest('.trend-interaction,input,textarea,select'))return;if(e.key==='ArrowLeft'&&prev){e.preventDefault();open(prev.kind)}if(e.key==='ArrowRight'&&next){e.preventDefault();open(next.kind)}}};
  const explain=`<section class="metric-explainer"><span class="eyebrow">Understand your ${m.name.toLowerCase()}</span><h3>What this means</h3><p>${esc(info.meaning)}</p><p class="metric-context">${esc(info.context)}</p><a href="${info.url}" target="_blank" rel="noopener">${info.source} ↗</a></section>`;
- if(!r){showModal(`${heading(m.name,'Your signals')}<div class="empty"><h3>No measurement yet.</h3><p>Connect a source or import measured data to see your trend.</p><button class="btn light" data-action="to-integrations">Manage connections ↗</button></div>${explain}`);return;}
- showModal(`${heading(m.name,esc(r.source)+' / Your trend')}<div id="metric-explorer"></div>${explain}`);
+ if(!r){showModal(`${heading(m.name,'Your signals')}${switcher}<div class="empty"><h3>No measurement yet.</h3><p>Connect a source or import measured data to see your trend.</p><button class="btn" data-action="to-integrations">Connect a source ↗</button></div>${explain}`);bindSwitch();return;}
+ showModal(`${heading(m.name,esc(r.source)+' / Your trend')}${switcher}<div id="metric-explorer"></div>${explain}`);bindSwitch();
  const host=document.querySelector('#metric-explorer');let period=30;
  function draw(){
   const rows=chartRows(readings,r,period),stats=metricSummary(rows,{days:period});

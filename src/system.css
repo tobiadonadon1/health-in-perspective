@@ -88,3 +88,136 @@
 .avatar-letter{background:#ececea!important;color:var(--x-ink-soft)!important;box-shadow:none!important}
 /* Inner writing surfaces follow the same rule: flat white with a hairline, no sheen. */
 #meal-chat-form,.journal-writing{background:#fff!important;box-shadow:0 0 0 1px var(--x-line)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+/* Readability: supporting text never drops below 11px or fades into the card colour. */
+.metric-meta,.metric-footer,.metric-average,.metric-source,.metric-origin,.footer,.portrait-cta,.portrait-detail,.event small,.event .right,.nutrition-timeline .axis,.trend-axis,.mini-note,.signal-copy,.hero-overline small,.chart-method p,.integration-mode{font-size:11px!important;color:var(--x-ink-soft)!important}
+.metric-meta strong,.metric-average strong{color:var(--x-ink)!important}
+.signal-copy strong{font-size:18px!important;color:var(--x-ink)!important}
+.footer{opacity:1!important}
+
+/* Navigation: larger icons and an unmistakable current page. */
+.nav svg{width:20px!important;height:20px!important}
+.nav button{font-size:13px!important;min-height:42px;gap:10px!important;padding-left:10px!important;padding-right:8px!important}
+.nav button.active{background:var(--x-ink)!important;color:#fff!important}
+.nav button.active svg{color:#fff}
+.account-popover .account-signout{margin-top:6px;border-top:1px solid var(--x-line);border-radius:0 0 10px 10px;padding-top:12px;color:#8a3b2b}
+
+/* Chat: available on every page; an open conversation dims the page behind it. */
+.chat-scrim{position:fixed;inset:0;background:#1f262266;animation:x-fade .15s ease-out}
+.chat-window{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 0 0 1px var(--x-line),0 24px 60px -20px #1f262266!important}
+.chat-setup{display:grid;gap:8px;margin:0 0 12px;padding:14px 16px;border-radius:var(--x-radius-sm);background:#f3f1ec}
+.chat-setup strong{font-size:14px;font-weight:600;color:var(--x-ink)}
+.chat-setup span{font-size:12px;line-height:1.5;color:var(--x-ink-soft)}
+.chat-setup .btn{justify-self:start}
+.ai-extra{margin-top:22px;padding-top:18px;border-top:1px solid var(--x-line)}
+.ai-extra h3{font-size:14px;margin-bottom:6px}
+.ai-extra .btn{margin-top:10px}
+@keyframes x-fade{from{opacity:0}}
+@media(max-width:760px){.shell{padding-bottom:96px!important}}
+
+/* Meal logging without an AI connection. */
+.chat-connect{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:12px;font-size:12px;color:var(--x-ink-soft)}
+.chat-connect .text-button,.chat-disclosure .text-button{text-decoration:underline;text-underline-offset:3px;font-size:inherit;color:var(--x-ink)}
+
+/* Sample data and empty states. */
+.demo-banner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:0 0 18px;padding:10px 16px;border-radius:var(--x-radius-sm);background:#fdf0d8;color:#5b4318;font-size:12px}
+.demo-banner strong{font-weight:600}
+.demo-banner .text-button{font-size:12px;text-decoration:underline;text-underline-offset:3px;color:inherit}
+.data-callout{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.data-callout h3{font-size:16px;margin-bottom:4px}
+.data-callout p{font-size:13px;max-width:56ch}
+.data-callout .actions{display:flex;flex-wrap:wrap;gap:10px}
+.empty .btn{margin-top:14px}
+
+/* Home insights: the person's signals against their own 30-day average. */
+.home-insights{display:grid;gap:0;width:250px;max-width:calc(100vw - 96px);text-align:left;padding:14px 16px;border-radius:var(--x-radius);background:#fff;box-shadow:0 0 0 1px var(--x-line)}
+.home-insights .eyebrow{margin-bottom:4px}
+.home-insights p{font-size:13px;color:var(--x-ink-soft)}
+.insight{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 0;border-top:1px solid var(--x-line);text-align:left;font-size:13px;line-height:1.35;color:var(--x-ink)}
+.insight:first-of-type{border-top:0}
+.insight b{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8a3b2b}
+.insight.unusual span{font-weight:600}
+.home-insights .text-button{justify-self:start;text-align:left;margin-top:8px;font-size:12px;color:var(--x-ink);text-decoration:underline;text-underline-offset:3px}
+.dashboard-data>.home-insights{max-width:none;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:16px}
+.dashboard-data>.home-insights .eyebrow,.dashboard-data>.home-insights .text-button{grid-column:1/-1}
+.portrait-cta{display:block;margin-top:10px;text-align:left;text-decoration:underline;text-underline-offset:3px}
+
+/* Stale and unusual readings. */
+.metric.is-stale .metric-number{color:var(--x-muted)}
+.metric.is-stale .metric-number:after{content:' · old';font-size:11px;font-weight:400;letter-spacing:0}
+.metric-delta.stale{background:#fff!important;color:var(--x-muted)!important;box-shadow:0 0 0 1px var(--x-line)}
+.metric-delta.unusual{background:var(--x-ink)!important;color:#fff!important}
+.sleep-overview.is-stale h2{font-size:22px}
+
+/* Sleep and recovery goals. */
+.goals-panel{margin-bottom:18px}
+.goal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin:14px 0 18px}
+.goal-block span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--x-ink-soft)}
+.goal-block strong{display:block;margin:4px 0;font-size:28px;font-weight:500;letter-spacing:-.03em;color:var(--x-ink)}
+.goal-block strong small{font-size:13px;color:var(--x-ink-soft)}
+.goal-block p{font-size:12px;color:var(--x-ink-soft)}
+.goal-bars{position:relative;display:flex;align-items:flex-end;gap:4px;height:86px;padding-top:4px}
+.goal-bars i{flex:1;height:var(--h);min-height:3px;border-radius:4px 4px 2px 2px;background:#c9cbe9}
+.goal-bars i.met{background:#4f5bd5}
+.goal-line{position:absolute;left:0;right:0;bottom:var(--g);border-top:1.5px dashed var(--x-ink)}
+.goal-line b{position:absolute;right:0;bottom:3px;font-size:10px;font-weight:500;background:#fff;padding:0 4px;color:var(--x-ink)}
+
+/* Widget gallery: flag widgets nothing has recorded yet. */
+.widget-choice.no-data{opacity:.72}
+.no-data-flag{display:inline-block;margin-right:4px;padding:1px 6px;border-radius:99px;background:#f3f1ec;font-size:10px;font-weight:600;color:var(--x-ink-soft)}
+
+/* Blood results: reference range bar and history chart. */
+.range-bar{position:relative;display:block;width:120px;height:8px;margin:2px 0 6px;border-radius:4px;background:#eef0ee}
+.range-band{position:absolute;left:25%;width:50%;top:0;bottom:0;border-radius:4px;background:#cfe3d4}
+.range-bar b{position:absolute;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--x-ink);box-shadow:0 0 0 2px #fff}
+.range-bar.out b{background:#c2410c}
+.range-text{font-size:12px;color:var(--x-ink-soft)}
+.lab-chart{width:100%;height:180px;overflow:visible}
+.lab-chart .lab-band{fill:#cfe3d4;opacity:.7}
+.lab-chart polyline{fill:none;stroke:var(--x-ink);stroke-width:2;vector-effect:non-scaling-stroke}
+.lab-chart circle{fill:var(--x-ink);stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}
+.lab-chart circle.out{fill:#c2410c}
+
+/* Weekly summary and metric switching. */
+.weekly-table,.mood-table{width:100%;border-collapse:collapse;margin:16px 0 8px;font-size:13px;text-align:left}
+.weekly-table th,.mood-table th{padding:8px;font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--x-ink-soft);border-bottom:1px solid var(--x-line)}
+.weekly-table td,.mood-table td{padding:10px 8px;border-bottom:1px solid var(--x-line)}
+.weekly-table td small{display:block;font-size:11px;color:var(--x-ink-soft)}
+.metric-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-4px 0 14px;font-size:12px;color:var(--x-ink-soft)}
+.metric-switch .text-button{font-size:12px;color:var(--x-ink)}
+.metric-switch .text-button:disabled{visibility:hidden}
+
+/* Journal mood. */
+.mood-picker{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.mood-picker>span{font-size:12px;color:var(--x-ink-soft);margin-right:4px}
+.mood-picker button{padding:5px 12px;border-radius:99px;font-size:12px;background:#fff;box-shadow:0 0 0 1px var(--x-line);color:var(--x-ink)}
+.mood-picker button[aria-checked="true"]{background:var(--x-ink);color:#fff;box-shadow:none}
+.mood-tag{display:inline-block;margin-left:10px;padding:2px 9px;border-radius:99px;font-size:11px;background:#f3f1ec;color:var(--x-ink)}
+.mood-tag.mood-great{background:#dcefdc}.mood-tag.mood-good{background:#e6f0dc}.mood-tag.mood-okay{background:#f1eee4}.mood-tag.mood-low{background:#f6e6d8}.mood-tag.mood-rough{background:#f3dcd8}
+.mood-patterns{margin-bottom:22px}
+.mood-patterns>p,.mood-patterns .mini-note{font-size:13px}
+.mood-table td small{font-size:11px;color:var(--x-ink-soft)}
+
+/* Inline form errors in place of the browser's bubbles. */
+.field-error{display:block;margin:6px 0 2px;font-size:12px;font-weight:500;color:#a8321f}
+[aria-invalid="true"]{box-shadow:0 0 0 1.5px #a8321f!important;border-color:#a8321f!important}
+
+/* Branded not-found page. */
+.not-found{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:12px;padding:24px 16px;text-align:center}
+.not-found .brand{margin-bottom:28px}
+.not-found h1{font-size:34px}
+.not-found p{font-size:15px;color:var(--x-ink-soft);margin-bottom:12px}
+/* The chat launcher is on every page now: the footer keeps clear of it. */
+@media(min-width:761px){.shell>.footer{padding-right:230px}}
+.journal-writing .mood-picker{padding:0 20px}
+.mood-patterns{margin:22px 0}
+/* The overline is decorative (pointer-events:none in older layers); its insights and links are real controls. */
+.hero-overline .home-insights,.hero-overline .portrait-cta{pointer-events:auto}
+/* On phones the portrait, then the insights and links, stack in normal flow instead of overlapping. */
+@media(max-width:760px){.hero-body{display:flex;flex-direction:column;height:auto!important;min-height:0!important}.hero-body .portrait-scene{position:relative;inset:auto;height:300px;flex:none}.hero-body .hero-overline{position:static;max-width:none;margin:12px 0 0}.hero-body .home-insights{width:auto;max-width:none}.hero-body .portrait-detail{position:static;margin-top:10px;align-self:flex-start}}
+/* Keyboard focus is neutral too, matching the navigation. */
+:is(button,a,input,textarea,select,summary,[tabindex]):focus-visible{outline:2px solid var(--x-ink)!important;outline-offset:3px}
+/* Dialogs follow the cards: one solid surface, no sheen. */
+#modal .dialog{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 30px 80px -30px #1f262273!important;border:0!important}
+#modal .dialog::before,#modal .dialog::after{opacity:0!important}
+.dialog-footer>span,.dialog-footer>p{font-size:13px!important;color:var(--x-ink-soft)!important}
