@@ -60,3 +60,8 @@
   .page-actions .nutrition-day-control{flex:1;justify-content:space-between}
 }
 @media(forced-colors:active){.meal-dot,.macro-split i{forced-color-adjust:none;border:1px solid CanvasText}}
+
+/* Glass without diagonal streaks: the earlier layers painted a narrow 122° highlight band (::before) and a rim
+   that brightened along a 132° axis (::after); both read as diagonal lines. Light now falls straight down. */
+:is(.panel,.integration,.metric:not(.has-accent))::before{background:radial-gradient(95% 75% at 10% -56%,#ffffffed 28%,#ffffff45 68%,transparent 92%),radial-gradient(90% 32% at 65% 111%,#ffffff80,transparent 78%)}
+:is(.panel,.integration,.metric)::after{background:linear-gradient(180deg,#fff 0%,#ffffff40 38%,#ffffff1f 72%,#ffffff8c 100%)}
