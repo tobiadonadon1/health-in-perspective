@@ -125,3 +125,8 @@ Release verification: `npm test` covers chart selection, source separation, jour
 - Readings older than three days show as "last recorded" and move to the end of their page; values outside about two standard deviations of the person's own 30-day range are marked unusual (`src/insights.js`). Home lists up to three such changes and a weekly summary.
 - Sleep page goals (sleep hours, recovery %) are stored in the account's `user_metadata.preferences`; sleep debt adds up shortfalls over the last 7 nights.
 - Forms show inline messages instead of browser bubbles (`src/form-errors.js`). Data export is available as JSON or a ZIP of CSV files.
+
+### Card redesign (2026-10-26)
+- Metric cards are `vcard`s (`src/vcards.js`, `src/vcards.css`): one saturated colour field per signal, film grain, a large light number, a status pill against the person's own 30-day average, and a data-driven 1px line drawing (stacked rings for recovery/HRV, waves for blood oxygen, a range arc for respiratory rate and skin temperature, stage bars for sleep). One accent marks today: lime with a portrait, orange in the statistics view.
+- Home is a bento board packed by `packBento` (`src/board.js`): the hero (recovery, else HRV) spans two rows; wide cards fill rows the small ones cannot. Portrait users get a foggy figure whose callouts point to their cards, plus "Today's data"; statistics users get a 14-day trend card and a figure card instead.
+- Card text was checked against WCAG AA on the rendered gradients (all palettes ≥4.4:1 for small text).

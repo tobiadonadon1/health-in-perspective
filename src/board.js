@@ -1,10 +1,29 @@
 import {metrics,defaultBoard} from './metrics.js';
-export const extraWidgets=[{kind:'nutrition',name:'Today’s nutrition',group:'daily',color:'green',unit:''},{kind:'digestive',name:'Health journal',group:'daily',color:'peach',unit:''}];
+export const extraWidgets=[{kind:'nutrition',name:'Today’s nutrition',group:'daily',color:'green',unit:''},{kind:'digestive',name:'Health journal',group:'daily',color:'peach',unit:''},{kind:'measurements',name:'Measurements',group:'daily',color:'blue',unit:'readings'}];
 export const widgetCatalog=[...metrics,...extraWidgets];
 const allowed=new Set(widgetCatalog.map(m=>m.kind));
-export function boardRows(layout){let rows=0,used=0;for(const w of layout.widgets){const span={small:2,medium:3,large:6}[w.size]||2;if(!used||used+span>6){rows++;used=0}used+=span;if(used===6)used=0}return rows;}
+// Places widgets on the bento grid: the hero top-left, then row by row in the person's order. When the small
+// cards left cannot fill a row, a wide card goes first, so mixed sizes tile without holes.
+export function packBento(widgets,{hero=null,cols=3,startRow=1}={}){
+ const size=w=>w.size==='large'?[2,2]:w.size==='medium'?[2,1]:w.id===hero?[1,2]:[1,1];
+ const taken=new Set(),key=(c,r)=>c+':'+r,out=new Map(),queue=[...widgets];
+ const free=(c,r,[w,h])=>{if(c+w-1>cols)return false;for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(taken.has(key(c+i,r+j)))return false;return true};
+ const place=(item,c,r)=>{const [w,h]=size(item);for(let i=0;i<w;i++)for(let j=0;j<h;j++)taken.add(key(c+i,r+j));out.set(item.id,{c,r,w,h});queue.splice(queue.indexOf(item),1)};
+ const first=queue.find(w=>w.id===hero)||queue.find(w=>w.size==='large');if(first)place(first,1,startRow);
+ for(let r=startRow;queue.length&&r<startRow+100;r++)for(let c=1;c<=cols&&queue.length;c++){
+  if(taken.has(key(c,r)))continue;let run=0;while(c+run<=cols&&!taken.has(key(c+run,r)))run++;
+  const smalls=queue.filter(w=>size(w)[0]===1).length,wide=run>=2&&smalls<run?queue.find(w=>size(w)[0]>1&&free(c,r,size(w))):null;
+  const pick=wide||queue.find(w=>free(c,r,size(w)));if(pick){place(pick,c,r);c+=size(pick)[0]-1}
+ }
+ // A one-row card followed only by empty cells to the end of its row widens to close the gap.
+ for(const [id,p] of out){if(p.h!==1)continue;let end=p.c+p.w;while(end<=cols&&!taken.has(key(end,p.r)))end++;if(end>cols&&end-1>p.c+p.w-1){for(let c=p.c+p.w;c<end;c++)taken.add(key(c,p.r));p.w=end-p.c}}
+ return out;
+}
+// Bento cells: small 1, medium 2 (wide), large 4 (2×2) and the hero 2 (tall); dense packing fills the gaps.
+export function boardRows(layout,{hero=null,cols=3}={}){return Math.ceil(layout.widgets.reduce((n,w)=>n+(w.size==='large'?4:w.size==='medium'||w.id===hero?2:1),0)/cols)}
 export function normalizeLayout(value,legacy){
- const defaults=[...(Array.isArray(legacy)&&legacy.length?legacy:defaultBoard).filter(id=>allowed.has(id)).map(id=>({id,size:'small'})),{id:'nutrition',size:'medium'},{id:'digestive',size:'medium'}];
+ // New boards also get the measurement count, which completes the default bento grid.
+ const defaults=[...(Array.isArray(legacy)&&legacy.length?legacy:[...defaultBoard,'measurements']).filter(id=>allowed.has(id)).map(id=>({id,size:'small'})),{id:'nutrition',size:'medium'},{id:'digestive',size:'medium'}];
  if(!value||value.version!==1||!Array.isArray(value.widgets))return {version:1,widgets:defaults};
  const seen=new Set();const widgets=value.widgets.filter(w=>w&&allowed.has(w.id)&&!seen.has(w.id)&&seen.add(w.id)).slice(0,16).map(w=>({id:w.id,size:['small','medium','large'].includes(w.size)?w.size:'small'}));
  return {version:1,widgets};

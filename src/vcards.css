@@ -1,0 +1,212 @@
+/* Visual cards and the bento board. Loaded last.
+   One saturated field per card, 1px white line art, one accent for live points, no drop shadows. */
+:root{--x-accent:#d4ff3a;--x-accent-ink:#1d2410;--v-radius:10px;--v-gap:8px}
+.shell.theme-stats{--x-accent:#ff6a1a;--x-accent-ink:#2a1205}
+
+/* Palettes. Text is white on dark fields and near-black on the light ones (tone-light). */
+.vcard{--field:linear-gradient(165deg,#b5503c,#344560)}
+.pal-forest{--field:linear-gradient(168deg,#0f3b29 0%,#1b5030 52%,#2f6524 100%)}
+.pal-lagoon{--field:linear-gradient(168deg,#0b3640 0%,#104851 52%,#195a52 100%)}
+.pal-dusk{--field:linear-gradient(168deg,#a94a37 0%,#76465a 50%,#2f3f5c 100%)}
+.pal-citrus{--field:linear-gradient(168deg,#f8de5a 0%,#f5b93f 55%,#ef9131 100%)}
+.pal-amber{--field:linear-gradient(168deg,#f6b955 0%,#ee9a39 55%,#e2792a 100%)}
+.pal-noir{--field:linear-gradient(168deg,#0f1513 0%,#141d19 60%,#1b2a23 100%)}
+.pal-sand{--field:linear-gradient(168deg,#f3ede4 0%,#eadfcf 100%)}
+.pal-ember{--field:linear-gradient(160deg,#d9480f 0%,#b4380c 55%,#7c2d12 100%)}
+
+.vcard{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:stretch;gap:0;width:100%;height:100%;min-height:150px;margin:0;padding:15px 16px 12px;border:0;border-radius:var(--v-radius);background:var(--field);background-color:#1b2a23;color:#fff;text-align:left;overflow:hidden;font:inherit;cursor:pointer;transition:transform .2s ease}
+.vcard.tone-light{color:#141414}
+/* Film grain keeps the colour fields from looking like flat CSS. */
+.vcard:after{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vcard:before{content:'';position:absolute;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(110% 70% at 90% 110%,#ffffff1f,transparent 62%)}
+.vcard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.vcard-label{font-size:13px;line-height:1.3;font-weight:500;letter-spacing:-.005em;opacity:.92}
+.vcard-arrow{display:grid;place-items:center;flex:none;width:24px;height:24px;margin:-3px -4px 0 0;border-radius:50%;font-size:13px;line-height:1;opacity:.86;transition:transform .2s ease}
+.vcard-value{display:flex;align-items:baseline;gap:5px;margin-top:8px;line-height:.9}
+.vcard-value b{font-size:clamp(40px,3.6vw,58px);font-weight:300;letter-spacing:-.055em;font-variant-numeric:tabular-nums}
+.vcard-value small{font-size:13px;font-weight:400;opacity:.86}
+.vcard.is-hero .vcard-value b{font-size:clamp(56px,5vw,76px)}
+.vcard-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.vpill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;background:#ffffff26;font-size:11px;font-weight:500;line-height:1.4;white-space:nowrap}
+.tone-light .vpill{background:#1414141a}
+.vpill.unusual{background:var(--x-accent);color:var(--x-accent-ink)}
+.vpill.stale{background:transparent;box-shadow:inset 0 0 0 1px currentColor}
+.vcard-visual{position:relative;flex:1 1 auto;min-height:28px;margin:8px 0 6px}
+.vcard-visual svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.vsingle{position:absolute;left:0;bottom:4px;font-size:12px;opacity:.86}
+.vscale{position:absolute;left:0;right:0;bottom:-2px;display:flex;justify-content:space-between;font-size:10px;opacity:.86;pointer-events:none}
+.is-hero .vcard-visual .vscale{flex-direction:column;justify-content:space-between;top:2px;right:auto;bottom:2px}
+.vcard-foot{display:flex;justify-content:space-between;gap:8px;font-size:11px;line-height:1.3;opacity:.92}
+.vcard-foot span:last-child{text-align:right}
+.vcard-foot strong{font-weight:600}
+
+/* Line art: 1px white; on light fields the same drawing in near-black. */
+.vcard svg .ring,.vcard svg .trace,.vcard svg .echo,.vcard svg .bar,.vcard svg .axis{fill:none;stroke:currentColor;stroke-width:1;vector-effect:non-scaling-stroke}
+.vcard svg .ring{stroke-opacity:.55}
+.vcard svg .ring.today{stroke-opacity:.95;stroke-width:1.4}
+.vcard svg .axis{stroke-opacity:.22;stroke-dasharray:2 4}
+.vcard svg .trace{stroke-opacity:.85;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.vcard svg .echo{stroke-opacity:.32}
+.vcard svg .area{fill:currentColor;fill-opacity:.12;stroke:none}
+.vcard svg .bar{fill:currentColor;fill-opacity:.1;stroke-opacity:.6}
+.vcard svg .bar.today{fill-opacity:.9}
+.vcard svg .stage{stroke:none;fill:currentColor}
+.vcard svg .stage.s0{fill-opacity:.9}.vcard svg .stage.s1{fill-opacity:.55}.vcard svg .stage.s2{fill-opacity:.26}
+.vcard svg .tick{fill:currentColor;fill-opacity:.7}
+.vcard svg .live-dot{fill:var(--x-accent)}
+.tone-light svg .live-dot{stroke:#141414;stroke-width:1;vector-effect:non-scaling-stroke}
+.vdot{position:absolute;z-index:1;width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.vdot.live{background:var(--x-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--x-accent) 30%,transparent),0 0 14px 3px color-mix(in srgb,var(--x-accent) 55%,transparent)}
+.tone-light .vdot.live{box-shadow:0 0 0 1.5px #141414,0 0 12px 3px color-mix(in srgb,var(--x-accent) 70%,transparent)}
+.vdot.mark{width:5px;height:5px;background:currentColor}
+
+/* Status: stale cards keep their colour but quieten the number. */
+.vcard.is-stale .vcard-value b{opacity:.55}
+
+/* Hover: a slight lift in scale, the arrow nudges and today's dot pulses. Depth comes from colour, not shadow. */
+@media(hover:hover){.vcard:hover{transform:scale(1.01)}.vcard:hover .vcard-arrow{transform:translate(2px,-2px)}.vcard:hover .vdot.live{animation:v-pulse 1.4s ease-in-out infinite}}
+.vcard:focus-visible{outline:2px solid var(--x-ink)!important;outline-offset:2px}
+@keyframes v-pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--x-accent) 22%,transparent),0 0 20px 6px color-mix(in srgb,var(--x-accent) 45%,transparent)}}
+@media(prefers-reduced-motion:reduce){.vcard,.vcard-arrow{transition:none}.vcard:hover{transform:none}.vcard:hover .vdot.live{animation:none}}
+@media(forced-colors:active){.vcard{border:1px solid CanvasText;background:Canvas;color:CanvasText}.vcard:after,.vcard:before{display:none}}
+
+/* Panels in the same language: nutrition, journal, measurement count, weekly trend, figure. */
+.vpanel{cursor:default}
+.vpanel .vcard-arrow{cursor:pointer;border:0;background:none;color:inherit;font:inherit;font-size:13px}
+.vpanel h3{margin:0;font-size:13px;font-weight:500;opacity:.86}
+.macro-dots{display:grid;gap:7px;margin-top:12px}
+.macro-dots div{display:grid;grid-template-columns:62px 1fr auto;align-items:center;gap:10px;font-size:11px}
+.macro-dots span:first-child{opacity:.86}
+.macro-dots i{display:block;height:6px;background:radial-gradient(circle,currentColor 1.6px,transparent 1.8px) 0 50%/8px 6px repeat-x;opacity:.9}
+.macro-dots .protein i{color:#9fd36c}.macro-dots .carbs i{color:#f5b93f}.macro-dots .fat i{color:#a9b4ff}
+.vcard .meal-launch{position:absolute;right:14px;bottom:12px}
+.journal-card img{position:absolute;right:-18px;bottom:-10px;width:58%;max-width:230px;opacity:.9;pointer-events:none;z-index:-1}
+.journal-card h2{margin:10px 0 6px;font-size:clamp(20px,1.9vw,26px);font-weight:400;letter-spacing:-.03em;line-height:1.1;max-width:62%}
+.journal-card p{font-size:12px;line-height:1.45;max-width:60%;opacity:.86;color:inherit}
+.journal-card .vlink{margin-top:auto}
+.vlink{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:#ffffff26;color:inherit;font-size:12px;font-weight:500;border:0;cursor:pointer}
+.tone-light .vlink{background:#14141414}
+.measure-card .vcard-visual{min-height:28px}
+.trend-card .trend-days{display:flex;justify-content:space-between;font-size:10px;opacity:.86;margin-top:6px}
+.trend-card .vcard-visual{min-height:90px}
+.trend-card svg .above{fill:var(--x-accent);fill-opacity:.9;stroke:none}
+.trend-card svg .mean{stroke:currentColor;stroke-opacity:.35;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}
+.figure-card{--field:linear-gradient(160deg,#ef6a1d 0%,#c2410c 55%,#7c2d12 100%);justify-content:flex-end}
+.figure-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:30% 18%;z-index:-1;mix-blend-mode:luminosity;opacity:.55}
+.figure-card .figure-title{font-size:clamp(24px,2.2vw,32px);font-weight:400;letter-spacing:-.04em;line-height:1}
+.figure-card .figure-title span{opacity:.75}
+.figure-links{display:grid;gap:6px;justify-items:start;margin-top:12px}
+.figure-links button{padding:6px 12px;border-radius:99px;border:1px solid #ffffffb3;background:#00000024;color:#fff;font-size:12px;cursor:pointer}
+
+/* The bento board: tight gutters, one cohesive panel. */
+.widget-board.bento{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:var(--row,176px)!important;grid-auto-flow:row dense;gap:var(--v-gap)!important}
+.bento>.widget-slot{min-width:0;min-height:0;grid-column:span 1;grid-row:span 1}
+.bento>.widget-slot.size-medium{grid-column:span 2}
+.bento>.widget-slot.size-large{grid-column:span 2;grid-row:span 2}
+.bento>.widget-slot.is-hero-slot{grid-row:span 2}
+.bento .widget-content{height:100%}
+.bento>.bento-extra{min-width:0;min-height:0}
+.bento>.bento-extra.span-2{grid-column:span 2}.bento>.bento-extra.span-3{grid-column:span 3}
+.shell.home-fitted .widget-board.bento{--row:clamp(150px,calc((100dvh - 186px)/4),230px)}
+.theme-stats .widget-board.bento{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.page-bento{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));grid-auto-rows:220px;gap:var(--v-gap)}
+
+/* Portrait: softer and foggier, on a faint dot grid, so it reads as one composition with the cards. */
+.home-grid:not(.stats-only) .hero-body{background-image:radial-gradient(circle,#1f262216 1px,transparent 1.3px);background-size:16px 16px;border-radius:var(--v-radius)}
+.hero-body .human-portrait,.hero-body .vitruvian-image{-webkit-mask-image:linear-gradient(180deg,#000 28%,#000c 52%,#0003 78%,transparent 94%);mask-image:linear-gradient(180deg,#000 28%,#000c 52%,#0003 78%,transparent 94%);filter:saturate(.72) contrast(.94)}
+.hero-body .portrait-halo{display:none}
+.hero-body .portrait-scene:after{content:'';position:absolute;left:0;right:0;bottom:0;height:46%;pointer-events:none;-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);-webkit-mask-image:linear-gradient(transparent,#000 60%);mask-image:linear-gradient(transparent,#000 60%)}
+.hero-body .hero-overline{top:0;bottom:auto}
+.signal-pill{display:inline-block;margin-top:4px;padding:1px 8px;border-radius:99px;background:#ffffffd9;box-shadow:0 0 0 1px #1f262224;font-size:10px;font-style:normal;color:var(--x-ink)}
+.signal-pill.unusual{background:var(--x-accent);box-shadow:none;color:var(--x-accent-ink)}
+.body-signal .signal-dot{background:var(--x-accent)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--x-accent) 30%,transparent),0 0 12px 2px color-mix(in srgb,var(--x-accent) 60%,transparent)!important;border:0!important}
+.body-signal .signal-line{background:linear-gradient(90deg,#1f262240,#1f262240)!important}
+
+/* Today's data: a time scale with events and a marker for now. */
+.today-strip{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:6px 14px;padding:12px 14px;border-radius:var(--v-radius);background:#fff;box-shadow:0 0 0 1px var(--x-line)}
+.today-title{font-size:13px;font-weight:500;color:var(--x-ink)}
+.today-legend{grid-column:1;font-size:11px;color:var(--x-ink-soft)}
+.today-track{grid-row:1/3;grid-column:2;position:relative;height:42px;margin:0 6px 0 4px}
+.today-track:before{content:'';position:absolute;left:0;right:0;top:12px;height:2px;border-radius:2px;background:#e8e9e6}
+.today-span{position:absolute;top:8px;height:10px;border-radius:6px;background:linear-gradient(90deg,color-mix(in srgb,var(--x-accent) 35%,#fff),var(--x-accent))}
+.today-event{position:absolute;top:13px;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;border:2px solid #fff;background:var(--x-ink);padding:0;cursor:pointer}
+.today-event.meal{background:#e2792a}.today-event.journal{background:#2f3f5c}.today-event.wake{background:#24695f}
+.today-now{position:absolute;top:-6px;transform:translateX(-50%);pointer-events:none}
+.today-now b{display:block;padding:1px 7px;border-radius:99px;background:var(--x-accent);color:var(--x-accent-ink);font-size:10px;font-weight:600}
+.today-ticks{position:absolute;left:0;right:0;top:24px;height:14px;font-size:10px;color:var(--x-ink-soft)}
+.today-ticks span{position:absolute;transform:translateX(-50%)}
+.today-ticks span:first-child{transform:none}.today-ticks span:last-child{transform:translateX(-100%)}
+.stats-only .today-strip{position:relative;margin-bottom:var(--v-gap)}
+
+/* Header: small round outlined icon buttons. */
+.shell>.header .header-actions .btn{width:40px;height:40px;min-width:40px;min-height:40px;padding:0!important;justify-content:center;border-radius:50%!important;border:1px solid #1f262233!important;background:transparent!important;box-shadow:none!important;color:var(--x-ink)}
+.shell>.header .header-actions .btn>span{display:none}
+.shell>.header .header-actions .btn svg{width:17px;height:17px}
+
+@media(max-width:1100px){.widget-board.bento,.theme-stats .widget-board.bento{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bento>.bento-extra.span-3{grid-column:span 2}}
+@media(max-width:760px){
+ .widget-board.bento,.theme-stats .widget-board.bento{grid-template-columns:repeat(2,minmax(0,1fr))!important;--row:168px}
+ .bento>.widget-slot.is-hero-slot{grid-column:span 2;grid-row:span 2}
+ .bento>.widget-slot.size-medium,.bento>.widget-slot.size-large,.bento>.bento-extra{grid-column:span 2!important}
+ .vcard{padding:13px 13px 10px}
+ .vcard-value b{font-size:40px}
+ .hero-body .today-strip{position:relative;margin-top:12px}
+ .page-bento{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:200px}
+}
+
+/* Packed bento: explicit positions on wide screens; natural flow on two columns. */
+@media(min-width:1101px){.bento.packed>[style*="--c"]{grid-column:var(--c)/span var(--w)!important;grid-row:var(--r)/span var(--h)!important}}
+/* Small cards keep the status next to the number so the source and average still fit. */
+.vcard-pills.inline{margin:0 0 0 auto;align-self:center}
+.vcard:not(.is-hero) .vcard-value b{font-size:clamp(36px,3.1vw,52px)}
+.vcard-visual:has(.vscale) .vfixed{height:calc(100% - 16px)}
+.is-hero .vcard-visual:has(.vscale) .vfixed{height:100%}
+/* Callouts run from the body toward the cards, carrying the status. */
+.hero-body .body-signal.connector{left:52%!important;right:-8px!important;top:var(--y)!important;bottom:auto!important;display:flex!important;flex-direction:row!important;align-items:center;gap:0;padding:4px 0;transform:none!important}
+.hero-body .connector.signal-oxygen{--y:38%}.hero-body .connector.signal-breathing{--y:50%}.hero-body .connector.signal-heart{--y:62%}
+.hero-body .connector .signal-line{display:block!important;flex:1;width:auto!important;height:1px;margin:0 8px!important}
+.hero-body .connector .signal-copy{display:grid;justify-items:end;text-align:right;font-size:11px!important;color:var(--x-ink)!important;text-shadow:none}
+.hero-body .connector .signal-dot{width:12px!important;height:12px!important}
+.hero-body .hero-overline{top:auto;bottom:96px}
+.hero-body .body-signal.connector{width:calc(48% + 8px)!important;max-width:none!important;min-width:0!important}
+.hero-body .connector .signal-dot{order:1!important;margin:0!important}
+.hero-body .connector .signal-line{order:2!important}
+.hero-body .connector .signal-copy{order:3!important;margin:0!important}
+/* Home keeps the two most notable changes in a compact list above Today's data. */
+.hero-body .home-insights{width:270px;padding:12px 14px}
+.hero-body .home-insights .insight{padding:7px 0;font-size:12px}
+.hero-body .home-insights .eyebrow{margin-bottom:2px}
+.hero-body .portrait-cta{position:absolute;top:0;left:0;margin:0;font-size:11px}
+.shell.home-fitted .widget-board.bento{--row:clamp(150px,calc((100dvh - 244px)/4),230px)}
+.hero-body .connector>span{position:static!important;transform:none!important;inset:auto!important}
+/* Insights and Today's data stack at the foot of the portrait, under the fog. */
+.hero-bottom{position:absolute;left:0;right:0;bottom:0;z-index:3;display:grid;gap:var(--v-gap);justify-items:start}
+.hero-bottom .hero-overline{position:static!important;max-width:none}
+.hero-bottom .today-strip{position:static;width:100%}
+@media(max-width:760px){.hero-bottom{position:static;margin-top:12px}}
+.nutrition-card .macro-dots{gap:4px;margin-top:10px}
+/* Phones: two narrow columns, so the status takes its own line and the footer keeps only the average. */
+@media(max-width:760px){
+ .vcard-pills.inline{margin:6px 0 0;flex-basis:100%}
+ .vcard:not(.is-hero) .vcard-value{flex-wrap:wrap}
+ .vcard:not(.is-hero) .vcard-value b{font-size:34px}
+ .vpill .vs{display:none}
+ .bento>.widget-slot:not(.is-hero-slot):not(.size-medium):not(.size-large) .vcard-foot span:first-child{display:none}
+ .vcard-label{font-size:12px}
+ .vscale span:nth-child(2):not(:last-child){display:none}
+}
+/* Statistics view: the trend and figure span two rows; insights run as one horizontal band. */
+.bento>.bento-extra.tall{grid-row:span 2}
+.theme-stats .dashboard-data>.home-insights{width:auto;max-width:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:20px;margin-bottom:var(--v-gap)}
+.theme-stats .dashboard-data>.home-insights .eyebrow,.theme-stats .dashboard-data>.home-insights .text-button{grid-column:1/-1}
+.theme-stats .dashboard-data>.home-insights .insight{border-top:0;border-left:1px solid var(--x-line);padding:2px 0 2px 14px}
+.theme-stats .dashboard-data>.home-insights .insight:first-of-type{border-left:0;padding-left:0}
+.trend-card .vcard-visual{min-height:120px}
+@media(max-width:1100px){.bento>.bento-extra.span-3{grid-column:span 2}}
+@media(max-width:760px){.widget-board.bento,.theme-stats .widget-board.bento{grid-auto-rows:minmax(168px,auto)!important}.theme-stats .dashboard-data>.home-insights{grid-template-columns:1fr}.theme-stats .dashboard-data>.home-insights .insight{border-left:0;border-top:1px solid var(--x-line);padding:7px 0}}
+/* Figure card text sits on a darkened lower field so it passes AA over the image. */
+.figure-card:before{background:linear-gradient(180deg,transparent 30%,#4a1606d9 78%,#3a1104 100%)!important;z-index:0}
+.figure-card img{opacity:.5}
+.figure-card>*:not(img){position:relative;z-index:1}
+.figure-card .figure-title span{opacity:1}
+.figure-links button{background:#2a0e04b3;border-color:#ffffffcc}

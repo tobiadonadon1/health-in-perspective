@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import {formatValue} from '../src/metrics.js';import {validateMeasurement} from '../src/body-measurements.js';import {boardRows,normalizeLayout} from '../src/board.js';
 test('metric presentation rounds wearables but preserves useful decimal measurements',()=>{for(const [kind,n,out] of [['spo2',96.68,'97'],['hrv',32.81,'33'],['respiratory_rate',15.64,'16'],['sleep_efficiency',96.93,'97'],['sleep',7.87,'7.9'],['weight',72.45,'72.5'],['body_fat',18.3,'18.3'],['skin_temperature',33.56,'33.6'],['steps',8420.1,'8,420']])assert.equal(formatValue(n,kind),out);assert.equal(formatValue(null,'hrv'),'—');});
 test('manual measurements reject unsupported metrics, impossible values and invalid dates',()=>{const valid={id:'a',kind:'weight',value:'72.4',measured_on:'2026-10-01'};assert.equal(validateMeasurement(valid).value,72.4);for(const change of [{kind:'hrv'},{value:''},{value:'NaN'},{value:0},{kind:'body_fat',value:101},{measured_on:'2026-02-31'},{measured_on:'2099-01-01'}])assert.throws(()=>validateMeasurement({...valid,...change}));});
-test('dashboard fits only layouts with at most three packed rows',()=>{assert.equal(boardRows(normalizeLayout()),3);assert.equal(boardRows({widgets:[{size:'small'},{size:'large'},{size:'medium'},{size:'small'},{size:'medium'}]}),4);assert.equal(boardRows({widgets:[]}),0);});
+test('bento rows count small 1, wide and hero 2, large 4 cells across three columns',()=>{assert.equal(boardRows(normalizeLayout(),{hero:'recovery'}),4);assert.equal(boardRows(normalizeLayout()),4);assert.equal(boardRows({widgets:[{id:'a',size:'small'},{id:'b',size:'large'},{id:'c',size:'medium'},{id:'d',size:'small'},{id:'e',size:'medium'}]}),4);assert.equal(boardRows({widgets:[{id:'a',size:'small'}]}),1);assert.equal(boardRows({widgets:[]}),0);});
 test('manual measurement RPC isolates accounts and cannot alter provider readings',async()=>{
  const db=new PGlite(),a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222',id='33333333-3333-4333-8333-333333333333',provider='44444444-4444-4444-8444-444444444444';
  try{
@@ -19,3 +19,9 @@ test('manual measurement RPC isolates accounts and cannot alter provider reading
  await db.exec(`set request.jwt.claim.sub=''`);await assert.rejects(db.query(call('weight',70)));await db.exec('reset role;set role anon');await assert.rejects(db.query(call('weight',70)));
  }finally{await db.close()}
 });
+test('bento packing puts the hero top-left, tiles wide cards without holes and widens a lone card to the row end',async()=>{const {packBento,normalizeLayout}=await import('../src/board.js');
+ const board=normalizeLayout().widgets,at=packBento(board,{hero:'recovery'}),cells=new Set();
+ assert.deepEqual(at.get('recovery'),{c:1,r:1,w:1,h:2});
+ for(const p of at.values())for(let i=0;i<p.w;i++)for(let j=0;j<p.h;j++){const k=(p.c+i)+':'+(p.r+j);assert.ok(!cells.has(k),'no overlap at '+k);cells.add(k)}
+ assert.equal(cells.size,12,'twelve cells, four full rows of three');
+ const lone=packBento([{id:'a',size:'small'},{id:'b',size:'small'},{id:'c',size:'medium'},{id:'d',size:'small'}],{cols:3});assert.equal(lone.get('c').w+lone.get('c').c-1<=3,true);assert.deepEqual(lone.get('c'),{c:1,r:2,w:3,h:1},'a card left alone in its row widens to the row end');assert.equal(lone.get('d').w,1);});
