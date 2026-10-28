@@ -1,0 +1,111 @@
+/* Shared dialog content: headings, status, notes, upload areas, the weekly summary, privacy, AI settings,
+   wearable import and portrait studio. The dialog frame itself lives in shell.css. */
+.dialog-kicker{display:flex;align-items:center;gap:10px;margin:0 48px 14px 0;font-size:13px;color:var(--ink-2)}
+.dialog-kicker .marker{width:13px;height:13px}
+.dialog>p{max-width:62ch}
+#ai-key-form,#chat-key-form,#portrait-photo-form{margin-top:20px}
+#ai-key-form .mini-note,#chat-key-form .mini-note{margin:-6px 0 16px}
+.dialog .mini-note a,.dialog-note a,.dialog-footer a:not(.btn){color:var(--ink);text-decoration-color:var(--line-strong);text-underline-offset:3px}
+.dialog-note{margin-top:18px;font-size:12px;color:var(--ink-3);line-height:1.6}
+.dialog-footer>span{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-3)}
+.footer-note svg{width:15px;height:15px}
+.dialog-footer>.text-button{font-size:13px}
+.dialog a.btn{text-decoration:none}
+
+/* Error boxes filled with plain text by the code that owns them. */
+#form-error:not(:empty):not(:has(.error)),#chat-modal-error:not(:empty),#onboard-error:not(:empty){margin:12px 0;padding:11px 14px;border-radius:var(--radius-control);background:#fdecea;color:#a1271b;font-size:13px;line-height:1.5}
+#onboard-error .btn{margin-top:10px}
+
+/* Inline validation (form-errors.js) under each field. */
+.field-error{display:block;margin-top:2px;font-size:12px;color:#a1271b}
+.field [aria-invalid=true]{box-shadow:inset 0 0 0 1.5px #e5484d99}
+
+/* Connection status: a dot and a label. */
+.status-pill{display:inline-flex;align-items:center;gap:8px;min-height:28px;padding:0 12px 0 10px;border-radius:999px;background:var(--well);font-size:12px;color:var(--ink-2);white-space:nowrap}
+.status-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.status-pill.on{color:var(--ink)}
+.status-pill.on::before{background:var(--green);box-shadow:0 0 0 3px #3fb97a26}
+.dialog-status{display:flex;align-items:flex-start;gap:14px;margin:18px 0 0;padding:14px 16px;border-radius:var(--radius-row);background:var(--well)}
+.dialog-status .status-pill{background:var(--surface);flex-shrink:0}
+.dialog-status p{font-size:13px}
+.remove-ai-key{margin-top:16px}
+
+/* AI connection dialog (chatbot.js). */
+.model-row{display:flex;gap:8px}
+.model-row input{flex:1;min-width:0}
+.model-row .btn{min-height:44px}
+.ai-extra{margin-top:24px;padding:18px 20px;border-radius:var(--radius-row);background:var(--well)}
+.ai-extra h3{margin-bottom:4px}
+.ai-extra p{font-size:13px}
+.ai-extra .btn{margin-top:12px}
+
+/* File pickers inside dialogs. */
+.dialog .upload-zone{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:150px;margin:20px 0 16px;padding:24px;border-radius:var(--radius-card);background:var(--well);box-shadow:inset 0 0 0 1.5px var(--line-strong);color:var(--ink);font-size:14px;text-align:center;cursor:pointer;transition:background .15s,box-shadow .15s}
+.dialog .upload-zone:hover{background:#ebebe8}
+.dialog .upload-zone:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.dialog .upload-zone svg{width:22px;height:22px;padding:10px;box-sizing:content-box;border-radius:50%;background:var(--surface);color:var(--accent-deep)}
+.dialog .upload-zone input{max-width:100%;font-size:13px;color:var(--ink-2)}
+.dialog .upload-zone input::file-selector-button{margin-right:12px;height:32px;padding:0 14px;border:0;border-radius:999px;background:var(--ink);color:#fff;font:inherit;font-size:12px;cursor:pointer}
+
+/* Wearable import (import-ui.js). */
+.import-note{margin-top:18px;padding:14px 16px;border-radius:var(--radius-row);background:var(--accent-soft)}
+.import-note strong{display:block;font-size:13px;font-weight:550;color:var(--accent-deep)}
+.import-note p{margin-top:4px;font-size:13px;color:var(--ink-2)}
+.import-unit{max-width:360px}
+#import-summary:not(:empty){padding:16px 18px;border-radius:var(--radius-row);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;color:var(--ink-2)}
+#import-summary h3{font-size:18px;font-weight:400;letter-spacing:-.02em;color:var(--ink)}
+#import-summary p{font-size:13px}
+.import-progress{height:6px;margin-bottom:10px;border-radius:999px;background:var(--well);overflow:hidden}
+.import-progress i{display:block;height:100%;border-radius:inherit;background:var(--accent-fill);transition:width .3s var(--ease)}
+.import-kinds{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.import-kinds span{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 6px 0 12px;border-radius:999px;background:var(--well);font-size:12px;color:var(--ink)}
+.import-kinds b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--surface);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* Weekly summary: a quiet table with light numbers and the orange delta pill. */
+.weekly-wrap{margin-top:20px;overflow-x:auto}
+.weekly-table{width:100%;border-collapse:collapse;font-size:13px}
+.weekly-table th{padding:0 12px 10px;font-size:12px;font-weight:400;color:var(--ink-3);text-align:left;white-space:nowrap}
+.weekly-table td{padding:12px;border-top:1px solid var(--line);color:var(--ink-2);vertical-align:middle;white-space:nowrap}
+.weekly-table th:first-child,.weekly-table td:first-child{padding-left:0}
+.weekly-table th:last-child,.weekly-table td:last-child{padding-right:0;text-align:right}
+.weekly-table td b{display:block;font-size:14px;font-weight:450;color:var(--ink)}
+.weekly-table td small{font-size:12px;color:var(--ink-3)}
+.weekly-table td:first-child small{display:block;margin-top:1px}
+.weekly-value{font-size:22px;font-weight:300;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* Privacy. */
+.privacy-list{display:flex;flex-direction:column;gap:8px;margin:20px 0 0;padding:0;list-style:none}
+.privacy-list li{display:flex;gap:14px;padding:16px 18px;border-radius:var(--radius-row);background:var(--well)}
+.privacy-list h3{margin-bottom:4px}
+.privacy-list p{font-size:13px}
+.privacy-icon{display:grid;place-items:center;width:36px;height:36px;flex-shrink:0;border-radius:50%;background:var(--surface);color:var(--accent-deep)}
+.privacy-icon svg{width:16px;height:16px}
+
+/* Portrait studio (profile/portrait-studio.js). */
+.portrait-studio-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:24px;margin-top:22px}
+.portrait-preview{position:relative;min-height:360px;border-radius:var(--radius-card);overflow:hidden;background:var(--accent-fill)}
+.portrait-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 15%}
+.portrait-preview>span{position:absolute;left:14px;bottom:14px;height:28px;display:inline-flex;align-items:center;padding:0 12px;border-radius:999px;background:#0000004d;color:#fff;font-size:12px;backdrop-filter:blur(6px)}
+.portrait-progress{position:absolute;inset:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;border-radius:16px;background:#ffffff26;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px #ffffff4d;color:#fff;text-align:center}
+.portrait-progress>span{width:28px;height:28px;border-radius:50%;border:2px solid #ffffff4d;border-top-color:#fff;animation:spin 1s linear infinite}
+.portrait-progress strong{font-size:15px;font-weight:500}
+.portrait-progress small{font-size:12px;opacity:.9;max-width:240px}
+.portrait-studio-copy{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0}
+.portrait-studio-copy h3{font-size:22px;font-weight:400;letter-spacing:-.02em;margin-top:6px}
+.portrait-studio-copy .mini-note{margin:0}
+.portrait-studio-copy .error{margin:0;align-self:stretch}
+.portrait-style-switch{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:var(--well)}
+.portrait-style-switch button{height:32px;padding:0 14px;border-radius:999px;font-size:13px;color:var(--ink-2)}
+.portrait-style-switch button[aria-checked=true]{background:var(--ink);color:#fff}
+.portrait-studio-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:auto;padding-top:8px}
+.portrait-studio-actions .mini-note{flex-basis:100%}
+
+@media(max-width:700px){
+ .portrait-studio-grid{grid-template-columns:1fr}
+ .portrait-preview{min-height:300px}
+ .model-row{flex-direction:column}
+ .weekly-table th:nth-child(3),.weekly-table td:nth-child(3){display:none}
+ .weekly-table td{padding:11px 6px}
+ .weekly-table td:first-child{white-space:normal}
+ .weekly-value{font-size:19px}
+}

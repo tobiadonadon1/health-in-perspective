@@ -1,0 +1,56 @@
+/* Ask Xeyo: the conversation inside the chat drawer (chatbot.js renders into #chatbot-host). */
+.convo{flex:1;min-height:0;display:flex;flex-direction:column}
+.convo-provider{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px 12px 20px;border-bottom:1px solid var(--line)}
+.convo-provider .status-pill{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.convo-provider .status-pill small{font-size:12px;color:var(--ink-3)}
+
+/* Thread. */
+.convo-thread{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:20px}
+.convo-message{display:flex;flex-direction:column;gap:5px;max-width:86%}
+.convo-message small{font-size:11px;color:var(--ink-3);padding:0 4px}
+.convo-message div{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.convo-message.user{align-self:flex-end;align-items:flex-end}
+.convo-message.user div{background:var(--ink);color:#fff;border-bottom-right-radius:6px}
+.convo-message.assistant{align-self:flex-start}
+.convo-message.assistant div{background:var(--well);color:var(--ink);border-bottom-left-radius:6px}
+.convo-empty{margin:auto;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--ink-3);font-size:13px;text-align:center}
+.convo-thinking{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;padding:12px 16px;border-radius:18px 18px 18px 6px;background:var(--well);font-size:13px;color:var(--ink-2)}
+.convo-thinking i{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:chat-dot 1.2s infinite ease-in-out}
+.convo-thinking i:nth-child(2){animation-delay:.15s}
+.convo-thinking i:nth-child(3){animation-delay:.3s}
+.convo-thinking span{margin-left:6px}
+@keyframes chat-dot{0%,80%,100%{opacity:.3;transform:none}40%{opacity:1;transform:translateY(-3px)}}
+
+/* Empty conversation. */
+.convo-welcome{margin:auto 0;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 8px;text-align:center}
+.convo-welcome .orb{width:56px;height:56px;margin-bottom:6px;box-shadow:0 10px 30px #ff6a1a4d}
+.convo-welcome h3{font-size:19px;font-weight:400;letter-spacing:-.02em;line-height:1.25}
+.convo-welcome p{max-width:320px;font-size:13px}
+.convo-prompts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px}
+.convo-prompts .chip{height:32px;font-size:12px;cursor:pointer;transition:background .15s}
+.convo-prompts .chip:hover{background:var(--well)}
+
+/* Not connected yet: one accent action and the providers it works with, inside the welcome. */
+.convo-setup{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;margin:8px 0 4px;padding:18px;border-radius:var(--radius-row);background:var(--well)}
+.convo-setup p{font-size:13px;color:var(--ink-2)}
+
+/* Composer: a pill like the top-bar ask field, with a round send button. */
+.convo-composer{padding:12px 16px 0;border-top:1px solid var(--line)}
+.convo-input{display:flex;align-items:flex-end;gap:8px;padding:5px 5px 5px 18px;border-radius:24px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-strong);transition:box-shadow .15s}
+.convo-input:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.convo-input textarea{flex:1;min-width:0;min-height:36px;max-height:160px;padding:8px 0;border:0;background:none;font-size:14px;line-height:1.45;resize:none;outline:none}
+.convo-input textarea::placeholder{color:var(--ink-3)}
+.convo-send{display:grid;place-items:center;width:36px;height:36px;flex-shrink:0;border-radius:50%;background:var(--accent-fill);color:#fff;transition:transform .15s var(--ease)}
+.convo-send:hover:not(:disabled){transform:scale(1.05)}
+.convo-send svg{width:17px;height:17px;stroke-width:2}
+.convo-composer-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 4px 0}
+.convo-context{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);cursor:pointer}
+.convo-context input{width:16px;height:16px;margin:0;accent-color:var(--accent)}
+.convo-composer-footer .text-button{font-size:12px}
+#chat-error:not(:empty){margin-top:10px;padding:9px 12px;border-radius:var(--radius-control);background:#fdecea;color:#a1271b;font-size:13px}
+.convo-disclosure{padding:10px 20px 16px;font-size:12px;line-height:1.5;color:var(--ink-3)}
+
+@media(max-width:560px){
+ .convo-thread{padding:16px}
+ .convo-message{max-width:92%}
+}

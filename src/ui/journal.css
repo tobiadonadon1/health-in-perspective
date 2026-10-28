@@ -1,0 +1,100 @@
+/* Journal: write a check-in with a mood, reflect with your AI (the focal forest card), mood beside the body, history. */
+.journal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"compose compose side" "history history side";grid-template-rows:auto 1fr;gap:var(--gap);align-items:start}
+.journal-compose{grid-area:compose}
+.journal-history{grid-area:history}
+/* The AI card and mood patterns stack beside the compose card at their natural height. */
+.journal-side{grid-area:side;display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+.journal-grid .card-head .muted{color:var(--ink-3)}
+
+/* Compose. */
+.journal-compose .card-head{margin-bottom:6px}
+.journal-lead{font-size:14px;color:var(--ink-2)}
+#journal-form{margin-top:16px}
+#journal-note{display:block;width:100%;min-height:132px;padding:14px 16px;border:0;border-radius:16px;background:var(--well);color:var(--ink);font-size:15px;line-height:1.6;resize:vertical;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s,background .15s}
+#journal-note::placeholder{color:var(--ink-3)}
+#journal-note:focus{outline:none;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.mood-picker{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:14px}
+.mood-picker>span{margin-right:6px;font-size:13px;color:var(--ink-2)}
+.mood-picker .chip{height:32px;padding:0 14px;font-size:13px;transition:background .15s,color .15s}
+.mood-picker .chip:hover{background:var(--well)}
+.mood-picker .chip[aria-pressed=true]{background:var(--ink);color:#fff}
+.journal-compose-footer{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.journal-compose-footer .spacer{flex:1}
+.journal-date{height:40px;padding:0 14px;border:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}
+.journal-date:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#journal-count{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.journal-private{font-size:12px;color:var(--ink-3)}
+#journal-count[hidden]{display:none}
+.journal-compose-footer .btn.accent:disabled{opacity:1;background:var(--well);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
+.journal-feedback{margin-top:14px;padding:10px 14px;border-radius:var(--radius-control);background:var(--well);font-size:13px;color:var(--ink-2)}
+
+/* Your AI: the one forest card. */
+.journal-ai .card-head h2{color:var(--on-dark)}
+.journal-ai>p{font-size:14px}
+.journal-ai-count{margin-top:20px}
+.journal-ai-foot{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin-top:22px;padding-top:18px;border-top:1px solid var(--dark-line)}
+.journal-ai-state{flex:1;min-width:0;font-size:13px;color:var(--on-dark)}
+.journal-ai .btn.light{background:#ffffff14;color:var(--on-dark);box-shadow:inset 0 0 0 1px var(--dark-line)}
+.journal-ai .btn.light:hover{background:#ffffff26}
+.journal-ai-error{margin-top:10px;font-size:12px}
+
+/* Mood and your body. */
+.journal-mood .card-empty{margin:0}
+.mood-progress{display:flex;align-items:center;gap:6px}
+.mood-progress i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.mood-progress i.on{background:var(--accent)}
+.mood-progress small{margin-left:6px;font-size:12px;color:var(--ink-3)}
+.mood-table{width:100%;margin:-6px 0 0;border-collapse:separate;border-spacing:0 6px}
+.mood-table thead th{padding:0 12px 2px;font-size:12px;font-weight:400;color:var(--ink-3);text-align:left}
+.mood-table tbody th,.mood-table td{padding:8px 12px;background:var(--well);text-align:left;vertical-align:middle;font-weight:400}
+.mood-table tbody th{border-radius:var(--radius-row) 0 0 var(--radius-row)}
+.mood-table td:last-child{border-radius:0 var(--radius-row) var(--radius-row) 0}
+.mood-table tbody th b{display:block;font-size:13px;font-weight:500}
+.mood-table tbody th small{display:block;font-size:12px;color:var(--ink-3)}
+.mood-value{display:flex;align-items:center;gap:8px}
+.mood-value b{font-size:15px;font-weight:400;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mood-value small{font-size:12px;color:var(--ink-3)}
+.mood-none{color:var(--ink-3)}
+.journal-note{margin-top:10px;font-size:12px;line-height:1.55;color:var(--ink-3)}
+
+/* Check-ins. */
+.journal-history .card-head{margin-bottom:6px}
+.journal-entries{display:flex;flex-direction:column}
+.journal-entry{padding:18px 0 20px;border-bottom:1px solid var(--line)}
+.journal-entry:last-child{border-bottom:0;padding-bottom:0}
+.journal-entry-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
+.journal-entry-head time{font-size:14px;font-weight:450;color:var(--ink)}
+.journal-entry-head .spacer{flex:1}
+.journal-entry-text{margin-top:8px;max-width:72ch;font-size:15px;line-height:1.65;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.journal-reflection{margin-top:14px;padding:16px 18px;border-radius:16px;background:var(--well)}
+.reflection-heading{display:flex;align-items:center;gap:10px}
+.reflection-heading strong{font-size:14px;font-weight:500}
+.reflection-heading>span:last-child{margin-left:auto;font-size:12px;color:var(--ink-3)}
+.reflection-text{margin-top:10px;font-size:14px;line-height:1.65;color:var(--ink-2);white-space:pre-wrap}
+.reflection-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:12px;color:var(--ink-3)}
+.reflection-foot .text-button{font-size:12px}
+.journal-reflect-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-top:14px}
+.journal-share{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.journal-share input{width:16px;height:16px;margin:0;accent-color:var(--accent)}
+.journal-ai-disclosure{margin-top:8px;font-size:12px;color:var(--ink-3)}
+.reflection-status{margin-top:8px;font-size:13px;color:var(--ink-2)}
+.reflection-status:empty{display:none}
+.journal-history-note{margin-top:16px;font-size:12px;color:var(--ink-3)}
+.journal-history .card-empty{margin:8px 0 0}
+
+@media(max-width:1179px){
+ .journal-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"compose" "side" "history";grid-template-rows:auto}
+ .journal-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+ .journal-ai-foot{margin-top:auto}
+ .journal-ai>p,.journal-ai-count{margin-bottom:22px}
+ .journal-ai-count{margin-top:0}
+ .journal-ai>p:has(+.journal-ai-count){margin-bottom:18px}
+}
+@media(max-width:759px){
+ .journal-side{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:560px){
+ .journal-compose-footer .btn{flex:1}
+ .mood-value .dot-matrix{display:none}
+ .mood-table tbody th,.mood-table td{padding:8px 10px}
+}

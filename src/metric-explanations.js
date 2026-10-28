@@ -6,6 +6,7 @@ const hrvSource={source:'Cleveland Clinic · Heart rate variability',url:'https:
 const oxygen={source:'MedlinePlus · Pulse oximetry',url:'https://medlineplus.gov/lab-tests/pulse-oximetry/'};
 const vitals={source:'Cleveland Clinic · Vital signs',url:'https://my.clevelandclinic.org/health/articles/10881-vital-signs'};
 const temperature={source:'Apple · Wrist temperature during sleep',url:'https://support.apple.com/en-us/102674'};
+const strainSource={source:'WHOOP · Strain and physiological cycles',url:'https://developer.whoop.com/docs/whoop-101'};
 const apple={source:'Apple · Health measurements',url:'https://support.apple.com/en-us/120277'};
 const entries={
  resting_hr:['Your heartbeats per minute at rest. WHOOP estimates this during sleep.','Compare with your usual pattern. A change alone does not identify its cause.',heart],
@@ -26,12 +27,14 @@ const entries={
  sleep_debt:['WHOOP’s estimate of accumulated sleep shortfall.','It depends on the device’s sleep-need estimate and recorded sleep.',sleep],
  sleep_disturbances:['The number of wake events detected during a sleep session.','This is a count, not the duration of time awake.',sleep],
  nap:['The duration of a recorded nap, in hours.','Naps are shown separately from your main sleep session.',sleep],
- heart_rate:['The number of times your heart beats per minute at a recorded moment.','Activity, emotions and medication can change heart rate. Resting and active readings are different.',heart],
+ heart_rate:['Your heartbeats per minute. WHOOP reports the average across its physiological day; imports may report a daily average of recorded moments.','Activity, emotions and medication can change heart rate. A daily average is different from your resting heart rate.',heart],
  hrv_sdnn:['Heart-rate variability calculated using SDNN: the spread of normal beat-to-beat intervals.','SDNN and WHOOP’s HRV method are different. Compare the same measurement method and source over time.',{source:'Apple · HRV (SDNN)',url:'https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn'}],
  weight:['Your recorded body mass, imported from a scale or health record.','Short-term changes can reflect fluid, food and measurement timing. Compare under similar conditions.',{source:'Apple · Body mass',url:'https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/bodymass'}],
  body_fat:['The percentage of your body mass reported as fat by the connected measurement source.','Scale estimates vary with method and conditions. Xeyo does not calculate body fat from a photo.',{source:'Apple · Body fat percentage',url:'https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/bodyfatpercentage'}],
  lean_mass:['Your recorded body mass excluding fat. This includes more than muscle alone.','Keep the measurement method consistent when comparing results.',{source:'Apple · Lean body mass',url:'https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/leanbodymass'}],
  steps:['The number of steps reported in a source record.','Exports may contain intervals rather than daily totals. The graph preserves the imported records.',{source:'Apple · Step count',url:'https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/stepcount'}],
+ strain:['WHOOP’s measure of cardiovascular load across its physiological day, on a scale from 0 to 21.','The scale is not linear: each point is harder to gain as the number rises. This is a device score, not a measure of fitness.',strainSource],
+ energy_burned:['The total energy your wearable estimated you used over the day, including resting energy, in kilocalories.','This is an estimate from heart rate and personal details. It differs from active energy, which excludes energy used at rest.',strainSource],
  active_energy:['An estimate of energy used through activity, in kilocalories.','This excludes resting energy. Imported intervals may not represent a full day.',{source:'Apple · Active energy',url:'https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned'}]
 };
 export function metricExplanation(kind){const [meaning,context,source]=entries[kind]||['A measurement reported by your connected source.','Compare readings from the same source over time.',apple];return {meaning,context,...source};}

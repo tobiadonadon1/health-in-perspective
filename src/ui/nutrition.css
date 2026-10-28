@@ -1,0 +1,156 @@
+/* Nutrition: the meal composer on the left, the day's balance (the focal dark card) and food journal on the right. */
+.nutrition-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"chat chat balance" "chat chat log";grid-template-rows:auto 1fr;gap:var(--gap)}
+.nutrition-composer{grid-area:chat;min-height:0}
+.nutrition-balance{grid-area:balance}
+.nutrition-log{grid-area:log;min-height:0}
+.nutrition-grid .card-head .muted{color:var(--ink-3)}
+.nutrition-grid .card.dark .card-head .muted{color:var(--on-dark-2)}
+
+/* The day being viewed, in the page actions. */
+.nutrition-day-control{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 6px 0 16px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;color:var(--ink-3)}
+.nutrition-day-control input{height:30px;padding:0 10px;border:0;border-radius:999px;background:var(--well);color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}
+.nutrition-day-control input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* Composer card: a conversation that scrolls above a pill composer. */
+#nutrition-chat-host{flex:1;display:flex;flex-direction:column;min-height:0}
+.meal-chat{flex:1;display:flex;flex-direction:column;min-height:0}
+.meal-chat .card-head{margin-bottom:6px}
+.meal-lead{font-size:14px;color:var(--ink-2)}
+.meal-conversation{flex:1;display:flex;flex-direction:column;gap:12px;min-height:220px;margin:14px -6px;padding:6px;overflow-y:auto;scroll-behavior:smooth}
+.meal-conversation:has(.chat-message){-webkit-mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(transparent,#000 14px,#000 calc(100% - 14px),transparent)}
+.dialog .meal-conversation{flex:none;max-height:44vh}
+
+.chat-welcome{display:flex;flex-direction:column;align-items:center;margin:auto;padding:20px 12px;text-align:center}
+.chat-welcome h3{margin-top:26px;font-size:22px;font-weight:400;letter-spacing:-.02em;line-height:1.25}
+.chat-welcome p{margin-top:10px;font-size:14px;color:var(--ink-3)}
+.chat-welcome .chat-talk{width:84px;height:84px;box-shadow:0 0 0 12px #ff6a1a0a,0 0 0 13px #ff6a1a1f}
+.chat-welcome .chat-talk .orb{width:60px;height:60px;box-shadow:0 8px 30px #ff6a1a40}
+.chat-welcome .chat-talk[aria-disabled=true]{cursor:default}
+/* Once the day has meals, the welcome shrinks to one line above the composer. */
+.has-meals .chat-welcome{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:14px;margin:auto 0 0;padding:4px 2px;text-align:left}
+.has-meals .chat-welcome .chat-talk{grid-row:span 2;width:44px;height:44px;box-shadow:0 0 0 5px #ff6a1a0d}
+.has-meals .chat-welcome .chat-talk .orb{width:34px;height:34px;box-shadow:none}
+.has-meals .chat-welcome h3{align-self:end;margin:0;font-size:16px}
+.has-meals .chat-welcome h3 br{display:none}
+.has-meals .chat-welcome p{align-self:start;margin-top:2px;font-size:13px}
+
+.chat-message{max-width:min(82%,560px);padding:11px 16px;border-radius:18px;font-size:14px;line-height:1.55;color:var(--ink)}
+.chat-message.user{align-self:flex-end;background:var(--well);border-bottom-right-radius:6px;white-space:pre-wrap}
+.chat-message.assistant{align-self:flex-start;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-bottom-left-radius:6px}
+.chat-message.chat-error{background:var(--accent-soft);box-shadow:none;color:var(--accent-deep)}
+.chat-photo-note{display:block;margin-bottom:4px;font-size:12px;color:var(--ink-3)}
+.chat-thinking{display:flex;align-items:center;gap:5px;padding:6px 4px;font-size:13px;color:var(--ink-3)}
+.chat-thinking span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:meal-think 1s var(--ease) infinite alternate}
+.chat-thinking span:nth-child(2){animation-delay:.15s}
+.chat-thinking span:nth-child(3){margin-right:6px;animation-delay:.3s}
+@keyframes meal-think{from{opacity:.25;transform:translateY(1px)}to{opacity:1;transform:translateY(-2px)}}
+
+/* A logged meal: the estimate, its items, and edit or undo. */
+.chat-meal{align-self:flex-start;width:min(100%,520px);padding:18px 20px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.chat-meal-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chat-meal-source{font-size:12px;color:var(--ink-3)}
+.chat-meal h3{margin:12px 0 14px;font-size:18px;font-weight:400;letter-spacing:-.015em}
+.chat-macros{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px 24px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.chat-macros .stat b{font-size:34px}
+.chat-macro{display:flex;flex-direction:column;gap:2px}
+.chat-macro b{font-size:18px;font-weight:400;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.chat-macro small{font-size:12px;color:var(--ink-3);font-weight:400}
+.chat-items{display:flex;flex-direction:column;gap:6px;margin:12px 0 0;padding:0;list-style:none;font-size:13px}
+.chat-items li{display:flex;justify-content:space-between;gap:12px}
+.chat-items small{font-size:12px;color:var(--ink-3);text-align:right}
+.chat-assumptions{margin-top:12px;font-size:13px;color:var(--ink-2)}
+.chat-assumptions summary{cursor:pointer}
+.chat-assumptions p{margin-top:8px;font-size:13px}
+.chat-meal-actions{display:flex;gap:8px;margin-top:14px}
+.chat-edit-form{margin-top:14px}
+.chat-edit-form fieldset{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 10px;padding:12px;border:0;border-radius:var(--radius-row);background:var(--well)}
+.chat-edit-form legend{float:left;grid-column:1/-1;width:100%;margin-bottom:2px;font-size:13px;color:var(--ink)}
+.chat-edit-form label{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px;color:var(--ink-2);text-transform:capitalize}
+.chat-edit-form input{width:100%;min-height:38px;padding:8px 10px;border:0;border-radius:10px;background:var(--surface);font-size:14px;box-shadow:inset 0 0 0 1px var(--line)}
+.chat-edit-form input:focus{outline:none;box-shadow:inset 0 0 0 1.5px var(--accent)}
+
+/* The pill composer: attach, write, hold the orb to talk, send. */
+.chat-attachment{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:6px 6px 6px 6px;border-radius:var(--radius-row);background:var(--well);font-size:13px;color:var(--ink-2)}
+.chat-attachment[hidden]{display:none}
+.chat-attachment img{width:44px;height:44px;border-radius:10px;object-fit:cover}
+.chat-attachment button{margin-left:auto}
+.meal-composer{display:flex;align-items:center;gap:6px;min-height:60px;padding:8px;border-radius:30px;background:var(--well);box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s,background .15s}
+.meal-composer:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.meal-composer textarea{flex:1;min-width:0;height:44px;min-height:44px;max-height:140px;padding:10px 6px;border:0;background:none;resize:none;outline:none;font-size:15px;line-height:24px;color:var(--ink)}
+.meal-composer textarea::placeholder{color:var(--ink-3)}
+.chat-attach{position:relative;display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-2);cursor:pointer;overflow:hidden;transition:background .15s}
+.chat-attach:hover{color:var(--ink)}
+.chat-attach:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.chat-attach input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.chat-attach svg{width:17px;height:17px}
+.chat-talk{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:50%;touch-action:none;user-select:none;-webkit-user-select:none;transition:box-shadow .2s}
+.chat-talk .orb{width:34px;height:34px}
+.meal-composer .chat-talk[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.voice-status{margin:10px 6px 0;font-size:13px;color:var(--accent-deep)}
+.voice-status:empty{display:none}
+.chat-talk.recording{box-shadow:0 0 0 4px #ff6a1a33,0 0 0 9px #ff6a1a14;animation:meal-listen 1.2s ease-in-out infinite alternate}
+@keyframes meal-listen{to{box-shadow:0 0 0 6px #ff6a1a40,0 0 0 13px #ff6a1a0f}}
+.chat-send{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:50%;background:var(--accent-fill);color:#fff;transition:transform .15s var(--ease)}
+.chat-send:active{transform:scale(.95)}
+.chat-send svg{width:17px;height:17px}
+.chat-disclosure{margin:12px 4px 0;font-size:12px;line-height:1.6;color:var(--ink-3)}
+.chat-disclosure .text-button{font-size:12px}
+.chat-connect{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-top:14px}
+.chat-connect p{font-size:13px}
+.chat-connect .text-button{font-size:13px}
+.meal-error{margin-top:10px;font-size:13px;color:#a1271b}
+.meal-error:empty{display:none}
+
+/* Daily balance: energy as a light number, each macro's share of it as a dot grid. */
+.balance-macros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:auto;padding-top:22px}
+.balance-macro{display:flex;flex-direction:column;gap:10px;min-width:0}
+.balance-macro span{display:flex;flex-direction:column;gap:2px}
+.balance-macro b{font-size:20px;font-weight:300;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.balance-macro b small{font-size:13px;color:var(--on-dark-2);letter-spacing:0}
+.balance-macro>span>small{font-size:12px;color:var(--on-dark-2);white-space:nowrap}
+
+/* Food journal: one pill row per meal. */
+.nutrition-log .card-head{margin-bottom:14px}
+.meal-list{display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;margin:0 -4px;padding:0 4px 2px;list-style:none;overflow-y:auto}
+.meal-list:focus-visible{outline-offset:-2px;border-radius:var(--radius-row)}
+.meal-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 8px 8px 8px;border-radius:28px;background:var(--well)}
+.meal-icon{display:grid;place-items:center;width:38px;height:38px;flex-shrink:0;border-radius:50%;background:var(--surface);color:var(--ink-2)}
+.meal-icon svg{width:16px;height:16px}
+.meal-copy{flex:1;min-width:0}
+.meal-copy b{display:block;font-size:14px;font-weight:450;line-height:1.3}
+.meal-copy small{display:block;margin-top:2px;font-size:12px;color:var(--ink-3)}
+.meal-kcal{display:flex;align-items:baseline;gap:3px;flex-shrink:0}
+.meal-kcal b{font-size:17px;font-weight:400;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.meal-kcal small{font-size:12px;color:var(--ink-3)}
+.meal-row .icon-btn{color:var(--ink-2)}
+
+/* Desktop: the right-hand cards keep their natural height and the composer follows them (it never grows with the
+   conversation, which scrolls inside it). */
+@media(min-width:1180px){
+ .nutrition-composer{contain:size;min-height:540px}
+ .nutrition-balance,.nutrition-log{align-self:start}
+ .meal-list{max-height:400px}
+}
+@media(max-width:1179px){
+ .nutrition-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"chat chat" "balance log";grid-template-rows:auto}
+ .nutrition-balance{align-self:start}
+ .balance-macros{margin-top:0}
+ .meal-conversation{min-height:260px;max-height:52vh}
+ .meal-list{max-height:420px}
+ .has-meals .meal-conversation{min-height:0}
+}
+@media(max-width:759px){
+ .nutrition-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"chat" "balance" "log"}
+ .meal-conversation{min-height:200px}
+}
+@media(max-width:560px){
+ .meal-composer{gap:4px;padding:6px}
+ .chat-attach,.chat-talk,.chat-send{width:40px;height:40px}
+ .chat-talk .orb{width:30px;height:30px}
+ .chat-message{max-width:90%}
+ .chat-edit-form fieldset{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .balance-macros{gap:8px}
+ .meal-row{gap:10px}
+ .meal-icon{display:none}
+ .meal-row{padding-left:16px}
+}

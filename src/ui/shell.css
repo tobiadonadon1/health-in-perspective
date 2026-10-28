@@ -1,0 +1,95 @@
+/* The app shell: the frame is the whole page, with the top bar at its head. */
+.frame{min-height:100vh;padding:20px 28px 24px;background:var(--frame)}
+
+/* Top bar: brand, page navigation, ask field, refresh and account. */
+.topbar{display:flex;align-items:center;gap:20px;min-height:56px;margin-bottom:20px}
+.brand{display:inline-flex;align-items:center;gap:10px;font-size:16px;font-weight:550;letter-spacing:-.02em;color:var(--ink)}
+.brand .orb{width:30px;height:30px}
+.nav{display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.nav button{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;font-size:13px;color:var(--ink-2);white-space:nowrap;transition:background .15s,color .15s}
+.nav button svg{width:16px;height:16px}
+.nav button:hover{color:var(--ink);background:var(--well)}
+.nav button[aria-current=page]{background:var(--ink);color:#fff}
+.topbar-end{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:1;min-width:0;margin-left:auto}
+.ask{display:flex;align-items:center;gap:10px;flex:0 1 300px;min-width:170px;height:44px;padding:0 16px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-3);transition:box-shadow .15s}
+.ask:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ask svg{width:17px;height:17px;color:var(--ink-2)}
+.ask input{flex:1;min-width:0;height:100%;border:0;background:none;font-size:13px;color:var(--ink);outline:none}
+.ask input::placeholder{color:var(--ink-3)}
+.refresh-data.is-syncing svg{animation:spin 1s linear infinite}
+.refresh-data.sync-retry{box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent-deep)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Account menu: a circle button with a small popover. */
+.account-menu{position:relative}
+.account-menu summary{list-style:none;cursor:pointer}
+.account-menu summary::-webkit-details-marker{display:none}
+.account-popover{position:absolute;right:0;top:calc(100% + 8px);z-index:30;width:240px;padding:8px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow-pop),inset 0 0 0 1px var(--line)}
+.account-popover .who{display:flex;align-items:center;gap:10px;padding:10px 10px 12px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.account-popover .who b{display:block;font-size:14px;font-weight:500}
+.account-popover .who small{display:block;font-size:12px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+.avatar-letter{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:50%;background:var(--accent-fill);color:#fff;font-size:13px;font-weight:500}
+.account-popover button{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:10px;font-size:13px;color:var(--ink);text-align:left}
+.account-popover button:hover{background:var(--well)}
+.account-popover button svg{width:16px;height:16px;color:var(--ink-2)}
+.account-popover .account-signout{color:var(--accent-deep)}
+
+/* Page heading for every page except Home. */
+.page-head{display:flex;align-items:flex-end;gap:20px;margin:4px 0 22px}
+.page-head p{margin-top:6px;font-size:14px}
+.page-actions{display:flex;align-items:center;gap:10px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+
+/* Sample-data notice. */
+.demo-banner{display:flex;align-items:center;gap:14px;margin-bottom:var(--gap);padding:12px 12px 12px 18px;border-radius:var(--radius-row);background:var(--accent-soft);color:var(--ink);font-size:13px}
+.demo-banner strong{font-weight:550;color:var(--accent-deep)}
+.demo-banner .btn{margin-left:auto}
+
+/* Ask Xeyo: a drawer on the right, opened from the ask field. */
+.chat-scrim{position:fixed;inset:0;z-index:40;background:#16161626;backdrop-filter:blur(2px)}
+.chat-window{position:fixed;z-index:41;top:16px;right:16px;bottom:16px;width:min(440px,calc(100vw - 32px));display:flex;flex-direction:column;border-radius:24px;background:var(--surface);box-shadow:var(--shadow-pop);overflow:hidden;animation:slide-in .25s var(--ease)}
+.chat-window[hidden]{display:none}
+.chat-window-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 16px 14px 20px;border-bottom:1px solid var(--line)}
+.chat-window-bar span{display:inline-flex;align-items:center;gap:10px;font-size:15px}
+.chat-window-bar .orb{width:26px;height:26px}
+#chatbot-host{flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto}
+@keyframes slide-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+/* Dialogs. */
+#modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:24px;background:#16161633;backdrop-filter:blur(6px)}
+#modal[hidden]{display:none}
+.dialog{position:relative;width:min(640px,calc(100vw - 48px));max-height:92vh;overflow:auto;padding:30px;border-radius:24px;background:var(--surface);box-shadow:var(--shadow-pop);animation:enter .2s var(--ease)}
+.dialog.wide{width:min(860px,calc(100vw - 48px))}
+.dialog>.close{position:absolute;top:20px;right:20px}
+.dialog h2{margin:0 48px 10px 0;font-size:24px}
+.dialog>p{margin-bottom:6px}
+.dialog-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.dialog-footer p{font-size:12px;color:var(--ink-3)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0}
+.tabs button{height:32px;padding:0 14px;border-radius:999px;background:var(--well);font-size:13px;color:var(--ink-2)}
+.tabs button.active,.tabs button[aria-pressed=true]{background:var(--ink);color:#fff}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Toast. */
+#toast{position:fixed;left:50%;bottom:24px;z-index:60;display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);padding:12px 20px;border-radius:999px;background:var(--ink);color:#fff;font-size:13px;opacity:0;pointer-events:none;transform:translate(-50%,8px);transition:opacity .2s,transform .2s var(--ease)}
+#toast.visible{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.toast-action{color:var(--accent-2);font-weight:500}
+
+/* Labels stay visible at every width: the navigation takes its own row, then scrolls sideways on phones. */
+@media(max-width:1240px){.topbar{flex-wrap:wrap}.nav{order:3;width:100%;justify-content:space-between}.ask{flex-basis:320px}}
+@media(max-width:900px){
+ .frame{padding:14px 14px 24px}
+ .topbar{flex-wrap:wrap;gap:12px}
+ .nav{overflow-x:auto;scrollbar-width:none;justify-content:flex-start}
+ .nav::-webkit-scrollbar{display:none}
+ .ask{width:auto;flex:1;min-width:0}
+ .topbar-end{flex:1}
+ .page-head{flex-wrap:wrap;align-items:flex-start}
+ .page-actions{margin-left:0;justify-content:flex-start}
+}
+@media(max-width:560px){
+ h1{font-size:26px}
+ .brand-name{display:none}
+ .dialog{padding:22px;width:calc(100vw - 24px)}
+ #modal{padding:12px}
+ .chat-window{top:8px;right:8px;bottom:8px;width:calc(100vw - 16px)}
+}

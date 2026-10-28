@@ -1,93 +1,61 @@
-// Visual cards: one saturated colour field per metric and a data-driven line drawing per signal.
-// Line art is 1px white; one accent dot marks today. Every shape is drawn from the person's own readings.
+// Metric cards on the shared system: a white card, the person's last 14 days drawn in neutral ink, and the orange
+// accent only on the latest point. Two drawings only: a line inside the usual range, or bars for amounts.
 import {formatValue} from './metrics.js';
 import {dailyMeans} from './insights.js';
-import {escapeHTML as esc} from './domain.js';
+import {escapeHTML as esc,dateLocale} from './domain.js';
+import {trendChart} from './charts.js';
 
-// Colour identifies the signal, never a judgement. Light palettes carry near-black text.
-const palette={recovery:'forest',hrv:'lagoon',hrv_sdnn:'lagoon',resting_hr:'dusk',heart_rate:'dusk',spo2:'citrus',respiratory_rate:'amber',skin_temperature:'citrus',sleep:'noir',sleep_deep:'noir',sleep_rem:'lagoon',sleep_light:'dusk',sleep_awake:'amber',sleep_performance:'forest',sleep_efficiency:'lagoon',sleep_consistency:'dusk',sleep_needed:'noir',sleep_debt:'amber',sleep_disturbances:'dusk',nap:'lagoon',steps:'citrus',active_energy:'amber',weight:'dusk',body_fat:'amber',lean_mass:'forest'};
-export const paletteFor=kind=>palette[kind]||'dusk';
-const lightPalettes=new Set(['citrus','amber','sand']);
-export const isLightPalette=name=>lightPalettes.has(name);
-const visualKind={recovery:'rings',hrv:'rings',hrv_sdnn:'rings',sleep_performance:'rings',sleep_efficiency:'rings',sleep_consistency:'rings',spo2:'waves',respiratory_rate:'arc',skin_temperature:'arc',sleep:'stack',sleep_deep:'bars',sleep_rem:'bars',sleep_light:'bars',nap:'bars',steps:'bars',active_energy:'bars'};
-export const visualFor=kind=>visualKind[kind]||'line';
+const WINDOW=14;
+// Nightly amounts and daily counts are bars; sleep is bars split into stages; every other signal is a line.
+const barKinds=new Set(['sleep_deep','sleep_rem','sleep_light','sleep_awake','nap','sleep_debt','sleep_disturbances','steps','active_energy','energy_burned','strain']);
 
 const round=n=>Math.round(n*10)/10;
-const scale=(values,lo=12,hi=88)=>{const min=Math.min(...values),max=Math.max(...values),span=max-min||1;return v=>hi-(v-min)/span*(hi-lo)};
-const dot=(x,y,cls='live')=>`<i class="vdot ${cls}" style="left:${round(x)}%;top:${round(y)}%"></i>`;
+const avg=values=>values.reduce((s,n)=>s+n,0)/values.length;
+// Dots are HTML so they stay round over a stretched drawing.
+const dot=(x,y)=>`<i class="vdot" style="left:${round(x)}%;top:${round(y)}%"></i>`;
 // Catmull-Rom through the points, as cubic Béziers: smooth, and it passes through every reading.
-function smooth(points){if(points.length<2)return '';let d=`M${round(points[0][0])} ${round(points[0][1])}`;for(let i=0;i<points.length-1;i++){const p0=points[i-1]||points[i],p1=points[i],p2=points[i+1],p3=points[i+2]||p2;d+=` C${round(p1[0]+(p2[0]-p0[0])/6)} ${round(p1[1]+(p2[1]-p0[1])/6)} ${round(p2[0]-(p3[0]-p1[0])/6)} ${round(p2[1]-(p3[1]-p1[1])/6)} ${round(p2[0])} ${round(p2[1])}`}return d}
-const stretch=(inner,label)=>`<svg class="vline" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(label)}">${inner}</svg>`;
-const glow=id=>`<defs><filter id="${id}" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+function smooth(points){let d=`M${round(points[0][0])} ${round(points[0][1])}`;for(let i=0;i<points.length-1;i++){const p0=points[i-1]||points[i],p1=points[i],p2=points[i+1],p3=points[i+2]||p2;d+=` C${round(p1[0]+(p2[0]-p0[0])/6)} ${round(p1[1]+(p2[1]-p0[1])/6)} ${round(p2[0]-(p3[0]-p1[0])/6)} ${round(p2[1]-(p3[1]-p1[1])/6)} ${round(p2[0])} ${round(p2[1])}`}return d}
+const plot=(inner,label,extra='')=>`<span class="vplot"><svg class="vline" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(label)}">${inner}</svg>${extra}</span>`;
+// The dates under a drawing: the first day shown, the window, and the latest ("Today" or "Last night").
+const dayText=(day,now,today)=>day===new Date(now).toISOString().slice(0,10)?today:new Date(day+'T12:00:00Z').toLocaleDateString(dateLocale,{timeZone:'UTC',month:'short',day:'numeric'});
+const scaleRow=(list,{now,today})=>`<span class="vscale"><span>${dayText(list[0].day,now,today)}</span><span>${WINDOW} days</span><span>${dayText(list.at(-1).day,now,today)}</span></span>`;
 
-// Today's value as a ring among the last days: concentric on small cards, a stacked column on the hero.
-function rings(days,{hero,kind,label}){
- const values=days.map(d=>d.value),min=Math.min(...values),max=Math.max(...values),norm=v=>max>min?(v-min)/(max-min):.5,id='g-'+kind;
- if(hero){const list=days.slice(-14),step=136/Math.max(1,list.length-1);
-  const shapes=list.map((d,i)=>{const rx=12+norm(d.value)*34,cy=14+i*step,last=i===list.length-1;return `<ellipse cx="50" cy="${round(cy)}" rx="${round(rx)}" ry="${round(rx*.2)}" class="${last?'ring today':'ring'}"/>${last?`<circle cx="50" cy="${round(cy+rx*.2)}" r="2.6" class="live-dot" filter="url(#${id})"/>`:''}`}).join('');
-  return `<svg class="vfixed" viewBox="0 0 100 160" role="img" aria-label="${esc(label)}">${glow(id)}<line x1="50" x2="50" y1="6" y2="154" class="axis"/>${shapes}</svg><span class="vscale"><span>${list.length} days ago</span><span>Today</span></span>`}
- // Small cards: one ring per day in a row, its height set by the value; today carries the accent.
- const list=days.slice(-9),gap=100/list.length;
- const shapes=list.map((d,i)=>{const ry=6+norm(d.value)*14,cx=gap/2+i*gap,last=i===list.length-1;return `<ellipse cx="${round(cx)}" cy="22" rx="${round(gap*.62)}" ry="${round(ry)}" class="${last?'ring today':'ring'}"/>${last?`<circle cx="${round(cx)}" cy="${round(22-ry)}" r="2.4" class="live-dot" filter="url(#${id})"/>`:''}`}).join('');
- return `<svg class="vfixed" viewBox="0 0 100 44" role="img" aria-label="${esc(label)}">${glow(id)}${shapes}</svg>`;
+// The daily values inside the person's usual range (mean ± one standard deviation), latest point in orange.
+function line(days,ctx){
+ const values=days.map(d=>d.value),mean=avg(values),sd=Math.sqrt(avg(values.map(v=>(v-mean)**2)));
+ const lo=Math.min(...values,mean-sd),hi=Math.max(...values,mean+sd),span=hi-lo||1,y=v=>84-(v-lo)/span*68,x=i=>3+i/(days.length-1)*94,pts=days.map((d,i)=>[x(i),y(d.value)]);
+ return plot(`<rect x="0" y="${round(y(mean+sd))}" width="100" height="${round(y(mean-sd)-y(mean+sd))}" class="band"/><path d="${smooth(pts)}" class="trace"/>`,ctx.label,dot(...pts.at(-1)))+scaleRow(days,ctx);
 }
-// The 30-day curve with two softer echoes; white dots at the low and the high, the accent at today.
-function waves(days,{label}){
- const y=scale(days.map(d=>d.value),22,78),x=i=>days.length===1?50:4+i/(days.length-1)*92,pts=days.map((d,i)=>[x(i),y(d.value)]);
- const echo=(dx,dy)=>smooth(pts.map(([a,b])=>[a+dx,b+dy]));
- const values=days.map(d=>d.value),lo=values.indexOf(Math.min(...values)),hi=values.indexOf(Math.max(...values));
- return stretch(`<path d="${echo(0,8)}" class="echo"/><path d="${echo(0,-8)}" class="echo"/><path d="${smooth(pts)}" class="trace"/>`,label)+dot(...pts[lo],'mark')+dot(...pts[hi],'mark')+dot(...pts.at(-1));
-}
-// A thin line with a soft area below and a glowing endpoint.
-function line(days,{label}){
- const y=scale(days.map(d=>d.value)),x=i=>days.length===1?50:3+i/(days.length-1)*94,pts=days.map((d,i)=>[x(i),y(d.value)]),path=smooth(pts);
- return stretch(`<path d="${path} L${round(pts.at(-1)[0])} 100 L${round(pts[0][0])} 100Z" class="area"/><path d="${path}" class="trace"/>`,label)+dot(...pts.at(-1));
-}
-// The person's own 30-day range as a dotted arc; the accent shows where today sits in it.
-function arc(days,{kind,label}){
- const values=days.map(d=>d.value),min=Math.min(...values),max=Math.max(...values),today=values.at(-1),t=max>min?(today-min)/(max-min):.5,id='g-'+kind;
- const at=f=>{const a=Math.PI*(1-f);return [60+48*Math.cos(a),58-48*Math.sin(a)]};
- const ticks=Array.from({length:13},(_,i)=>{const [cx,cy]=at(i/12);return `<circle cx="${round(cx)}" cy="${round(cy)}" r="${round(.8+i/12*1.8)}" class="tick"/>`}).join('');
- const [px,py]=at(t);
- return `<svg class="vfixed" viewBox="0 0 120 66" role="img" aria-label="${esc(label)}">${glow(id)}<path d="M12 58 A48 48 0 0 1 108 58" class="ring"/>${ticks}<circle cx="${round(px)}" cy="${round(py)}" r="3" class="live-dot" filter="url(#${id})"/></svg><span class="vscale"><span>${formatValue(min,kind)} low</span><span>30-day range</span><span>${formatValue(max,kind)} high</span></span>`;
-}
-// Nights as stacked stage bars (deep, REM, light) when stages exist; a plain bar otherwise.
-function stack(days,{readings,source,label}){
- const list=days.slice(-14),stage=(kind,day)=>readings.find(r=>r.kind===kind&&r.source===source&&r.observed_at.slice(0,10)===day)?.value;
- const top=Math.max(...list.map(d=>d.value))||1,w=100/list.length;
- const bars=list.map((d,i)=>{const parts=['sleep_deep','sleep_rem','sleep_light'].map(k=>Number(stage(k,d.day))||0),sum=parts.reduce((s,n)=>s+n,0),h=d.value/top*78,x=i*w+w*.18,bw=w*.64;
-  if(!sum)return `<rect x="${round(x)}" y="${round(96-h)}" width="${round(bw)}" height="${round(h)}" class="bar"/>`;
-  let y=96;return parts.map((p,j)=>{const ph=p/sum*h;y-=ph;return `<rect x="${round(x)}" y="${round(y)}" width="${round(bw)}" height="${round(ph)}" class="stage s${j}"/>`}).join('')}).join('');
- const last=list.at(-1);return stretch(bars,label)+dot((list.length-1)*w+w/2,96-last.value/top*78);
-}
-function bars(days,{label}){
- const list=days.slice(-14),top=Math.max(...list.map(d=>d.value))||1,w=100/list.length;
- return stretch(list.map((d,i)=>`<rect x="${round(i*w+w*.2)}" y="${round(96-d.value/top*78)}" width="${round(w*.6)}" height="${round(d.value/top*78)}" class="${i===list.length-1?'bar today':'bar'}"/>`).join(''),label)+dot((list.length-1)*w+w/2,96-list.at(-1).value/top*78);
-}
-// A wireframe orb for the measurement count; decorative, so hidden from assistive technology.
-export function orb(id='orb'){
- const meridians=[40,30,18,6].map(rx=>`<ellipse cx="50" cy="50" rx="${rx}" ry="40" class="ring"/>`).join(''),parallels=[[50,40,12],[34,34,8],[66,34,8]].map(([cy,rx,ry])=>`<ellipse cx="50" cy="${cy}" rx="${rx}" ry="${ry}" class="ring"/>`).join('');
- return `<svg class="vfixed" viewBox="0 0 100 100" aria-hidden="true">${glow(id)}${meridians}${parallels}<circle cx="50" cy="50" r="3" class="live-dot" filter="url(#${id})"/></svg>`;
+// One bar per day; only the latest is orange. Sleep splits each bar into deep, REM and light when stages exist.
+function bars(days,{stages,readings,source,...ctx}){
+ const top=Math.max(...days.map(d=>d.value))||1,w=100/days.length,stage=(kind,day)=>readings.find(r=>r.kind===kind&&r.source===source&&r.observed_at.slice(0,10)===day)?.value;
+ const shapes=days.map((d,i)=>{const h=d.value/top*92,x=i*w+w*.2,bw=w*.6,latest=i===days.length-1?' today':'';
+  const parts=stages?['sleep_deep','sleep_rem','sleep_light'].map(k=>Number(stage(k,d.day))||0):[],sum=parts.reduce((s,n)=>s+n,0);
+  if(!sum)return `<rect x="${round(x)}" y="${round(100-h)}" width="${round(bw)}" height="${round(h)}" class="bar${latest}"/>`;
+  let y=100;return parts.map((p,j)=>{const ph=p/sum*h;y-=ph;return `<rect x="${round(x)}" y="${round(y)}" width="${round(bw)}" height="${round(Math.max(0,ph-.8))}" class="stage s${j}${latest}"/>`}).join('')}).join('');
+ return plot(shapes,ctx.label)+scaleRow(days,ctx);
 }
 
-export function metricVisual(m,rows,{hero=false,readings=[],now=Date.now()}={}){
- const days=dailyMeans(rows,{days:30,now});if(!days.length)return '';
- const label=`${days.length} ${days.length===1?'day':'days'} recorded in the last 30`;
- if(days.length<2)return `<span class="vsingle">One recorded day</span>`;
- const kind=visualFor(m.kind),ctx={hero,kind:m.kind,label,readings,source:rows[0]?.source};
- return kind==='rings'?rings(days,ctx):kind==='waves'?waves(days,ctx):kind==='arc'?arc(days,ctx):kind==='stack'?stack(days,ctx):kind==='bars'?bars(days,ctx):line(days,ctx);
+const windowDays=(rows,now)=>dailyMeans(rows,{days:WINDOW,now});
+export function metricVisual(m,rows,{readings=[],now=Date.now()}={}){
+ const days=windowDays(rows,now);if(!days.length)return '';
+ if(days.length<2)return `<span class="vsingle">One recorded day in the last ${WINDOW}</span>`;
+ const ctx={label:`${m.name}: ${days.length} of the last ${WINDOW} days recorded`,readings,source:rows[0]?.source,now,today:m.group==='sleep'?'Last night':'Today',stages:m.kind==='sleep'};
+ return m.kind==='sleep'||barKinds.has(m.kind)?bars(days,ctx):line(days,ctx);
 }
 
-// One card. `pill` is already-escaped HTML for the status chip (Steady, ↑ 4%, Unusual, Last 20 Aug).
-export function vcard({m,r,rows,pill='',foot=[],hero=false,stale=false,readings=[],empty=''}){
- const pal=paletteFor(m.kind);
- return `<button class="vcard pal-${pal} ${isLightPalette(pal)?'tone-light':''} ${hero?'is-hero':''} ${stale?'is-stale':''}" data-metric="${m.kind}" aria-label="${esc(m.name)}${r?`: ${formatValue(r.value,m.kind)} ${esc(m.unit)}`:''}. Open details"><span class="vcard-head"><span class="vcard-label">${esc(m.name)}</span><span class="vcard-arrow" aria-hidden="true">↗</span></span><span class="vcard-value"><b>${r?formatValue(r.value,m.kind):'—'}</b><small>${esc(m.unit)}</small>${pill&&!hero?`<span class="vcard-pills inline">${pill}</span>`:''}</span>${pill&&hero?`<span class="vcard-pills">${pill}</span>`:''}<span class="vcard-visual">${r?metricVisual(m,rows,{hero,readings}):`<span class="vsingle">${esc(empty)}</span>`}</span><span class="vcard-foot">${foot.map(f=>`<span>${f}</span>`).join('')}</span></button>`;
+const arrow='<svg viewBox="0 0 24 24"><path d="M6 18 18 6 M7 6h11v11"/></svg>';
+const footHTML=(foot,tag='span')=>`<${tag} class="vcard-foot">${foot.filter(Boolean).map(f=>`<span>${f}</span>`).join('')}</${tag}>`;
+// One card. `badge` is already-escaped HTML (the change, "Unusual · …", or "Last 20 Aug"); `caption` and `status`
+// say the same in words; `foot` holds the 30-day average (and the source when it differs from the page's).
+export function vcard({m,r,rows,badge='',caption='',status='',foot=[],cells=[],hero=false,stale=false,readings=[],empty=''}){
+ if(hero)return heroCard({m,r,rows,badge,caption,foot,cells});
+ const visual=r?metricVisual(m,rows,{readings})||`<span class="vsingle">No readings in the last ${WINDOW} days</span>`:`<span class="vsingle">${esc(empty)}</span>`;
+ return `<button class="card vcard ${stale?'is-stale':''}" data-metric="${m.kind}" aria-label="${esc(m.name)}${r?`: ${formatValue(r.value,m.kind)} ${esc(m.unit)}`:''}${status?`, ${esc(status)}`:''}. Open details"><span class="card-head"><span class="marker" aria-hidden="true"></span><span class="vcard-title">${esc(m.name)}</span><span class="spacer"></span><span class="vcard-arrow" aria-hidden="true">${arrow}</span></span><span class="vcard-value"><span class="stat"><b>${r?formatValue(r.value,m.kind):'—'}</b>${m.unit?`<small>${esc(m.unit)}</small>`:''}</span>${badge}</span>${caption?`<span class="stat-caption">${caption}</span>`:''}<span class="vcard-visual">${visual}</span>${footHTML(foot)}</button>`;
 }
-
-// Today as a timeline: wake-up, meals and check-ins at the time they happened, and a marker for now.
-export function todayStrip(events,{now=new Date(),from=6,to=24}={}){
- const pos=d=>{const h=d.getHours()+d.getMinutes()/60;return Math.max(0,Math.min(100,(h-from)/(to-from)*100))},nowAt=pos(now),fmt=d=>d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
- const first=events.length?Math.min(...events.map(e=>pos(e.at))):nowAt;
- const ticks=Array.from({length:(to-from)/6+1},(_,i)=>from+i*6).map(h=>`<span style="left:${round((h-from)/(to-from)*100)}%">${String(h%24).padStart(2,'0')}:00</span>`).join('');
- return `<section class="today-strip" aria-label="Today's data"><span class="today-title">Today’s data</span><div class="today-track"><i class="today-span" style="left:${round(first)}%;width:${round(Math.max(0,nowAt-first))}%"></i>${events.map(e=>`<button type="button" class="today-event ${e.kind}" style="left:${round(pos(e.at))}%" title="${esc(e.label)} · ${fmt(e.at)}" aria-label="${esc(e.label)} at ${fmt(e.at)}" ${e.nav?`data-nav="${e.nav}"`:''}></button>`).join('')}<span class="today-now" style="left:${round(nowAt)}%"><b>Now</b></span><div class="today-ticks" aria-hidden="true">${ticks}</div></div><span class="today-legend">${events.length?`${events.length} ${events.length===1?'event':'events'} today`:'Nothing logged yet today'}</span></section>`;
+// The focal card on Vitals speaks the Home trend's language: the last 14 days against the usual range.
+function heroCard({m,r,rows,badge,caption,foot,cells}){
+ const days=windowDays(rows,Date.now()),id=`vhero-${m.kind}`;
+ const chart=days.length>=2?`<div class="vcard-trend">${trendChart(days,{label:`${m.name} over the last ${days.length} recorded days`,format:v=>formatValue(v,m.kind)})}</div><div class="legend"><span><i class="t-accent"></i>Above your ${WINDOW}-day average</span><span><i class="band-key"></i>Your usual range</span></div>`:`<span class="vsingle">Your trend appears once there are two days of readings.</span>`;
+ return `<section class="card dark vcard is-hero" aria-labelledby="${id}"><div class="card-head"><span class="marker" aria-hidden="true"></span><h2 id="${id}">${esc(m.name)} <span class="muted">· ${WINDOW} days</span></h2><span class="spacer"></span>${badge}<button class="icon-btn small" data-metric="${m.kind}" aria-label="Open ${esc(m.name)} details">${arrow}</button></div><div class="vcard-value"><div class="stat"><b>${formatValue(r.value,m.kind)}</b>${m.unit?`<small>${esc(m.unit)}</small>`:''}</div></div>${caption?`<span class="stat-caption">${caption}</span>`:''}${chart}${cells.length?`<div class="vcard-cells">${cells.map(([k,v])=>`<span><small>${k}</small><b>${v}</b></span>`).join('')}</div>`:''}${footHTML(foot,'div')}</section>`;
 }

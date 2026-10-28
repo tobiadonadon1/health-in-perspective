@@ -13,7 +13,13 @@ export async function fetchWhoopPages(path,accessToken,{fetcher=fetch,days=90,no
  }
  throw Error('WHOOP history exceeded the synchronization limit.');
 }
-export function mapWhoopReadings(userId,recovery,sleeps){
+// Cycles need the separate read:cycles scope; any failure there leaves recovery and sleep untouched.
+export async function fetchWhoopCycles(accessToken,options={}){try{return await fetchWhoopPages('cycle',accessToken,options)}catch{return null}}
+export async function collectWhoopData(accessToken,options={}){
+ const [recovery,sleeps,cycles]=await Promise.all([fetchWhoopPages('recovery',accessToken,options),fetchWhoopPages('activity/sleep',accessToken,options),fetchWhoopCycles(accessToken,options)]);
+ return {recovery,sleeps,cycles:cycles||[],cyclesAvailable:cycles!==null};
+}
+export function mapWhoopReadings(userId,recovery,sleeps,cycles=[]){
  const rows=[],sleepById=new Map(sleeps.map(v=>[String(v.id),v]));
  const add=(base,kind,unit,value)=>{if(Number.isFinite(value))rows.push({...base,kind,unit,value:Math.round(value*100)/100})};
  for(const v of recovery){
@@ -33,6 +39,15 @@ export function mapWhoopReadings(userId,recovery,sleeps){
    const needed=v.score.sleep_needed;
    if(needed){if(Number.isFinite(needed.need_from_sleep_debt_milli)&&needed.need_from_sleep_debt_milli>=0)add(base,'sleep_debt','min',needed.need_from_sleep_debt_milli/60000);const parts=['baseline_milli','need_from_sleep_debt_milli','need_from_recent_strain_milli','need_from_recent_nap_milli'].map(k=>needed[k]);if(parts.every(Number.isFinite)&&parts.reduce((a,b)=>a+b,0)>=0)add(base,'sleep_needed','hours',parts.reduce((a,b)=>a+b,0)/3600000);}
   }
+ }
+ // A cycle is WHOOP's physiological day. An ongoing cycle has end:null and is re-upserted on each sync.
+ for(const v of cycles||[]){
+  if(v.score_state!=='SCORED'||!v.score||v.id==null)continue;
+  const observed_at=v.end||v.start;if(!Number.isFinite(Date.parse(observed_at)))continue;
+  const base={user_id:userId,source:'WHOOP',external_id:String(v.id),observed_at};
+  add(base,'strain','',v.score.strain);
+  if(Number.isFinite(v.score.kilojoule))add(base,'energy_burned','kcal',v.score.kilojoule/4.184);
+  add(base,'heart_rate','bpm',v.score.average_heart_rate);
  }
  return rows;
 }

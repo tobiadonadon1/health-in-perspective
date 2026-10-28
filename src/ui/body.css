@@ -1,0 +1,204 @@
+/* Body and Blood records. */
+
+/* Body: the figure as the focal card, one white card per measurement beside it. */
+.body-page{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
+.body-visual{grid-column:span 2;overflow:hidden}
+.body-side{display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+.body-side>.card{flex:1 1 auto}
+.body-side>.body-add:not(.is-first){flex:0 0 auto}
+.stats-only .body-side{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.stats-only .body-add.is-first{grid-column:1/-1}
+.stats-only .is-first .measure-add-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* The stage: figure on the left, readings on the right, each joined to a marker on the body. */
+/* --x/--y place the marker on the figure (percent of its box), --slot is where the reading sits (percent of the stage height).
+   The connector is drawn as one straight line from marker to reading with CSS trigonometry. */
+.body-visual .portrait-scene{--stage:540px;--ratio:2/3;--reach:250px;--overlap:8px;position:relative;display:grid;grid-template-columns:minmax(0,1fr) var(--reach);height:var(--stage);margin:0 -22px}
+.body-visual .portrait-figure{position:relative;height:100%;aspect-ratio:var(--ratio);justify-self:end;margin-right:calc(-1 * var(--overlap))}
+.body-visual .portrait-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:perspective(1200px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .5s var(--ease)}
+.body-visual .portrait-scene.is-tilting img{transition:transform .12s linear}
+.body-pin{--dx:calc(var(--stage) * var(--ratio) * (1 - var(--x) / 100) - var(--overlap) + 18px);--dy:calc((var(--slot) - var(--y)) * var(--stage) / 100);position:absolute;left:calc(var(--x) * 1%);top:calc(var(--y) * 1%);width:0;height:0;text-align:left;color:inherit}
+.body-pin:focus-visible{outline:none}
+.body-pin:focus-visible .pin-copy{outline:2px solid var(--accent);outline-offset:2px}
+.pin-dot{position:absolute;left:-5px;top:-5px;z-index:1;width:10px;height:10px;border-radius:50%}
+.pin-line{position:absolute;left:0;top:0;width:calc(hypot(var(--dx),var(--dy)) - 2px);height:0;border-top:1px solid;transform-origin:0 0;transform:rotate(atan2(var(--dy),var(--dx)))}
+.pin-copy{position:absolute;left:var(--dx);top:var(--dy);transform:translateY(-50%);display:flex;align-items:center;justify-content:space-between;gap:10px;width:calc(var(--reach) - 40px);min-height:52px;padding:8px 14px;border-radius:var(--radius-row);transition:background .15s}
+.pin-name{display:flex;flex-direction:column;min-width:0;font-size:13px;line-height:1.3}
+.pin-name small{font-size:12px;margin-top:2px}
+.pin-copy strong{display:flex;align-items:baseline;gap:3px;font-size:20px;font-weight:300;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pin-copy strong small{font-size:12px;font-weight:400;letter-spacing:0}
+
+/* Portrait: grey-toned figure on the accent, white markers and glass readings, like Home's month card. */
+.body-visual.is-portrait{background:var(--accent-fill);color:#fff}
+.body-visual.is-portrait .marker{background:#fff;box-shadow:none}
+.body-visual.is-portrait .portrait-figure img{filter:grayscale(1) contrast(1.15) brightness(1.05);mix-blend-mode:multiply}
+.body-visual.is-portrait .portrait-scene{--overlap:-90px}
+.body-visual.is-portrait .pin-upper{--x:64;--y:57;--slot:44}
+.body-visual.is-portrait .pin-middle{--x:58;--y:73;--slot:61}
+.body-visual.is-portrait .pin-lower{--x:49;--y:87;--slot:78}
+.body-visual.is-portrait .is-empty .pin-copy{background:transparent;border:1px dashed #ffffffb3;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.body-visual.is-portrait .pin-add{background:#fff;color:var(--accent-deep)}
+.body-visual.is-portrait .pin-dot{background:#fff;box-shadow:0 0 0 4px #ffffff40}
+.body-visual.is-portrait .pin-line{border-color:#ffffffa6}
+.body-visual.is-portrait .pin-copy{background:#ffffff1f;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px #ffffff59}
+.body-visual.is-portrait .body-pin:hover .pin-copy{background:#ffffff33}
+.body-visual.is-portrait .pin-name small{color:#ffffffcc}
+
+/* Digital figure: pearl figure on white, orange markers and light reading rows, like Home's body card. */
+.body-visual.is-digital .portrait-scene{--ratio:1;--overlap:40px}
+.body-visual.is-digital .portrait-figure img{filter:saturate(.6) sepia(.15)}
+.body-visual.is-digital .pin-upper{--x:54;--y:27;--slot:18}
+.body-visual.is-digital .pin-middle{--x:52;--y:42;--slot:40}
+.body-visual.is-digital .pin-lower{--x:55;--y:60;--slot:62}
+.body-visual.is-digital .is-empty .pin-copy{background:var(--surface);border:1px dashed var(--line-strong)}
+.body-visual.is-digital .pin-add{background:var(--ink);color:#fff}
+.body-visual.is-digital .pin-dot{background:var(--accent);box-shadow:0 0 0 4px #ff6a1a33,0 0 0 9px #ff6a1a14}
+.body-visual.is-digital .pin-line{border-color:var(--line-strong)}
+.body-visual.is-digital .pin-copy{background:var(--well)}
+.body-visual.is-digital .body-pin:hover .pin-copy{background:#ebebe8}
+.body-visual.is-digital .pin-name small{color:var(--ink-3)}
+.pin-name small.unusual{color:var(--accent-deep)}
+.body-visual.is-portrait .pin-name small.unusual{color:#fff;font-weight:500}
+
+.body-visual-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px}
+.body-visual-note{font-size:12px;color:var(--ink-3)}
+.body-visual.is-portrait .body-visual-note{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:999px;background:#0000002e;color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.body-visual.is-portrait .btn.light{box-shadow:none}
+
+/* Measurement cards. */
+.body-measure .stat .badge{align-self:center;margin-left:6px}
+.measure-history{margin-top:18px}
+.measure-line{position:relative;height:44px;margin:0 6px}
+.measure-line .sparkline{position:absolute;inset:0;height:100%}
+.measure-line i{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.measure-line i:last-child{width:11px;height:11px;margin:-5.5px 0 0 -5.5px;background:var(--accent);box-shadow:0 0 0 4px #ff6a1a26}
+.measure-history span{display:block;margin-top:8px;font-size:12px;color:var(--ink-3)}
+.pin-add{display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+.pin-add svg{width:13px;height:13px}
+
+/* Measurements not added yet: compact rows, each opening the entry dialog. */
+.body-add.is-first>p{margin-bottom:18px}
+.measure-add-list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.measure-add{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:6px 6px 6px 18px;border-radius:999px;background:var(--well);text-align:left;transition:background .15s}
+.measure-add:hover{background:#ebebe8}
+.measure-add-name{display:flex;align-items:baseline;gap:6px;font-size:14px}
+.measure-add-name small{font-size:12px;color:var(--ink-3)}
+.measure-add-cta{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13px}
+.measure-add-cta svg{width:15px;height:15px}
+.measure-action{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:18px;font-size:13px;color:var(--ink-2)}
+
+/* Measurement dialog: recent entries as light rows. */
+.measurement-history{margin-top:24px}
+.measurement-history h3{margin-bottom:10px;font-size:14px;font-weight:500}
+.measurement-row{display:flex;align-items:center;gap:14px;min-height:50px;padding:6px 16px;border-radius:var(--radius-row);background:var(--well)}
+.measurement-row+.measurement-row{margin-top:6px}
+.measurement-row>div{display:flex;align-items:baseline;gap:12px;flex:1;min-width:0}
+.measurement-row strong{font-size:18px;font-weight:300;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.measurement-row strong small{font-size:12px;font-weight:400;color:var(--ink-3)}
+.measurement-row>div span{font-size:13px;color:var(--ink-2)}
+.measurement-row .delete-button{color:var(--accent-deep)}
+.measurement-trend{display:inline-block;margin-top:18px}
+
+/* Blood records: results as a clean table, documents beside it. */
+.labs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);align-items:start}
+.labs-results{grid-column:span 2}
+.labs-results .card-empty,.labs-docs .card-empty{margin:4px 0 0}
+.labs-table-wrap{overflow-x:auto}
+.lab-table{width:100%;border-collapse:collapse;font-size:14px}
+.lab-table th{padding:0 8px 10px;font-size:12px;font-weight:400;color:var(--ink-3);text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+.lab-table td{padding:16px 8px;vertical-align:middle;border-bottom:1px solid var(--line)}
+.lab-table tbody tr:last-child td{border-bottom:0}
+.lab-table th:first-child,.lab-table td:first-child{padding-left:0}
+.lab-table th:last-child,.lab-table td:last-child{padding-right:0}
+.lab-test small,.lab-change small{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+.lab-name{font-size:14px;font-weight:500;text-align:left}
+.lab-name:hover{text-decoration:underline;text-underline-offset:3px}
+.lab-value{white-space:nowrap}
+.lab-value b{font-size:24px;font-weight:300;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.lab-value small{margin-left:4px;font-size:12px;color:var(--ink-2)}
+.lab-change{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lab-change.same{color:var(--ink-2)}
+.lab-open{width:44px;text-align:right}
+.labs-note{margin-top:4px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3)}
+
+/* Reference range: a well track, the laboratory's range as a band, the result as a dot (accent when outside). */
+.range{display:flex;flex-direction:column;gap:6px;min-width:120px}
+.range-bar{position:relative;display:block;height:8px;border-radius:999px;background:var(--well);box-shadow:inset 0 0 0 1px var(--line)}
+.range-band{position:absolute;left:25%;right:25%;top:0;bottom:0;border-radius:999px;background:var(--line-strong)}
+.range-bar b{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
+.range-bar.out b{background:var(--accent);box-shadow:0 0 0 2px var(--surface),0 0 0 5px #ff6a1a33}
+.range-text{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.lab-status.out{background:var(--accent-soft);color:var(--accent-deep);box-shadow:none}
+.lab-status.out::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+/* Private files: lab reports here, reference photos on Profile. */
+.record-list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.record-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 8px 8px 8px;border-radius:var(--radius-row);background:var(--well)}
+.record-icon{display:grid;place-items:center;width:38px;height:38px;flex-shrink:0;border-radius:50%;background:var(--surface);color:var(--ink-2)}
+.record-icon svg{width:16px;height:16px}
+.record-name{flex:1;min-width:0}
+.record-name b{display:block;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.record-name small{display:block;font-size:12px;color:var(--ink-3)}
+.record-row .delete-button:hover{color:var(--accent-deep)}
+
+/* Blood result detail dialog. */
+.lab-detail-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px}
+.lab-detail-top .stat b{font-size:52px}
+.lab-detail-range{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 16px;margin-top:18px;padding:14px 16px;border-radius:var(--radius-row);background:var(--well);font-size:13px;color:var(--ink-2)}
+.lab-detail-range .range{flex-direction:row;align-items:center;gap:12px}
+.lab-detail-range .range-bar{flex:1;background:var(--surface)}
+.lab-history{margin-top:22px}
+.lab-history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.lab-history-head h3{font-size:14px;font-weight:500}
+.legend i.lab-key-band{width:14px;height:8px;border-radius:2px;background:var(--accent-soft);box-shadow:inset 0 0 0 1px #ff6a1a4d}
+.lab-chart{position:relative;height:200px;margin:0 36px 0 0;border-radius:12px;background:var(--well)}
+.lab-chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;stroke:none}
+.lab-band{fill:var(--accent-soft)}
+.lab-edge{stroke:#ff6a1a66;stroke-width:1;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}
+.lab-chart polyline{fill:none;stroke:var(--ink);stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.lab-chart i{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--well)}
+.lab-chart i.out{background:var(--accent);box-shadow:0 0 0 2px var(--well),0 0 0 5px #ff6a1a33}
+.lab-chart i span{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:12px;font-style:normal;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lab-limit{position:absolute;left:calc(100% + 8px);transform:translateY(-50%);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.lab-axis{display:flex;justify-content:space-between;margin:8px 36px 0 0;font-size:12px;color:var(--ink-3)}
+.lab-chart-empty{display:grid;place-items:center;height:120px;border-radius:12px;background:var(--well);font-size:13px;color:var(--ink-2);text-align:center;padding:0 16px}
+.lab-history+.mini-note{margin-top:16px}
+.lab-notes{margin-top:14px;padding:12px 14px;border-radius:var(--radius-row);background:var(--well);color:var(--ink)}
+
+
+@media(max-width:1180px){
+ .body-page{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .body-visual{grid-column:1/-1}
+ .body-side{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .body-add.is-first{grid-column:1/-1}
+ .labs-grid{grid-template-columns:minmax(0,1fr)}
+ .labs-results{grid-column:auto}
+}
+@media(max-width:760px){
+ .body-page{grid-template-columns:minmax(0,1fr)}
+ .body-side,.stats-only .body-side,.stats-only .is-first .measure-add-list{grid-template-columns:minmax(0,1fr)}
+ .body-visual .portrait-scene{--stage:440px;--reach:176px}
+ .body-visual.is-portrait .portrait-scene{--overlap:-10px}
+ .body-visual.is-portrait .pin-upper{--slot:34}
+ .body-visual.is-portrait .pin-middle{--slot:56}
+ .body-visual.is-digital .portrait-scene{--overlap:120px}
+ .body-visual.is-digital .pin-upper{--slot:14}
+ .body-visual.is-digital .pin-middle{--slot:38}
+ .body-visual.is-digital .pin-lower{--slot:62}
+ .pin-copy{padding:8px 12px}
+ .pin-copy{flex-direction:column;align-items:flex-start;gap:2px}
+ .pin-copy strong{font-size:18px}
+ .labs-table-wrap{margin:0;overflow:visible}
+ .lab-table thead{display:none}
+ .lab-table,.lab-table tbody{display:block}
+ .lab-table tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;padding:16px 0;border-bottom:1px solid var(--line)}
+ .lab-table tbody tr:last-child{border-bottom:0}
+ .lab-table td{display:block;padding:0;border:0}
+ .lab-test{grid-column:1}
+ .lab-open{grid-column:2;grid-row:1;justify-self:end}
+ .lab-value{grid-column:1}
+ .lab-state{grid-column:2;grid-row:2;align-self:center;justify-self:end}
+ .lab-delta,.lab-range{grid-column:1/-1}
+ .lab-change small{display:inline;margin-left:6px}
+ .lab-chart{height:170px}
+}
