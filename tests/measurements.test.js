@@ -19,3 +19,4 @@ test('manual measurement RPC isolates accounts and cannot alter provider reading
  await db.exec(`set request.jwt.claim.sub=''`);await assert.rejects(db.query(call('weight',70)));await db.exec('reset role;set role anon');await assert.rejects(db.query(call('weight',70)));
  }finally{await db.close()}
 });
+test('a new measurement gets an id, because the database function requires one',()=>{const m=validateMeasurement({kind:'weight',value:'82.1',measured_on:'2026-10-01'});assert.match(m.id,/^[0-9a-f-]{36}$/);assert.equal(validateMeasurement({id:'keep',kind:'weight',value:'80',measured_on:'2026-10-01'}).id,'keep');});

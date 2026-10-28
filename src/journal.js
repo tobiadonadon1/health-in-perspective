@@ -3,8 +3,6 @@ import {dotShare} from './charts.js';
 import {escapeHTML as esc,localDay,dateLocale} from './domain.js';
 export const moods=[['great','Great'],['good','Good'],['okay','Okay'],['low','Low'],['rough','Rough']];
 const moodName=id=>moods.find(([m])=>m===id)?.[1]||'';
-// Home shows a plain-text preview: markup someone typed into a note is not rendered or shown as tags.
-export function journalPreview(text,limit=140){const plain=String(text||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();return plain.length>limit?plain.slice(0,limit-1).trimEnd()+'…':plain}
 // Average recovery and sleep on the days of each mood. A pattern across check-ins, not a cause.
 export function moodPatterns(entries,readings){
  const dayValue=(kind,day)=>{const list=readings.filter(r=>r.kind===kind&&r.observed_at.slice(0,10)===day).map(r=>Number(r.value)).filter(Number.isFinite);return list.length?list.reduce((s,n)=>s+n,0)/list.length:null};

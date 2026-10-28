@@ -9,7 +9,7 @@
 .home-grid .month-links button::before,.home-grid .month-links button::after{display:none}
 .calories-card{grid-column:1;grid-row:3}
 .weight-card{grid-column:2;grid-row:3}
-.today-card{grid-column:3/5;grid-row:3}
+.week-card{grid-column:3/5;grid-row:3}
 .home-grid .card{min-height:0;overflow:hidden;padding:20px}
 .home-grid .card-head{margin-bottom:10px}
 
@@ -21,6 +21,22 @@
 .tile .card-empty{font-size:13px;gap:10px}
 .tile.dark .card-empty .btn.light,.tile.forest .card-empty .btn.light{background:#ffffff14;color:var(--on-dark);box-shadow:inset 0 0 0 1px var(--dark-line)}
 .tile-tools{display:flex;gap:4px}
+/* Heart rate on red, with a heart that beats at the latest reading's rate. */
+.tile.pulse{background:var(--glass-dark),radial-gradient(90% 70% at 100% 0%,#ff9a9a59 0%,#ff9a9a00 60%),var(--pulse-fill);box-shadow:var(--glass-dark-edge);color:#fff}
+.tile.pulse .marker{background:#fff;box-shadow:none}
+.tile.pulse .stat small,.tile.pulse .stat-caption,.tile.pulse .mini-dates,.tile.pulse .card-empty{color:#ffffffd1}
+.tile.pulse .badge{background:#fff;color:var(--red-deep)}
+.tile.pulse .badge.quiet{background:#ffffff2e;color:#fff}
+.tile.pulse .icon-btn,.tile.pulse .card-empty .btn.light{background:#ffffff1f;box-shadow:inset 0 0 0 1px #ffffff40;color:#fff}
+.tile.pulse .icon-btn:hover{background:#ffffff33}
+.tile.pulse .mini-plot polyline{stroke:#fff}
+.tile.pulse .mini-plot .avg{stroke:#ffffffa6}
+.tile.pulse .mini-avg{background:#d63f46d9;color:#fff}
+.tile.pulse .mini-now{background:#fff;box-shadow:0 0 0 3px #ffffff4d}
+.tile.pulse.is-stale .stat b{color:#ffffffb3}
+.beat{display:grid;place-items:center;align-self:center;width:46px;height:46px;margin-left:auto;color:#fff;animation:beat var(--beat,1s) ease-in-out infinite;transform-origin:50% 55%;filter:drop-shadow(0 4px 10px #8a0f1966)}
+.beat svg{width:100%;height:100%;fill:currentColor;stroke:none}
+@keyframes beat{0%,40%,100%{transform:scale(1)}12%{transform:scale(1.16)}26%{transform:scale(1.06)}}
 .tile-add{align-items:center;justify-content:center;gap:8px;color:var(--ink-2);font-size:14px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line-strong);border:0}
 .tile-add svg{width:20px;height:20px}
 .tile-add:hover{background:var(--surface)}
@@ -72,19 +88,29 @@
 .weight-card .ruler{height:46px}
 .weight-card .ruler-hint{display:none}
 
-/* Today. */
-.today-card .check-list{margin-top:0}
-.check-row.quiet{color:var(--ink-3)}
-.check-list{display:flex;flex-direction:column;gap:8px;margin:12px 0 0;padding:0;list-style:none}
-.check-row{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:6px 6px 6px 6px;border-radius:999px;background:var(--well);color:var(--ink-2);font-size:12px;line-height:1.35;text-align:left;transition:background .15s}
-.check-row:hover{background:#ebebe8}
-.check-chip{display:inline-grid;place-items:center;height:34px;padding:0 14px;flex-shrink:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--ink);font-size:12px}
-.check-text{flex:1;min-width:0}
-.check-row .metric-icon,.check-end{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:50%;background:var(--surface);color:var(--ink-2)}
-.check-row .metric-icon svg,.check-end svg{width:15px;height:15px}
-.check-row.active{background:linear-gradient(90deg,var(--well) 0%,#ffd9bf 42%,var(--accent) 100%);box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink)}
-.check-row.active .check-chip{background:var(--ink);color:#fff;box-shadow:none}
-.check-row.active .check-end{background:#fff;color:var(--accent-deep)}
+/* Your week: seven days of recovery, sleep, strain and mood; today's column in the accent. */
+.week-card .card-head{gap:12px}
+.week-card .chip.is-cta{background:var(--accent-fill);color:#fff;box-shadow:none}
+.week-table{flex:1;width:100%;border-collapse:separate;border-spacing:4px 0;table-layout:fixed;margin:-2px -4px 0;width:calc(100% + 8px);font-variant-numeric:tabular-nums}
+.week-table th,.week-table td{padding:5px 6px;text-align:left;font-weight:400;vertical-align:middle}
+.week-table thead th,.week-table tr:first-child th{font-size:12px;color:var(--ink-3);white-space:nowrap}
+.week-table tr:first-child th small{margin-left:4px;color:var(--ink-3)}
+.week-table tr:first-child th:first-child{width:22%}
+.week-table th[scope=row]{white-space:nowrap}
+.week-signal{font-size:13px;color:var(--ink);text-align:left}
+.week-signal small{font-size:11px;color:var(--ink-3)}
+.week-signal:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-strong)}
+.week-table td{font-size:13px;color:var(--ink)}
+.week-table td b{display:block;font-weight:400}
+.week-table td i{display:block;height:3px;margin-top:4px;border-radius:999px;background:var(--line-strong)}
+.week-table .is-today{background:var(--accent-soft)}
+.week-table tr:first-child .is-today{border-radius:10px 10px 0 0;color:var(--accent-deep);font-weight:500}
+.week-table tr:last-child .is-today{border-radius:0 0 10px 10px}
+.week-table td.is-today i{background:var(--accent)}
+.week-none{color:var(--ink-3)}
+.week-mood{font-size:12px;color:var(--ink-2)}
+.week-add{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent-fill);color:#fff}
+.week-add svg{width:13px;height:13px}
 
 /* Signal chooser dialog. */
 .widget-categories{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 16px}
@@ -128,22 +154,26 @@
  .calorie-bar{margin:10px 0 6px}
  .weight-card .ruler-field .ruler-input{font-size:30px}
  .weight-card .ruler{height:40px}
- .today-card .check-row{min-height:40px;padding-top:3px;padding-bottom:3px}
- .today-card .check-chip,.today-card .check-row .metric-icon,.today-card .check-end{height:30px}
- .today-card .check-row .metric-icon,.today-card .check-end{width:30px}
+ .week-table th,.week-table td{padding-top:3px;padding-bottom:3px}
+ .beat{width:36px;height:36px}
 }
 @media(max-width:1099px){
  .home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .home-grid .card{min-height:240px}
- .month-card,.calories-card,.weight-card,.today-card{grid-column:auto;grid-row:auto}
- .month-card{min-height:320px}
- .today-card{grid-column:1/-1}
+ .month-card,.calories-card,.weight-card,.week-card{grid-column:auto;grid-row:auto}
+ .home-grid .month-card{min-height:320px}
+ .week-card{grid-column:1/-1}
 }
 @media(max-width:560px){
  .home-grid{grid-template-columns:minmax(0,1fr)}
  .home-grid .card{min-height:0}
  .home-grid .tile .mini-chart{min-height:90px}
- .month-card{min-height:440px}
+ .home-grid .month-card{min-height:440px}
+ .week-table{border-spacing:2px 0;margin:0 -2px;width:calc(100% + 4px)}
+ .week-table th,.week-table td{padding:4px 3px}
+ .week-table tr:first-child th small{display:none}
+ .week-table tr:first-child th:first-child{width:27%}
+ .week-signal,.week-table td{font-size:12px}
  .month-panel h2{font-size:26px}
 }
 

@@ -24,20 +24,6 @@ export function compareLatest(rows,latest,{now=Date.now()}={}){
  return {value,mean,sd,pct,z,days:others.length,unusual:others.length>=7&&Math.abs(z)>=2};
 }
 
-// Up to `limit` notable changes across fresh signals, most unusual first.
-export function metricInsights(readings,metrics,{now=Date.now(),limit=3,kinds}={}){
- const out=[];
- for(const m of metrics){
-  if(m.group==='body'||(kinds&&!kinds.includes(m.kind)))continue;
-  const latest=readings.find(r=>r.kind===m.kind);if(!latest||staleDays(latest,now))continue;
-  const rows=readings.filter(r=>r.kind===m.kind&&r.source===latest.source&&r.unit===latest.unit);
-  const c=compareLatest(rows,latest,{now});if(!c||c.days<7)continue;
-  if(Math.abs(c.pct)<5&&!c.unusual)continue;
-  out.push({kind:m.kind,name:m.name,pct:c.pct,z:c.z,unusual:c.unusual,direction:c.pct>0?'up':'down'});
- }
- return out.sort((a,b)=>Number(b.unusual)-Number(a.unusual)||Math.abs(b.z)-Math.abs(a.z)).slice(0,limit);
-}
-export function insightText(i){const size=Math.abs(i.pct)<10?Math.abs(i.pct).toFixed(1).replace(/\.0$/,''):Math.round(Math.abs(i.pct));return `${i.name} ${/s$/.test(i.name)?'are':'is'} ${size}% ${i.direction==='up'?'above':'below'} your 30-day average`}
 
 // Rounds parts to `decimals` so the displayed parts add up exactly to the displayed total (largest remainder).
 // Parts are only rescaled when they already agree with the total to within `tolerance`.

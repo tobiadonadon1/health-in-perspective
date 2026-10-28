@@ -6,7 +6,8 @@ export function validateMeasurement({id,kind,value,measured_on}){
  if(!metric)throw Error('Choose weight, body fat or lean body mass.');
  if(value===''||!Number.isFinite(n)||n<=0||n>(kind==='body_fat'?100:1000))throw Error(kind==='body_fat'?'Enter a percentage greater than 0 and no more than 100.':'Enter a measurement greater than 0 and no more than 1,000 kg.');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(measured_on)||!Number.isFinite(Date.parse(measured_on))||new Date(measured_on).toISOString().slice(0,10)!==measured_on||measured_on>localDay()||measured_on<'1900-01-01')throw Error('Choose today or an earlier measurement date.');
- return {id,kind,value:n,measured_on};
+ // The database needs the id: a new measurement gets one here, an edit keeps its own.
+ return {id:id||crypto.randomUUID(),kind,value:n,measured_on};
 }
 export async function openBodyMeasurement({kind,readings,save,remove,onChanged,showModal,heading,closeModal,openTrend}){
  const metric=metrics.find(m=>m.kind===kind&&m.group==='body');if(!metric)return;
