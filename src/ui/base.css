@@ -12,12 +12,17 @@
  --forest:radial-gradient(120% 90% at 0% 0%,#4b6f5c 0%,#2a3a32 42%,#1c1f1d 100%);
  --radius-frame:28px;--radius-card:20px;--radius-row:14px;--radius-control:12px;
  --shadow-card:0 1px 2px #0000000a;--shadow-pop:0 18px 50px #0000001f;
+ /* Liquid glass: a light, slightly translucent sheet over the frame's ambient light, with a bright top edge. */
+ --glass:linear-gradient(160deg,#ffffffdb 0%,#ffffffa3 100%);--glass-blur:blur(22px) saturate(1.5);
+ --glass-edge:inset 0 1px 0 #fff,inset 0 0 0 1px #ffffffa6,0 1px 2px #0000000a,0 10px 30px -14px #00000024;
+ --glass-dark:linear-gradient(180deg,#ffffff17 0%,#ffffff00 40%);--glass-dark-edge:inset 0 1px 0 #ffffff2e,inset 0 0 0 1px #ffffff14,0 14px 34px -16px #00000066;
+ --ambient:radial-gradient(1100px 760px at -5% -10%,#ffd3b3 0%,#ffd3b300 62%),radial-gradient(1000px 820px at 105% 112%,#c9dfd1 0%,#c9dfd100 62%),radial-gradient(820px 560px at 70% -10%,#e1daf6 0%,#e1daf600 64%);
  --gap:16px;--ease:cubic-bezier(.2,.7,.2,1);
  font-family:'DM Sans',system-ui,sans-serif;font-optical-sizing:auto;color:var(--ink);background:var(--canvas);
  font-synthesis:none;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--frame);font-size:14px;line-height:1.5}
+body{margin:0;min-height:100vh;background:var(--ambient),var(--frame);background-attachment:fixed;font-size:14px;line-height:1.5}
 h1,h2,h3,h4,p{margin:0}
 h1{font-size:30px;font-weight:400;letter-spacing:-.03em;line-height:1.1}
 h2{font-size:22px;font-weight:400;letter-spacing:-.02em;line-height:1.2}

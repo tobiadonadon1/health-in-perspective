@@ -1,17 +1,17 @@
 /* The app shell: the frame is the whole page, with the top bar at its head. */
-.frame{min-height:100vh;padding:20px 28px 24px;background:var(--frame)}
+.frame{min-height:100vh;padding:20px 28px 24px}
 
 /* Top bar: brand, page navigation, ask field, refresh and account. */
 .topbar{display:flex;align-items:center;gap:20px;min-height:56px;margin-bottom:20px}
 .brand{display:inline-flex;align-items:center;gap:10px;font-size:16px;font-weight:550;letter-spacing:-.02em;color:var(--ink)}
 .brand .orb{width:30px;height:30px}
-.nav{display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.nav{display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-edge)}
 .nav button{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;font-size:13px;color:var(--ink-2);white-space:nowrap;transition:background .15s,color .15s}
 .nav button svg{width:16px;height:16px}
 .nav button:hover{color:var(--ink);background:var(--well)}
 .nav button[aria-current=page]{background:var(--ink);color:#fff}
 .topbar-end{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:1;min-width:0;margin-left:auto}
-.ask{display:flex;align-items:center;gap:10px;flex:0 1 300px;min-width:170px;height:44px;padding:0 16px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-3);transition:box-shadow .15s}
+.ask{display:flex;align-items:center;gap:10px;flex:0 1 300px;min-width:170px;height:44px;padding:0 16px;border-radius:999px;background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-edge);color:var(--ink-3);transition:box-shadow .15s}
 .ask:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .ask svg{width:17px;height:17px;color:var(--ink-2)}
 .ask input{flex:1;min-width:0;height:100%;border:0;background:none;font-size:13px;color:var(--ink);outline:none}

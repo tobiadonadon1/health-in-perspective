@@ -12,8 +12,11 @@ What defines it:
   chooses (default: Recovery, HRV, Resting heart rate, Sleep, Strain, Heart rate — what WHOOP members check
   daily), the month over their portrait, Calories (eaten vs burned), Weight (type it or drag the ruler) and Today
   (notable changes + check-in). Value first: every tile is a big number with its last 14 days underneath.
-- **White cards are the default.** Dark (`.card.dark`) and forest (`.card.forest`) cards are focal pieces —
-  at most one or two per page. Never a different saturated colour per metric.
+- **Liquid glass.** Cards, panels, the nav and the ask field are light glass sheets (`--glass`, `--glass-blur`,
+  `--glass-edge`) over the frame's soft ambient light (`--ambient`: peach, sage, lilac). Dark (`.card.dark`, with a
+  glow of the sun) and forest (`.card.forest`) cards are focal pieces under the same sheen (`--glass-dark`) — at
+  most one or two per page; on Home the first tile is dark and Sleep is forest, beside the orange month card.
+  Never a different saturated colour per metric.
 - **One accent: orange** (the Xeyo sun). It marks the card title (`.marker`), deltas (`.badge`), the primary
   data series and the single active/primary row. Violet, green and blue appear only as additional data series.
 - **Light numbers** (`.stat b`, weight 300, tight tracking) with a unit after them (`/kcal`, `hours`).
@@ -43,7 +46,8 @@ What defines it:
 - Every number keeps its source and date somewhere legible. Sample data stays labelled.
 - Keep every feature and every `data-action` / `data-nav` / `data-metric` / id hook working. Change markup
   freely, but not behaviour or data.
-- No new colours outside the tokens; no gradients except `--accent-fill`, `--forest`, and the dark card.
+- No new colours outside the tokens; no gradients except the glass tokens, `--ambient`, `--accent-fill`, `--forest`,
+  the dark card and the month card.
 - Responsive: 3 columns ≥1180px, 2 columns ≥760px, 1 column below; no horizontal scroll at 390px.
 - One stylesheet per surface in `src/ui/`, imported from `src/main.js`. No `!important` (except forced-colors),
   no overriding another surface's file. Remove classes and code that nothing uses.

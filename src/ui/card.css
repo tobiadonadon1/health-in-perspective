@@ -1,11 +1,12 @@
 /* Cards and data marks. White is the default card; dark and forest cards are reserved for one or two
    focal pieces per page, never a colour per metric. */
-.card{position:relative;display:flex;flex-direction:column;min-width:0;padding:22px;border-radius:var(--radius-card);background:var(--surface);box-shadow:var(--shadow-card);color:var(--ink);text-align:left}
-.card.dark{background:linear-gradient(160deg,var(--dark-2) 0%,var(--dark) 55%);color:var(--on-dark)}
-.card.forest{background:var(--forest);color:var(--on-dark)}
+.card{position:relative;display:flex;flex-direction:column;min-width:0;padding:22px;border-radius:var(--radius-card);background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-edge);color:var(--ink);text-align:left}
+/* Focal cards keep their colour under the same glass sheen; the dark one carries a glow of the sun. */
+.card.dark{background:var(--glass-dark),radial-gradient(110% 80% at 100% 0%,#ff6a1a3d 0%,#ff6a1a00 55%),linear-gradient(160deg,var(--dark-2) 0%,var(--dark) 60%);box-shadow:var(--glass-dark-edge);color:var(--on-dark)}
+.card.forest{background:var(--glass-dark),var(--forest);box-shadow:var(--glass-dark-edge);color:var(--on-dark)}
 .card.dark p,.card.forest p{color:var(--on-dark-2)}
 button.card,a.card{transition:transform .2s var(--ease),box-shadow .2s}
-button.card:hover,a.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px #0000000f}
+button.card:hover,a.card:hover{transform:translateY(-2px);box-shadow:var(--glass-edge),0 14px 34px -12px #0000002e}
 
 /* Card title with the orange square marker. */
 .card-head{display:flex;align-items:center;gap:10px;min-height:32px;margin-bottom:18px}
@@ -48,7 +49,7 @@ button.card:hover,a.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px
 .card-empty .actions{display:flex;flex-wrap:wrap;gap:8px}
 
 /* A plain panel for long-form page content (tables, lists, forms). Same surface as a card. */
-.panel{padding:24px;border-radius:var(--radius-card);background:var(--surface);box-shadow:var(--shadow-card);min-width:0}
+.panel{padding:24px;border-radius:var(--radius-card);background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-edge);min-width:0}
 .panel-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
 .panel-head h2,.panel-head h3{font-size:16px;font-weight:400}
 .panel-head .spacer{flex:1}
@@ -81,12 +82,13 @@ button.card:hover,a.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px
 .mini-plot polyline{fill:none;stroke:var(--ink);stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .mini-plot .avg{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}
 .mini-now{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px #ff6a1a33}
-.mini-avg{position:absolute;left:0;transform:translateY(-120%);padding:0 4px;border-radius:4px;background:var(--surface);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.mini-avg{position:absolute;left:0;transform:translateY(-120%);padding:0 4px;border-radius:4px;background:#ffffffd9;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .mini-avg.below{transform:translateY(25%)}
 .mini-dates{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3)}
-.card.dark .mini-plot rect{fill:#ffffff2e}
-.card.dark .mini-plot rect.latest{fill:var(--accent)}
-.card.dark .mini-plot polyline{stroke:var(--on-dark)}
-.card.dark .mini-plot .avg{stroke:var(--on-dark-2)}
-.card.dark .mini-avg{background:var(--dark);color:var(--on-dark-2)}
-.card.dark .mini-dates{color:var(--on-dark-2)}
+.card.dark .mini-plot rect,.card.forest .mini-plot rect{fill:#ffffff2e}
+.card.dark .mini-plot rect.latest,.card.forest .mini-plot rect.latest{fill:var(--accent)}
+.card.dark .mini-plot polyline,.card.forest .mini-plot polyline{stroke:var(--on-dark)}
+.card.dark .mini-plot .avg,.card.forest .mini-plot .avg{stroke:var(--on-dark-2)}
+.card.dark .mini-avg{background:#1d1d1dd9;color:var(--on-dark-2)}
+.card.forest .mini-avg{background:#26332cd9;color:var(--on-dark-2)}
+.card.dark .mini-dates,.card.forest .mini-dates{color:var(--on-dark-2)}

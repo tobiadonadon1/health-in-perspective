@@ -17,8 +17,9 @@
 .tile .stat b{font-size:42px}
 .tile .stat-caption{margin-top:4px}
 .tile.is-stale .stat b{color:var(--ink-3)}
+.tile.dark.is-stale .stat b,.tile.forest.is-stale .stat b{color:var(--on-dark-2)}
 .tile .card-empty{font-size:13px;gap:10px}
-.tile.dark .card-empty .btn.light{background:#ffffff14;color:var(--on-dark);box-shadow:inset 0 0 0 1px var(--dark-line)}
+.tile.dark .card-empty .btn.light,.tile.forest .card-empty .btn.light{background:#ffffff14;color:var(--on-dark);box-shadow:inset 0 0 0 1px var(--dark-line)}
 .tile-tools{display:flex;gap:4px}
 .tile-add{align-items:center;justify-content:center;gap:8px;color:var(--ink-2);font-size:14px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line-strong);border:0}
 .tile-add svg{width:20px;height:20px}
@@ -29,7 +30,7 @@
 .tile .legend{margin-top:8px;font-size:12px}
 
 /* Month: the portrait in the accent, with a glass panel of days and destinations. */
-.month-card{overflow:hidden;padding:0;min-height:300px;background:linear-gradient(150deg,#ff9a4d 0%,#ff6a1a 45%,#e84f0c 100%);color:#fff}
+.month-card{overflow:hidden;padding:0;min-height:300px;box-shadow:var(--glass-dark-edge);background:linear-gradient(150deg,#ff9a4d 0%,#ff6a1a 45%,#e84f0c 100%);color:#fff}
 .month-figure{position:absolute;left:-18%;bottom:-6%;height:112%;width:auto;max-width:none;filter:grayscale(1) contrast(1.15) brightness(1.05);mix-blend-mode:multiply;pointer-events:none}
 .month-card.no-image{background:radial-gradient(circle at 18% 78%,#ffd0a8 0 14%,transparent 15%),linear-gradient(150deg,#ff9a4d 0%,#ff6a1a 45%,#e84f0c 100%)}
 .month-panel{position:absolute;top:16px;right:16px;width:min(62%,300px);display:flex;flex-direction:column;padding:20px;border-radius:16px;background:#ffffff1c;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px #ffffff40}
