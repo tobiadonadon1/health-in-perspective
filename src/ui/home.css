@@ -24,7 +24,7 @@
 /* Heart rate on red, with a heart that beats at the latest reading's rate. */
 .tile.pulse{background:var(--glass-dark),radial-gradient(90% 70% at 100% 0%,#ff9a9a59 0%,#ff9a9a00 60%),var(--pulse-fill);box-shadow:var(--glass-dark-edge);color:#fff}
 .tile.pulse .marker{background:#fff;box-shadow:none}
-.tile.pulse .stat small,.tile.pulse .stat-caption,.tile.pulse .mini-dates,.tile.pulse .card-empty{color:#ffffffd1}
+.tile.pulse .stat small,.tile.pulse .stat-caption,.tile.pulse .mini-dates,.tile.pulse .card-empty,.tile.pulse .card-empty p{color:#fffffff0}
 .tile.pulse .badge{background:#fff;color:var(--red-deep)}
 .tile.pulse .badge.quiet{background:#ffffff2e;color:#fff}
 .tile.pulse .icon-btn,.tile.pulse .card-empty .btn.light{background:#ffffff1f;box-shadow:inset 0 0 0 1px #ffffff40;color:#fff}
@@ -53,7 +53,7 @@
 .month-panel h2{font-size:32px;font-weight:400;letter-spacing:-.03em;color:#fff}
 .month-panel h2 span{color:#ffffff99}
 .month-days{display:flex;justify-content:space-between;gap:2px;margin:14px 0 0;padding:0;list-style:none}
-.month-days li{position:relative;font-size:10px;color:#ffffffa6;font-variant-numeric:tabular-nums;padding-bottom:9px}
+.month-days li{position:relative;font-size:11px;color:#ffffffa6;font-variant-numeric:tabular-nums;padding-bottom:9px}
 .month-days li.has-data::after{content:'';position:absolute;left:50%;bottom:0;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#fff}
 .month-days li.today{color:#fff;font-weight:600}
 .month-links{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:28px;padding-left:14px;border-left:1px solid #ffffff59}
@@ -82,23 +82,18 @@
 .weight-form{display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;margin-top:6px}
 .weight-form>.btn{align-self:flex-end;margin-top:auto}
 /* The ruler, sized for a tile. */
-.weight-card .ruler-field{margin:0;gap:6px}
-.weight-card .ruler-field .ruler-input{font-size:36px}
-.weight-card .ruler-unit{font-size:15px}
-.weight-card .ruler{height:46px}
-.weight-card .ruler-hint{display:none}
 
 /* Your week: seven days of recovery, sleep, strain and mood; today's column in the accent. */
 .week-card .card-head{gap:12px}
 .week-card .chip.is-cta{background:var(--accent-fill);color:#fff;box-shadow:none}
 .week-table{flex:1;width:100%;border-collapse:separate;border-spacing:4px 0;table-layout:fixed;margin:-2px -4px 0;width:calc(100% + 8px);font-variant-numeric:tabular-nums}
-.week-table th,.week-table td{padding:5px 6px;text-align:left;font-weight:400;vertical-align:middle}
+.week-table th,.week-table td{padding:4px 6px;text-align:left;font-weight:400;vertical-align:middle}
 .week-table thead th,.week-table tr:first-child th{font-size:12px;color:var(--ink-3);white-space:nowrap}
 .week-table tr:first-child th small{margin-left:4px;color:var(--ink-3)}
 .week-table tr:first-child th:first-child{width:22%}
 .week-table th[scope=row]{white-space:nowrap}
 .week-signal{font-size:13px;color:var(--ink);text-align:left}
-.week-signal small{font-size:11px;color:var(--ink-3)}
+.week-signal small{font-size:12px;color:var(--ink-3)}
 .week-signal:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-strong)}
 .week-table td{font-size:13px;color:var(--ink)}
 .week-table td b{display:block;font-weight:400}
@@ -152,8 +147,10 @@
  .tile .legend{margin-top:4px}
  .calorie-pair .stat b{font-size:28px}
  .calorie-bar{margin:10px 0 6px}
- .weight-card .ruler-field .ruler-input{font-size:30px}
- .weight-card .ruler{height:40px}
+ .weight-card .ruler-field .ruler-input{font-size:28px}
+ .weight-card .ruler{height:36px}
+ .weight-form{gap:4px;margin-top:2px}
+ .weight-form>.btn{min-height:30px}
  .week-table th,.week-table td{padding-top:3px;padding-bottom:3px}
  .beat{width:36px;height:36px}
 }

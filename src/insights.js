@@ -40,7 +40,9 @@ export function apportion(values,total,{decimals=1,tolerance=.25}={}){
 export function sleepGoalSummary(rows,goal,{nights=14,now=Date.now()}={}){
  const days=dailyMeans(rows,{days:nights,now});
  const debt=days.slice(-7).reduce((s,d)=>s+Math.max(0,goal-d.value),0);
- return {days,met:days.filter(d=>d.value>=goal).length,debt,average:days.length?days.reduce((s,d)=>s+d.value,0)/days.length:null};
+ // Nights are compared as shown, to a tenth of an hour, so a night displayed as 8.0 h meets an 8 h goal.
+ const shown=v=>Math.round(v*10)/10;
+ return {days,met:days.filter(d=>shown(d.value)>=goal).length,debt,average:days.length?days.reduce((s,d)=>s+d.value,0)/days.length:null};
 }
 
 // Last 7 days against the 7 before, per signal with data in both weeks.

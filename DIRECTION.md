@@ -21,6 +21,9 @@ What defines it:
 - **One accent: orange** (the Xeyo sun). It marks the card title (`.marker`), deltas (`.badge`), the primary
   data series and the single active/primary row. Violet, green and blue appear only as additional data series.
 - **Light numbers** (`.stat b`, weight 300, tight tracking) with a unit after them (`/kcal`, `hours`).
+- **Header** is identical on every page (the Home-only customize button keeps its slot elsewhere); sample data
+  is a small pill in it, never a banner. Whole cards open their detail; their own controls keep their job.
+- **Blood records** leads with a dark summary (tests, outside the lab's range, latest date) beside the table.
 - **Body page**: the portrait takes the left half (two rows); your measurements and the wearable's body signals
   (resting heart rate, HRV, blood oxygen, skin temperature, breathing, calories) fill the rest as Home's tiles.
 - **Two chart types**, always under a big number and over the same 14-day window: bars from zero for amounts
@@ -44,7 +47,7 @@ What defines it:
 
 ## Rules
 - Typography: DM Sans. Page title 30px/400. Card titles 16px/400 with the orange marker. Body 14px. Captions
-  and metadata **never below 11px**, secondary text uses `--ink-2`/`--ink-3` (both pass contrast on white).
+  and metadata **never below 12px**, secondary text uses `--ink-2`/`--ink-3` (both pass contrast on white).
 - Spacing: card padding 22px, grid gap 16px, card radius 20, rows 14, controls pill.
 - Every number keeps its source and date somewhere legible. Sample data stays labelled.
 - Keep every feature and every `data-action` / `data-nav` / `data-metric` / id hook working. Change markup

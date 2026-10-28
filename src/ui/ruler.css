@@ -23,7 +23,7 @@
   linear-gradient(90deg,var(--mid) 1px,transparent 0) 0 10px/var(--px) 21px repeat-x,
   linear-gradient(90deg,var(--fine) 1px,transparent 0) 0 10px/calc(var(--px) / 10) 12px repeat-x}
 .ruler-track.is-gliding{transition:transform .22s var(--ease)}
-.ruler-track span{position:absolute;top:47px;transform:translateX(-50%);font-size:11px;line-height:1;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ruler-track span{position:absolute;top:47px;transform:translateX(-50%);font-size:12px;line-height:1;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
 .ruler-track span.major{font-size:12px;font-weight:500;color:var(--ink)}
 .ruler-needle{position:absolute;top:4px;left:50%;width:3px;height:42px;margin-left:-1px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 2px var(--well);pointer-events:none}
 .ruler-needle::after{content:"";position:absolute;left:50%;top:-3px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--well)}
@@ -42,3 +42,9 @@
  .ruler-needle,.ruler-needle::after{background:Highlight;box-shadow:none}
  .ruler-field .ruler-input{border:1px solid CanvasText}
 }
+/* Compact ruler for quick logging inside a card (Home weight, Body measurement cards). */
+.ruler-compact .ruler-field{margin:0;gap:6px}
+.ruler-compact .ruler-field .ruler-input{font-size:36px}
+.ruler-compact .ruler-unit{font-size:15px}
+.ruler-compact .ruler{height:46px}
+.ruler-compact .ruler-hint{display:none}

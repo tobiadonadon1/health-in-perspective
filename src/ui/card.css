@@ -5,7 +5,9 @@
 .card.dark{background:var(--glass-dark),radial-gradient(110% 80% at 100% 0%,#ff6a1a3d 0%,#ff6a1a00 55%),linear-gradient(160deg,var(--dark-2) 0%,var(--dark) 60%);box-shadow:var(--glass-dark-edge);color:var(--on-dark)}
 .card.forest{background:var(--glass-dark),var(--forest);box-shadow:var(--glass-dark-edge);color:var(--on-dark)}
 .card.dark p,.card.forest p{color:var(--on-dark-2)}
-button.card,a.card{transition:transform .2s var(--ease),box-shadow .2s}
+button.card,a.card,.card[data-card-open]{transition:transform .2s var(--ease),box-shadow .2s}
+.card[data-card-open]{cursor:pointer}
+.card[data-card-open]:hover{transform:translateY(-2px)}
 button.card:hover,a.card:hover{transform:translateY(-2px);box-shadow:var(--glass-edge),0 14px 34px -12px #0000002e}
 
 /* Card title with the orange square marker. */
@@ -62,7 +64,7 @@ button.card:hover,a.card:hover{transform:translateY(-2px);box-shadow:var(--glass
 .trend-dates span:last-child{transform:translateX(-100%)}
 .trend-dates span:first-child{transform:none}
 .trend-plot{position:relative;flex:1;min-height:170px;margin-top:8px;border-radius:12px;box-shadow:inset 0 0 0 1px #ffffff1f}
-.trend-axis span{position:absolute;left:-44px;width:36px;transform:translateY(-50%);font-size:11px;color:var(--on-dark-2);text-align:right;font-variant-numeric:tabular-nums}
+.trend-axis span{position:absolute;left:-44px;width:36px;transform:translateY(-50%);font-size:12px;color:var(--on-dark);text-align:right;font-variant-numeric:tabular-nums}
 .trend-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .trend-svg .grid{stroke:#ffffff17;stroke-width:1;vector-effect:non-scaling-stroke}
 .trend-svg .band line{stroke-width:1.2;vector-effect:non-scaling-stroke}
@@ -82,9 +84,9 @@ button.card:hover,a.card:hover{transform:translateY(-2px);box-shadow:var(--glass
 .mini-plot polyline{fill:none;stroke:var(--ink);stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .mini-plot .avg{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}
 .mini-now{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px #ff6a1a33}
-.mini-avg{position:absolute;left:0;transform:translateY(-120%);padding:0 4px;border-radius:4px;background:#ffffffd9;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.mini-avg{position:absolute;left:0;transform:translateY(-120%);padding:0 4px;border-radius:4px;background:#ffffffd9;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .mini-avg.below{transform:translateY(25%)}
-.mini-dates{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3)}
+.mini-dates{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3)}
 .card.dark .mini-plot rect,.card.forest .mini-plot rect{fill:#ffffff2e}
 .card.dark .mini-plot rect.latest,.card.forest .mini-plot rect.latest{fill:var(--accent)}
 .card.dark .mini-plot polyline,.card.forest .mini-plot polyline{stroke:var(--on-dark)}

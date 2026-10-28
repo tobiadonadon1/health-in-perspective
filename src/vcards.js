@@ -32,7 +32,7 @@ function bars(days,{stages,readings,source,...ctx}){
  const shapes=days.map((d,i)=>{const h=d.value/top*92,x=i*w+w*.2,bw=w*.6,latest=i===days.length-1?' today':'';
   const parts=stages?['sleep_deep','sleep_rem','sleep_light'].map(k=>Number(stage(k,d.day))||0):[],sum=parts.reduce((s,n)=>s+n,0);
   if(!sum)return `<rect x="${round(x)}" y="${round(100-h)}" width="${round(bw)}" height="${round(h)}" class="bar${latest}"/>`;
-  let y=100;return parts.map((p,j)=>{const ph=p/sum*h;y-=ph;return `<rect x="${round(x)}" y="${round(y)}" width="${round(bw)}" height="${round(Math.max(0,ph-.8))}" class="stage s${j}${latest}"/>`}).join('')}).join('');
+  let y=100;return parts.map((p,j)=>{const ph=p/sum*h;y-=ph;return `<rect x="${round(x)}" y="${round(y)}" width="${round(bw)}" height="${round(ph)}" class="stage s${j}${latest}"/>`}).join('')}).join('');
  return plot(shapes,ctx.label)+scaleRow(days,ctx);
 }
 
