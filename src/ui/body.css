@@ -1,19 +1,23 @@
 /* Body and Blood records. */
 
 /* Body: the figure as the focal card, one white card per measurement beside it. */
-.body-page{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
-.body-visual{grid-column:span 2;overflow:hidden}
+/* The portrait takes the left half, two rows tall; measurements and wearable tiles fill the rest. */
+.body-page{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-flow:row dense;gap:var(--gap)}
+.body-visual{grid-column:span 2;grid-row:span 2;overflow:hidden}
+.body-page:not(.stats-only) .body-side{display:contents}
+.body-page .tile{min-height:250px}
+.body-page .tile.span-2{grid-column:span 2}.body-page .tile.span-3{grid-column:span 3}.body-page .tile.span-4{grid-column:span 4}
 .body-side{display:flex;flex-direction:column;gap:var(--gap);min-width:0}
 .body-side>.card{flex:1 1 auto}
 .body-side>.body-add:not(.is-first){flex:0 0 auto}
-.stats-only .body-side{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.stats-only .body-side{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap)}
 .stats-only .body-add.is-first{grid-column:1/-1}
 .stats-only .is-first .measure-add-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 
 /* The stage: figure on the left, readings on the right, each joined to a marker on the body. */
 /* --x/--y place the marker on the figure (percent of its box), --slot is where the reading sits (percent of the stage height).
    The connector is drawn as one straight line from marker to reading with CSS trigonometry. */
-.body-visual .portrait-scene{--stage:540px;--ratio:2/3;--reach:250px;--overlap:8px;position:relative;display:grid;grid-template-columns:minmax(0,1fr) var(--reach);height:var(--stage);margin:0 -22px}
+.body-visual .portrait-scene{--stage:480px;--ratio:2/3;--reach:250px;--overlap:8px;position:relative;display:grid;grid-template-columns:minmax(0,1fr) var(--reach);height:var(--stage);margin:0 -22px}
 .body-visual .portrait-figure{position:relative;height:100%;aspect-ratio:var(--ratio);justify-self:end;margin-right:calc(-1 * var(--overlap))}
 .body-visual .portrait-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:perspective(1200px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .5s var(--ease)}
 .body-visual .portrait-scene.is-tilting img{transition:transform .12s linear}
@@ -168,15 +172,16 @@
 
 @media(max-width:1180px){
  .body-page{grid-template-columns:repeat(2,minmax(0,1fr))}
- .body-visual{grid-column:1/-1}
- .body-side{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .body-visual{grid-column:1/-1;grid-row:auto}
+ .body-page .tile[class*=span-]{grid-column:auto}
+ .body-page:not(.stats-only) .body-side,.stats-only .body-side{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
  .body-add.is-first{grid-column:1/-1}
  .labs-grid{grid-template-columns:minmax(0,1fr)}
  .labs-results{grid-column:auto}
 }
 @media(max-width:760px){
  .body-page{grid-template-columns:minmax(0,1fr)}
- .body-side,.stats-only .body-side,.stats-only .is-first .measure-add-list{grid-template-columns:minmax(0,1fr)}
+ .body-page:not(.stats-only) .body-side,.stats-only .body-side,.stats-only .is-first .measure-add-list{grid-template-columns:minmax(0,1fr)}
  .body-visual .portrait-scene{--stage:440px;--reach:176px}
  .body-visual.is-portrait .portrait-scene{--overlap:-10px}
  .body-visual.is-portrait .pin-upper{--slot:34}

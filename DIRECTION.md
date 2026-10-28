@@ -21,6 +21,8 @@ What defines it:
 - **One accent: orange** (the Xeyo sun). It marks the card title (`.marker`), deltas (`.badge`), the primary
   data series and the single active/primary row. Violet, green and blue appear only as additional data series.
 - **Light numbers** (`.stat b`, weight 300, tight tracking) with a unit after them (`/kcal`, `hours`).
+- **Body page**: the portrait takes the left half (two rows); your measurements and the wearable's body signals
+  (resting heart rate, HRV, blood oxygen, skin temperature, breathing, calories) fill the rest as Home's tiles.
 - **Two chart types**, always under a big number and over the same 14-day window: bars from zero for amounts
   (sleep, strain, calories, recovery; latest bar orange) and a line for vitals (latest point orange), each with
   the person's average as a dashed, labelled line (`miniChart`). The Vitals hero uses `trendChart` (usual-range
