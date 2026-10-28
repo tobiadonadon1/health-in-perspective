@@ -16,7 +16,7 @@ export function dotShare(share,{cols=5,rows=4,tone='accent',px=7}={}){
 // A thin line through the values, stretched to its box; the stroke keeps its width at any size.
 export function sparkline(values,{label='',tone='green'}={}){
  if(values.length<2)return '';const n=norm(values),pts=values.map((v,i)=>`${round(i/(values.length-1)*100)},${round(90-n(v)*80)}`).join(' ');
- return `<svg class="sparkline t-${tone}" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(label)}"><polyline points="${pts}"/></svg>`;
+ return `<svg class="sparkline t-${tone}" viewBox="0 0 100 100" preserveAspectRatio="none" ${label?`role="img" aria-label="${esc(label)}"`:'aria-hidden="true"'}><polyline points="${pts}"/></svg>`;
 }
 
 // The Home trend: the person's daily values against their own usual range (mean ± one standard deviation,

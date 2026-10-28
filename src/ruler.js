@@ -1,4 +1,3 @@
-import './ui/ruler.css';
 // Ruler field: a big number the person can type, over a ruler they can drag, scroll or step with the keyboard.
 // rulerField() returns markup; bindRuler() wires every ruler inside a root. The text input is the form value:
 // it keeps `required`, a `pattern` and a range check through setCustomValidity, so native validation and

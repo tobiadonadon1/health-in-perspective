@@ -9,7 +9,7 @@ import './ui/body.css';
 import './ui/account.css';
 import './ui/auth.css';
 import './ui/chat.css';
-import './ui/dialogs.css';
+import './ui/dialogs.css';import './ui/ruler.css';
 import {brandOrb} from './brand.js';
 import {openBodyMeasurement} from './body-measurements.js';
 import {openMetricDetail} from './metric-detail.js';

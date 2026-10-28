@@ -1,4 +1,5 @@
 import {metrics,formatValue} from './metrics.js';
+import {rulerField,bindRuler} from './ruler.js';
 import {escapeHTML as esc,localDay,dateLocale} from './domain.js';
 export const manualSource='Manual entry';
 export function validateMeasurement({id,kind,value,measured_on}){
@@ -9,10 +10,9 @@ export function validateMeasurement({id,kind,value,measured_on}){
  // The database needs the id: a new measurement gets one here, an edit keeps its own.
  return {id:id||crypto.randomUUID(),kind,value:n,measured_on};
 }
-export async function openBodyMeasurement({kind,readings,save,remove,onChanged,showModal,heading,closeModal,openTrend}){
+export function openBodyMeasurement({kind,readings,save,remove,onChanged,showModal,heading,closeModal,openTrend}){
  const metric=metrics.find(m=>m.kind===kind&&m.group==='body');if(!metric)return;
  // Loaded on demand: ruler.js imports its stylesheet, which Node (the test runner) cannot import.
- const {rulerField,bindRuler}=await import('./ruler.js');
  let currentId=crypto.randomUUID();
  const rows=readings.filter(r=>r.kind===kind&&r.source===manualSource).slice(0,20);
  // Start the ruler at the latest reading of this measurement (readings are newest first), when its unit matches.
