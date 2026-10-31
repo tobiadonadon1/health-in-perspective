@@ -80,9 +80,15 @@
 @media(max-width:1240px){.topbar{flex-wrap:wrap}.nav{order:3;width:100%;justify-content:space-between}.ask{flex-basis:320px}}
 @media(max-width:900px){
  .frame{padding:14px 14px 24px}
- .topbar{flex-wrap:wrap;gap:12px}
- .nav{overflow-x:auto;scrollbar-width:none;justify-content:flex-start}
+ /* The header slides up until only the navigation row is left, 8px from the top (offset set by fitNav). */
+ .topbar{flex-wrap:wrap;gap:12px;position:sticky;top:calc(8px - var(--nav-offset,0px));z-index:25}
+ .nav{overflow-x:auto;scrollbar-width:none;justify-content:flex-start;scroll-padding-inline:40px;overscroll-behavior-x:contain}
  .nav::-webkit-scrollbar{display:none}
+ .nav button{flex-shrink:0}
+ /* A fade on whichever edge has more tabs past it. */
+ .nav.more-right{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 44px),transparent)}
+ .nav.more-left{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 44px),transparent)}
+ .nav.more-left.more-right{-webkit-mask-image:linear-gradient(to right,transparent,#000 44px,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(to right,transparent,#000 44px,#000 calc(100% - 44px),transparent)}
  .ask{width:auto;flex:1;min-width:0}
  .topbar-end{flex:1}
  .page-head{flex-wrap:wrap;align-items:flex-start}

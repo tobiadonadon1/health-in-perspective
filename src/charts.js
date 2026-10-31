@@ -34,15 +34,18 @@ export function trendChart(days,{label='',format=v=>v}={}){
  return `<div class="trend-chart"><div class="trend-plot"><div class="trend-axis" aria-hidden="true"><span style="top:${y(hi)}%">${format(hi)}</span><span style="top:${y(mean)}%">${format(mean)}</span><span style="top:${y(lo)}%">${format(lo)}</span></div>${plot}<i class="trend-now" style="left:${x(days.length-1)}%;top:${y(values.at(-1))}%"></i></div><div class="trend-dates" aria-hidden="true">${marks.map(({d,i})=>`<span style="left:${x(i)}%">${fmt(d.day,{weekday:'short',day:'numeric',month:'short'})}</span>`).join('')}</div></div>`;
 }
 
-// A tile's chart: the last days as bars (amounts, from zero) or a line (vitals, scaled to their own range),
-// the person's average as a dashed, labelled line, and the first and latest day underneath.
+// A tile's chart, drawn in dots: the last days as dotted columns (amounts, from zero) or one dot per day (vitals,
+// scaled to their own range), the person's average as a dashed, labelled line, and the first and latest day underneath.
+// Each dot is a zero-length round-capped stroke, so it stays a circle however the plot is stretched.
+const DOT_ROWS=7;
 export function miniChart(days,{type='line',label='',format=v=>v}={}){
  if(days.length<2)return '';
  const values=days.map(d=>d.value),mean=values.reduce((s,v)=>s+v,0)/values.length,n=days.length;
  let lo=0,hi=Math.max(...values)*1.12||1;
  if(type==='line'){const min=Math.min(...values),max=Math.max(...values),pad=(max-min||1)*.35;lo=min-pad;hi=max+pad}
- const y=v=>round((hi-v)/(hi-lo)*100),x=i=>round((i+.5)/n*100),w=round(100/n*.56),last=n-1;
- const marks=type==='bars'?days.map((d,i)=>`<rect x="${round(x(i)-w/2)}" y="${y(d.value)}" width="${w}" height="${round(100-y(d.value))}" class="${i===last?'latest':''}"/>`).join(''):`<polyline points="${days.map((d,i)=>`${x(i)},${y(d.value)}`).join(' ')}"/>`;
+ const y=v=>round((hi-v)/(hi-lo)*100),x=i=>round((i+.5)/n*100),last=n-1,dot=(cx,cy)=>`M${cx} ${cy}h0`;
+ const column=(d,i)=>{const on=Math.max(1,Math.round((100-y(d.value))/100*DOT_ROWS));return `<path d="${Array.from({length:on},(_,k)=>dot(x(i),round(100-(k+.5)*100/DOT_ROWS))).join('')}" class="dots ${i===last?'latest':''}"/>`};
+ const marks=type==='bars'?days.map(column).join(''):`<path d="${days.slice(0,last).map((d,i)=>dot(x(i),y(d.value))).join('')}" class="dots"/>`;
  const day=d=>new Date(d+'T12:00:00').toLocaleDateString(dateLocale,{month:'short',day:'numeric'}),today=new Date().toISOString().slice(0,10);
  return `<div class="mini-chart ${type}"><div class="mini-plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(label)}"><line x1="0" x2="100" y1="${y(mean)}" y2="${y(mean)}" class="avg"/>${marks}</svg>${type==='line'?`<i class="mini-now" style="left:${x(last)}%;top:${y(values[last])}%"></i>`:''}<span class="mini-avg ${y(mean)<30?'below':''}" style="top:${y(mean)}%">avg ${esc(format(mean))}</span></div><div class="mini-dates"><span>${day(days[0].day)}</span><span>${days[last].day===today?'Today':day(days[last].day)}</span></div></div>`;
 }

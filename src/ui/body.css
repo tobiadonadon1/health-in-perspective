@@ -23,6 +23,11 @@
 .body-visual .portrait-figure{position:relative;height:100%;aspect-ratio:var(--ratio);justify-self:end;margin-right:calc(-1 * var(--overlap))}
 .body-visual .portrait-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:perspective(1200px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .5s var(--ease)}
 .body-visual .portrait-scene.is-tilting img{transition:transform .12s linear}
+/* Until the artwork has painted, its frame (already at the final size) shows a soft figure, so the page is never blank. */
+.body-visual .portrait-figure::before{content:'';position:absolute;inset:4% 16% 2%;border-radius:40%/24%;background:radial-gradient(circle at 50% 11%,#dcdcd8 0 9%,transparent 9.5%),radial-gradient(ellipse 34% 40% at 50% 46%,#e2e2df 0 98%,transparent 100%),radial-gradient(ellipse 22% 30% at 50% 82%,#e6e6e3 0 98%,transparent 100%);opacity:1;transition:opacity .3s;animation:art-wait 1.6s ease-in-out infinite alternate;pointer-events:none}
+.body-visual .portrait-figure.is-ready::before{opacity:0;animation:none}
+@keyframes art-wait{to{opacity:.55}}
+@media(prefers-reduced-motion:reduce){.body-visual .portrait-figure::before{animation:none}}
 .body-pin{--dx:calc(var(--stage) * var(--ratio) * (1 - var(--x) / 100) - var(--overlap) + 18px);--dy:calc((var(--slot) - var(--y)) * var(--stage) / 100);position:absolute;left:calc(var(--x) * 1%);top:calc(var(--y) * 1%);width:0;height:0;text-align:left;color:inherit}
 .body-pin:focus-visible{outline:none}
 .body-pin:focus-visible .pin-copy{outline:2px solid var(--accent);outline-offset:2px}

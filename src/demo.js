@@ -27,5 +27,10 @@ export function demoMeals(now=Date.now()){
 }
 export function demoJournal(now=Date.now()){
  const day=i=>{const d=new Date(now-i*DAY);return d.toLocaleDateString('en-CA')};
- return ['good','okay','great','good','low','good'].map((mood,i)=>({id:`demo-note-${i}`,logged_on:day(i+1),mood,content:'Sample check-in'}));
+ return ['good','okay','great','good','low','good'].map((mood,i)=>({id:`demo-note-${i}`,logged_on:day(i+1),mood,content:'Sample check-in',source:DEMO_SOURCE}));
 }
+export const isSample=row=>row?.source===DEMO_SOURCE;
+// The one place Home, Nutrition and the Journal decide whether to show sample rows: only in sample mode, and
+// only while the account has none of its own (meals only for today, since the sample meals are today's).
+export function sampleMeals(demo,meals,{day,today,now=Date.now()}={}){return demo&&!meals.length&&(!day||day===today)?demoMeals(now):meals}
+export function sampleJournal(demo,entries,now=Date.now()){return demo&&!entries.length?demoJournal(now):entries}
