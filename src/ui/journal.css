@@ -1,4 +1,4 @@
-/* Journal: write a check-in with a mood, reflect with your AI (the focal forest card), mood beside the body, history. */
+/* Journal: write a check-in with a mood, reflect with your AI (the focal night card), mood beside the body, history. */
 .journal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"compose compose side" "history history side";grid-template-rows:auto 1fr;gap:var(--gap);align-items:start}
 .journal-compose{grid-area:compose}
 .journal-history{grid-area:history}
@@ -28,7 +28,7 @@
 .journal-compose-footer .btn.accent:disabled{opacity:1;background:var(--well);color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
 .journal-feedback{margin-top:14px;padding:10px 14px;border-radius:var(--radius-control);background:var(--well);font-size:13px;color:var(--ink-2)}
 
-/* Your AI: the one forest card. */
+/* Your AI: the one night card. */
 .journal-ai .card-head h2{color:var(--on-dark)}
 .journal-ai>p{font-size:14px}
 .journal-ai-count{margin-top:20px}

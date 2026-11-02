@@ -19,13 +19,19 @@ const glyphs={
 };
 const styles={
  resting_hr:['#e5484d','heart'],heart_rate:['#e2577f','pulse'],spo2:['#2f7bea','drop'],hrv:['#8b5cf6','wave'],hrv_sdnn:['#a35ef0','wave'],
- recovery:['#169b67','bolt'],respiratory_rate:['#0e9fb3','wind'],skin_temperature:['#ee7a30','thermo'],
+ recovery:['#e0703a','bolt'],respiratory_rate:['#3d8bfd','wind'],skin_temperature:['#ee7a30','thermo'],
  sleep:['#4f5bd5','moon'],sleep_deep:['#3a46b8','moon'],sleep_rem:['#9466ea','moon'],sleep_light:['#5e8fe8','moon'],sleep_awake:['#e3962f','clock'],
  sleep_performance:['#5a62d6','star'],sleep_efficiency:['#3f7fe0','clock'],sleep_consistency:['#7a6fe3','clock'],sleep_needed:['#5f6fe0','moon'],sleep_debt:['#d9774a','clock'],sleep_disturbances:['#9b77d4','pulse'],nap:['#7385ec','moon'],
- weight:['#56688d','scale'],body_fat:['#d4802c','percent'],lean_mass:['#0f8f84','muscle'],steps:['#d99a0b','steps'],active_energy:['#ef5a2a','flame'],
+ weight:['#56688d','scale'],body_fat:['#d4802c','percent'],lean_mass:['#6c6ad8','muscle'],steps:['#d99a0b','steps'],active_energy:['#ef5a2a','flame'],
  strain:['#f0612e','bolt'],energy_burned:['#e8743b','flame']
 };
 export function metricStyle(kind){const [accent,glyph]=styles[kind]||['#64748b','pulse'];return {accent,glyph:glyphs[glyph]}}
 export function metricIcon(kind){return `<span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${metricStyle(kind).glyph}"/></svg></span>`}
-// Neutral comparison of the latest reading with the 30-day mean of daily means.
-export function metricDelta(latest,mean){const a=Number(latest),b=Number(mean);if(!Number.isFinite(a)||!Number.isFinite(b)||!b)return null;const pct=(a-b)/Math.abs(b)*100;if(Math.abs(pct)<1)return {direction:'flat',label:'Steady',title:'Within 1% of your 30-day average'};const size=Math.abs(pct)<10?Math.abs(pct).toFixed(1).replace(/\.0$/,''):Math.round(Math.abs(pct));return {direction:pct>0?'up':'down',label:`${pct>0?'↑':'↓'} ${size}%`,title:`${size}% ${pct>0?'above':'below'} your 30-day average`}}
+// Neutral comparison of the latest reading with the 30-day mean of daily means. Signals that are already a
+// percentage (recovery, sleep scores, blood oxygen) change in points, and temperature in degrees: a percentage of a
+// percentage, or of 36.5 °C, says little. Everything else changes in percent.
+const absoluteUnits={'%':{flat:1,suffix:' pts',word:'points'},'°C':{flat:.1,suffix:' °C',word:'°C'}};
+export function metricDelta(latest,mean,unit=''){const a=Number(latest),b=Number(mean);if(!Number.isFinite(a)||!Number.isFinite(b)||!b)return null;
+ const abs=absoluteUnits[unit];
+ if(abs){const diff=a-b,size=Math.abs(diff);if(size<abs.flat)return {direction:'flat',label:'Steady',title:`Within ${abs.flat} ${abs.word} of your 30-day average`};const shown=unit==='°C'?size.toFixed(1):size>=10?String(Math.round(size)):size.toFixed(1).replace(/\.0$/,'');return {direction:diff>0?'up':'down',label:`${diff>0?'↑':'↓'} ${shown}${abs.suffix}`,title:`${shown} ${abs.word} ${diff>0?'above':'below'} your 30-day average`}}
+ const pct=(a-b)/Math.abs(b)*100;if(Math.abs(pct)<1)return {direction:'flat',label:'Steady',title:'Within 1% of your 30-day average'};const size=Math.abs(pct)<10?Math.abs(pct).toFixed(1).replace(/\.0$/,''):Math.round(Math.abs(pct));return {direction:pct>0?'up':'down',label:`${pct>0?'↑':'↓'} ${size}%`,title:`${size}% ${pct>0?'above':'below'} your 30-day average`}}

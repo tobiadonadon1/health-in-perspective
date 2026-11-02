@@ -4,17 +4,20 @@ export async function fetchWhoopPages(path,accessToken,{fetcher=fetch,days=90,no
  for(let page=0;page<40;page++){
   const url=new URL(path,API);url.searchParams.set('limit','25');url.searchParams.set('start',new Date(now-days*86400000).toISOString());url.searchParams.set('end',new Date(now).toISOString());if(nextToken)url.searchParams.set('nextToken',nextToken);
   const response=await fetcher(url,{headers:{Authorization:'Bearer '+accessToken},signal:AbortSignal.timeout(15000)});
-  if(response.status===401)throw Error('WHOOP access has expired or was revoked. Reconnect WHOOP.');
-  if(response.status===429)throw Error('WHOOP is temporarily limiting requests. Please sync again later.');
-  if(!response.ok)throw Error('WHOOP is temporarily unavailable. Your existing readings are unchanged.');
+  const fail=message=>Object.assign(Error(message),{status:response.status});
+  if(response.status===401)throw fail('WHOOP access has expired or was revoked. Reconnect WHOOP.');
+  if(response.status===429)throw fail('WHOOP is temporarily limiting requests. Please sync again later.');
+  if(!response.ok)throw fail('WHOOP is temporarily unavailable. Your existing readings are unchanged.');
   const body=await response.json();if(!Array.isArray(body.records))throw Error('WHOOP returned an unexpected response.');
   records.push(...body.records);nextToken=body.next_token;if(!nextToken)return records;
   if(typeof nextToken!=='string'||seen.has(nextToken))throw Error('WHOOP returned an invalid history cursor.');seen.add(nextToken);
  }
  throw Error('WHOOP history exceeded the synchronization limit.');
 }
-// Cycles need the separate read:cycles scope; any failure there leaves recovery and sleep untouched.
-export async function fetchWhoopCycles(accessToken,options={}){try{return await fetchWhoopPages('cycle',accessToken,options)}catch{return null}}
+// Cycles need the separate read:cycles scope. Only a refusal (401/403) means the permission is missing (null); a
+// temporary failure (rate limit, outage) returns no new cycles and keeps the saved ones, so nobody is told to reconnect.
+// Either way recovery and sleep are untouched.
+export async function fetchWhoopCycles(accessToken,options={}){try{return await fetchWhoopPages('cycle',accessToken,options)}catch(error){return error?.status===401||error?.status===403?null:[]}}
 export async function collectWhoopData(accessToken,options={}){
  const [recovery,sleeps,cycles]=await Promise.all([fetchWhoopPages('recovery',accessToken,options),fetchWhoopPages('activity/sleep',accessToken,options),fetchWhoopCycles(accessToken,options)]);
  return {recovery,sleeps,cycles:cycles||[],cyclesAvailable:cycles!==null};

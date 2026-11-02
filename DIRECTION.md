@@ -13,13 +13,15 @@ What defines it:
   daily), the month over their portrait, Calories (eaten vs burned), Weight (type it or drag the ruler) and Your week
   (seven days of recovery, sleep, strain and mood, with the check-in). Value first: every tile is a big number with its last 14 days underneath.
 - **Liquid glass.** Cards, panels, the nav and the ask field are light glass sheets (`--glass`, `--glass-blur`,
-  `--glass-edge`) over the frame's soft ambient light (`--ambient`: peach, sage, lilac). Dark (`.card.dark`, with a
-  glow of the sun) and forest (`.card.forest`) cards are focal pieces under the same sheen (`--glass-dark`) — at
-  most one or two per page; on Home the first tile is dark, Sleep is forest and Heart rate is red (`--pulse-fill`,
+  `--glass-edge`) over the frame's soft ambient light (`--ambient`: peach, warm cream, lilac). Dark (`.card.dark`, with a
+  glow of the sun) and night (`.card.night`, a violet-graphite dark) cards are focal pieces under the same sheen (`--glass-dark`) — at
+  most one or two per page; on Home the first tile is dark, Sleep is night and Heart rate is red (`--pulse-fill`,
   with a heart beating at the reading's rate), beside the orange month card.
   Never a different saturated colour per metric.
 - **One accent: orange** (the Xeyo sun). It marks the card title (`.marker`), deltas (`.badge`), the primary
-  data series and the single active/primary row. Violet, green and blue appear only as additional data series.
+  data series and the single active/primary row. Violet and blue appear only as additional data series.
+- **No green on any page surface, card, chart or control.** The only green is `--neon` (lime), reserved for the
+  indicators placed on the person's body (Body page pins: dot, glow and leader line).
 - **Light numbers** (`.stat b`, weight 300, tight tracking) with a unit after them (`/kcal`, `hours`).
 - **Header** is identical on every page (the Home-only customize button keeps its slot elsewhere); sample data
   is a small pill in it, never a banner. Whole cards open their detail; their own controls keep their job.
@@ -29,7 +31,9 @@ What defines it:
 - **Two chart types**, always under a big number and over the same 14-day window: bars from zero for amounts
   (sleep, strain, calories, recovery; latest bar orange) and a line for vitals (latest point orange), each with
   the person's average as a dashed, labelled line (`miniChart`). The Vitals hero uses `trendChart` (usual-range
-  band, above-average fill). Dot share grids (`dotShare`) for macro shares. All in `src/charts.js`.
+  band, above-average fill). Dot share grids (`dotShare`) for macro shares. All in `src/charts.js`; `chartType(kind)` decides bars or line once for every page.
+- **One metric card everywhere.** Vitals, Sleep and Body cards (`vcard` in `src/vcards.js`) are Home's tile: marker
+  and title, change badge and arrow in the head, a big light number, a short "Today"/"Last night" caption, `miniChart`.
 - **Changes** use one baseline everywhere (`latestChange`): neutral badge for ordinary changes, orange only when
   the reading is unusual for the person. Colour never means good or bad.
 - Pill controls everywhere: `.chip`, `.btn` (dark pill), `.btn.light`, `.btn.accent`, `.icon-btn` circles,
@@ -37,10 +41,10 @@ What defines it:
 
 ## System files (read these before styling anything)
 - `src/ui/base.css` — tokens (`--canvas --frame --surface --well --line --ink --ink-2 --ink-3 --dark --on-dark
-  --accent --accent-fill --accent-soft --accent-deep --violet --green --blue --forest`, radii, gap), element
+  --accent --accent-fill --accent-soft --accent-deep --violet --blue --neon --night`, radii, gap), element
   defaults, `.btn`, `.icon-btn`, `.text-button`, `.badge`, `.chip`, `.field`, `.form-grid`, `.error`, `.eyebrow`.
-- `src/ui/card.css` — `.card` (+ `.dark`, `.forest`), `.card-head` + `.marker`, `.stat`, `.stat-caption`,
-  `.legend`, tones `.t-accent/.t-violet/.t-green/.t-blue`, `.dot-matrix`, `.sparkline`, `.card-empty`, `.panel`.
+- `src/ui/card.css` — `.card` (+ `.dark`, `.night`), `.card-head` + `.marker`, `.stat`, `.stat-caption`,
+  `.legend`, tones `.t-accent/.t-violet/.t-blue`, `.dot-matrix`, `.sparkline`, `.card-empty`, `.panel`.
 - `src/ui/shell.css` — frame, top bar, nav, ask field, account menu, `.page-head`, demo banner, chat drawer,
   `#modal` / `.dialog` / `.dialog-footer` / `.tabs`, `#toast`.
 - `src/ui/home.css` — Home only. It is the worked example of the system: copy its patterns.
@@ -52,7 +56,7 @@ What defines it:
 - Every number keeps its source and date somewhere legible. Sample data stays labelled.
 - Keep every feature and every `data-action` / `data-nav` / `data-metric` / id hook working. Change markup
   freely, but not behaviour or data.
-- No new colours outside the tokens; no gradients except the glass tokens, `--ambient`, `--accent-fill`, `--forest`, `--pulse-fill`,
+- No new colours outside the tokens; no gradients except the glass tokens, `--ambient`, `--accent-fill`, `--night`, `--pulse-fill`,
   the dark card and the month card.
 - Responsive: 3 columns ≥1180px, 2 columns ≥760px, 1 column below; no horizontal scroll at 390px.
 - One stylesheet per surface in `src/ui/`, imported from `src/main.js`. No `!important` (except forced-colors),

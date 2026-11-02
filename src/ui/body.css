@@ -49,8 +49,8 @@
 .body-visual.is-portrait .pin-lower{--x:49;--y:87;--slot:78}
 .body-visual.is-portrait .is-empty .pin-copy{background:transparent;border:1px dashed #ffffffb3;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 .body-visual.is-portrait .pin-add{background:#fff;color:var(--accent-deep)}
-.body-visual.is-portrait .pin-dot{background:#fff;box-shadow:0 0 0 4px #ffffff40}
-.body-visual.is-portrait .pin-line{border-color:#ffffffa6}
+.body-visual.is-portrait .pin-dot{background:var(--neon);box-shadow:0 0 0 4px var(--neon-glow),0 0 18px 4px var(--neon-glow)}
+.body-visual.is-portrait .pin-line{border-color:var(--neon)}
 .body-visual.is-portrait .pin-copy{background:#ffffff1f;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px #ffffff59}
 .body-visual.is-portrait .body-pin:hover .pin-copy{background:#ffffff33}
 .body-visual.is-portrait .pin-name small{color:#ffffffcc}
@@ -63,7 +63,7 @@
 .body-visual.is-digital .pin-lower{--x:55;--y:60;--slot:62}
 .body-visual.is-digital .is-empty .pin-copy{background:var(--surface);border:1px dashed var(--line-strong)}
 .body-visual.is-digital .pin-add{background:var(--ink);color:#fff}
-.body-visual.is-digital .pin-dot{background:var(--accent);box-shadow:0 0 0 4px #ff6a1a33,0 0 0 9px #ff6a1a14}
+.body-visual.is-digital .pin-dot{background:var(--neon);box-shadow:0 0 0 1.5px var(--ink),0 0 0 5px var(--neon-glow),0 0 16px 4px var(--neon-glow)}
 .body-visual.is-digital .pin-line{border-color:var(--line-strong)}
 .body-visual.is-digital .pin-copy{background:var(--well)}
 .body-visual.is-digital .body-pin:hover .pin-copy{background:#ebebe8}

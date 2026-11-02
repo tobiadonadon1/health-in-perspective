@@ -1,28 +1,20 @@
-/* Vitals and Sleep: white metric cards with the person's readings drawn in neutral ink and the accent on the
-   latest point; one focal dark card per page (and the sleep goals on forest); the metric detail dialog. */
+/* Vitals and Sleep: the same metric cards as Home's tiles (marker, badge, big light number, miniChart), one focal
+   dark card per page (and the sleep goals on the night card); the metric detail dialog. */
 .metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row dense;gap:var(--gap)}
 .vitals-grid .is-hero{grid-column:span 2;grid-row:span 2}
 .sleep-hero{grid-column:span 2}
 
-/* The drawing tones: neutral ink on white, light ink on the dark card; the accent is always the latest point. */
-.vcard-visual{--v-ink:var(--ink-3);--v-soft:#e2e2de;--v-band:var(--well);--v-label:var(--ink-3)}
+/* The night drawing on the dark Sleep card: last night in colour, the nights before in light ink. */
 .sleep-hero-chart{--v-ink:var(--on-dark-2);--v-soft:#ffffff2e;--v-band:#ffffff0f;--v-label:var(--on-dark-2)}
 
-/* Metric card: content sits at the top, the footer is pinned to the bottom. */
-.vcard{min-height:300px;cursor:pointer}
-.vcard .card-head{margin-bottom:12px}
-.vcard-title{font-size:16px;font-weight:400;letter-spacing:-.01em;line-height:1.25}
-.vcard-arrow{display:grid;place-items:center;width:32px;height:32px;flex-shrink:0;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-2);transition:background .15s,color .15s}
-.vcard-arrow svg{width:15px;height:15px}
-.vcard:hover .vcard-arrow,.vcard:focus-visible .vcard-arrow{background:var(--ink);color:#fff;box-shadow:none}
+/* Metric card: Home's tile, a little taller so the chart has room. */
+.vcard{min-height:280px}
+.vcard .mini-chart{margin-top:18px}
+.vcard.is-stale .stat b,.vcard.is-stale .mini-chart{opacity:.55}
 .vcard-value{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px}
-.vcard-value .stat b{font-size:40px}
 .vcard .stat-caption{margin-top:8px}
-.vcard-visual{display:flex;flex-direction:column;gap:8px;margin:18px 0 16px}
 .vcard-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3)}
 .vcard-foot b{font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
-.vcard.is-stale .stat b{color:var(--ink-3)}
-.vcard.is-stale .vplot{opacity:.5}
 
 /* The focal card on Vitals. */
 .vcard.is-hero{padding:26px}
@@ -40,21 +32,18 @@
 .vcard.is-hero .vcard-foot:empty{display:none}
 .vcard.is-hero .vcard-foot b{color:var(--on-dark)}
 
-/* Drawings: a line inside the usual range, or bars. Stretched SVGs keep a 1px stroke; the dot is HTML so it stays round. */
+/* The night drawing: bars, split into stages when they exist. Stretched SVGs keep a 1px stroke. */
 .vplot{position:relative;display:block;height:96px}
 .vline{position:absolute;inset:0;width:100%;height:100%;overflow:visible;stroke:none;fill:none}
 .vline *{vector-effect:non-scaling-stroke}
-.vline .trace{fill:none;stroke:var(--v-ink);stroke-width:1.4;stroke-linejoin:round}
-.vline .band{fill:var(--v-band);stroke:none}
 .vline .bar{fill:var(--v-soft)}
 .vline .bar.today{fill:var(--accent)}
 .vline .stage.s0{fill:var(--accent)}
 .vline .stage.s1{fill:var(--violet)}
-.vline .stage.s2{fill:var(--green)}
+.vline .stage.s2{fill:var(--blue)}
 .vline .stage:not(.today){fill:var(--v-soft)}
 .vline .stage.s0:not(.today){fill:var(--v-ink)}
 .vline .stage.s2:not(.today){fill:var(--v-band)}
-.vdot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px #ff6a1a33}
 .vscale{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--v-label);font-variant-numeric:tabular-nums;white-space:nowrap}
 .vsingle{font-size:12px;color:var(--ink-3)}
 .card.dark .vsingle{color:var(--on-dark-2)}
@@ -78,7 +67,7 @@
 .sleep-hero-foot b{font-weight:500;color:var(--on-dark)}
 .sleep-hero.is-stale .stat b{color:var(--on-dark-2)}
 
-/* Sleep: goals on the forest card. */
+/* Sleep: goals on the night card. */
 .goals-card .btn.light{background:#ffffff14;color:var(--on-dark);box-shadow:inset 0 0 0 1px var(--dark-line)}
 .goals-card .btn.light:hover{background:#ffffff26}
 .goal-list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
@@ -168,4 +157,4 @@
  .vcard-cells>span{padding:16px 14px 0}
  .vcard-cells>span:first-child{padding-left:26px}
 }
-@media(forced-colors:active){.vdot,.stage-bar i,.stage-list i,.goal-bars i{forced-color-adjust:none}}
+@media(forced-colors:active){.stage-bar i,.stage-list i,.goal-bars i{forced-color-adjust:none}}

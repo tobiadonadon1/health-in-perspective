@@ -8,15 +8,18 @@
  --dark:#1b1b1b;--dark-2:#2a2a2a;--on-dark:#f5f5f3;--on-dark-2:#bdbdb7;--dark-line:#ffffff1a;
  --accent:#ff6a1a;--accent-2:#ff8c3f;--accent-deep:#b93d0b;--accent-soft:#fff0e6;
  --accent-fill:linear-gradient(135deg,#ff9142 0%,#ff6a1a 55%,#f0520a 100%);
- --violet:#9b5de5;--green:#3fb97a;--blue:#3d8bfd;--red:#e5484d;--red-deep:#b8262f;
- --forest:radial-gradient(120% 90% at 0% 0%,#4b6f5c 0%,#2a3a32 42%,#1c1f1d 100%);
+ --violet:#9b5de5;--blue:#3d8bfd;
+ /* Neon lime: only for the indicators placed on the person's body (Body page pins). Never on page surfaces. */
+ --neon:#c6ff3a;--neon-glow:#c6ff3a59;--red:#e5484d;--red-deep:#b8262f;
+ --pulse-fill:linear-gradient(155deg,#f4666b 0%,#e5484d 48%,#bf2c37 100%);
+ --night:radial-gradient(120% 90% at 0% 0%,#48435a 0%,#2a2832 42%,#1c1b1f 100%);
  --radius-frame:28px;--radius-card:20px;--radius-row:14px;--radius-control:12px;
  --shadow-card:0 1px 2px #0000000a;--shadow-pop:0 18px 50px #0000001f;
  /* Liquid glass: a light, slightly translucent sheet over the frame's ambient light, with a bright top edge. */
  --glass:linear-gradient(160deg,#ffffffdb 0%,#ffffffa3 100%);--glass-blur:blur(22px) saturate(1.5);
  --glass-edge:inset 0 1px 0 #fff,inset 0 0 0 1px #ffffffa6,0 1px 2px #0000000a,0 10px 30px -14px #00000024;
  --glass-dark:linear-gradient(180deg,#ffffff17 0%,#ffffff00 40%);--glass-dark-edge:inset 0 1px 0 #ffffff2e,inset 0 0 0 1px #ffffff14,0 14px 34px -16px #00000066;
- --ambient:radial-gradient(1100px 760px at -5% -10%,#ffd3b3 0%,#ffd3b300 62%),radial-gradient(1000px 820px at 105% 112%,#c9dfd1 0%,#c9dfd100 62%),radial-gradient(820px 560px at 70% -10%,#e1daf6 0%,#e1daf600 64%);
+ --ambient:radial-gradient(1100px 760px at -5% -10%,#ffd3b3 0%,#ffd3b300 62%),radial-gradient(1000px 820px at 105% 112%,#ffe4d1 0%,#ffe4d100 62%),radial-gradient(820px 560px at 70% -10%,#e1daf6 0%,#e1daf600 64%);
  --gap:16px;--ease:cubic-bezier(.2,.7,.2,1);
  font-family:'DM Sans',system-ui,sans-serif;font-optical-sizing:auto;color:var(--ink);background:var(--canvas);
  font-synthesis:none;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
@@ -79,7 +82,7 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke
 
 /* Notices. */
 .error{margin:12px 0;padding:11px 14px;border-radius:var(--radius-control);background:#fdecea;color:#a1271b;font-size:13px;line-height:1.5}
-.error.success{background:#e8f6ee;color:#1d6b40}
+.error.success{background:var(--accent-soft);color:var(--accent-deep)}
 .mini-note{font-size:12px;color:var(--ink-3);line-height:1.6}
 
 @media(max-width:560px){.form-grid{grid-template-columns:1fr}}

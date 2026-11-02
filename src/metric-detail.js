@@ -44,7 +44,7 @@ export function openMetricDetail({metric:m,reading:r,readings,showModal,heading,
    selected=Math.max(0,Math.min(index,rows.length-1));const row=rows[selected];
    host.querySelector('#metric-point-date').textContent=row?date(row,true):'No reading';
    host.querySelector('#metric-point-value').innerHTML=(row?formatValue(row.value,m.kind):'—')+`<small> ${esc(r.unit)}</small>`;
-   const change=row&&baseline?metricDelta(row.value,baseline.mean):null,unusual=!!(change&&selected===rows.length-1&&baseline.unusual),badge=host.querySelector('#metric-point-comparison');
+   const change=row&&baseline?metricDelta(row.value,baseline.mean,row.unit):null,unusual=!!(change&&selected===rows.length-1&&baseline.unusual),badge=host.querySelector('#metric-point-comparison');
    badge.className=change?`badge ${unusual?'':'quiet'}`:'';badge.title=change?.title||'';
    badge.textContent=change?`${unusual?'Unusual · ':''}${change.label}${change.direction==='flat'?'':' vs your 30-day average'}`:'';
    if(!row)return;

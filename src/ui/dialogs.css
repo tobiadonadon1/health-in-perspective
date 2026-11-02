@@ -24,7 +24,7 @@
 .status-pill{display:inline-flex;align-items:center;gap:8px;min-height:28px;padding:0 12px 0 10px;border-radius:999px;background:var(--well);font-size:12px;color:var(--ink-2);white-space:nowrap}
 .status-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
 .status-pill.on{color:var(--ink)}
-.status-pill.on::before{background:var(--green);box-shadow:0 0 0 3px #3fb97a26}
+.status-pill.on::before{background:var(--accent);box-shadow:0 0 0 3px #ff6a1a26}
 .dialog-status{display:flex;align-items:flex-start;gap:14px;margin:18px 0 0;padding:14px 16px;border-radius:var(--radius-row);background:var(--well)}
 .dialog-status .status-pill{background:var(--surface);flex-shrink:0}
 .dialog-status p{font-size:13px}
