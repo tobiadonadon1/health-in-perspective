@@ -20,7 +20,7 @@ const sample=xml([
  '<Record type="HKQuantityTypeIdentifierAppleSleepingWristTemperature" sourceName="Apple Watch" unit="degC" startDate="2026-10-21 01:00:00 -0400" endDate="2026-10-21 06:00:00 -0400" value="35.12"/>',
  '<Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Apple Watch" unit="Cal" startDate="2026-10-21 09:00:00 -0400" endDate="2026-10-21 09:10:00 -0400" value="40"/>',
  '<ActivitySummary dateComponents="2026-10-21" activeEnergyBurned="512.5" activeEnergyBurnedGoal="600" activeEnergyBurnedUnit="Cal" appleExerciseTime="31"/>',
- '<Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" unit="count" startDate="2020-01-01 09:00:00 -0400" endDate="2020-01-01 09:10:00 -0400" value="99999"/>',
+ '<Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" unit="count" startDate="1999-01-01 09:00:00 -0400" endDate="1999-01-01 09:10:00 -0400" value="99999"/>',
  '<Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="30"/>'
 ].join('\n'));
 const byKind=rows=>Object.fromEntries(rows.map(r=>[r.kind,r]));

@@ -98,3 +98,12 @@
  .mood-value .dot-matrix{display:none}
  .mood-table tbody th,.mood-table td{padding:8px 10px}
 }
+
+/* Which signals match how you feel: strength as a row of dots (orange when it tracks, ink when it barely does). */
+.mood-match{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.mood-match h3{font-size:14px;font-weight:450;margin-bottom:10px}
+.mood-match ul{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.mood-match li{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(96px,auto);align-items:center;gap:12px;font-size:13px}
+.mood-match li small{font-size:12px;color:var(--ink-3);text-align:right}
+.mood-match p{margin-top:12px;font-size:13px;color:var(--ink-2)}
+.mood-match b{font-weight:500;color:var(--ink)}

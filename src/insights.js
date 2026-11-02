@@ -37,13 +37,26 @@ const readinessCopy={
  low:['Go easier today','Favour light movement, water and an earlier night. Recovery is the work today.']
 };
 const freshToday=(r,now)=>r&&!staleDays(r,now)&&now-Date.parse(r.observed_at)<36*3600000;
-export function todayBrief(readings,metrics,{now=Date.now(),delta,limit=2}={}){
+// How you feel counts as data. A low or rough check-in today lowers the read (rough always means an easy day); it never
+// raises it, so feeling great on a poor-recovery day still gets the cautious advice.
+const feltWord={low:'low',rough:'wrecked'};
+const easier={high:'moderate',moderate:'low',low:'low'};
+function feelingWins(readiness,checkin){
+ const mood=checkin?.mood;if(!feltWord[mood])return readiness;
+ const level=mood==='rough'?'low':readiness?easier[readiness.level]:'low';
+ if(readiness&&level===readiness.level)return {...readiness,agrees:true};
+ const looked=readiness?(readiness.level==='high'?'look ready':'look steady'):null;
+ return {level,kind:readiness?.kind||null,felt:mood,overridden:!!readiness,basis:readiness?`You feel ${feltWord[mood]} · ${readiness.basis}`:'From your check-in',
+  headline:readinessCopy[level][0],advice:looked?`Your numbers ${looked}, but you said you feel ${feltWord[mood]}. How you feel wins today: go easier, and notice what's behind it.`:`You said you feel ${feltWord[mood]}. Keep today light and give yourself an earlier night.`};
+}
+export function todayBrief(readings,metrics,{now=Date.now(),delta,limit=2,checkin=null}={}){
  const latest=kind=>readings.find(r=>r.kind===kind),own=r=>readings.filter(x=>x.kind===r.kind&&x.source===r.source&&x.unit===r.unit);
  let readiness=null;const recovery=latest('recovery');
  if(freshToday(recovery,now)){const v=Number(recovery.value),level=v>=67?'high':v>=34?'moderate':'low';readiness={level,basis:`Recovery ${Math.round(v)}%`,kind:'recovery'}}
- else{const hrv=latest('hrv'),rhr=latest('resting_hr'),ch=freshToday(hrv,now)&&compareLatest(own(hrv),hrv,{now}),cr=freshToday(rhr,now)&&compareLatest(own(rhr),rhr,{now});
-  if(ch&&cr&&ch.days>=7&&cr.days>=7){const score=ch.z-cr.z,level=score>.75?'high':score<-.75?'low':'moderate';readiness={level,basis:'HRV and resting heart rate against your usual',kind:'hrv'}}}
+ else{const hrv=freshToday(latest('hrv'),now)?latest('hrv'):latest('hrv_sdnn'),rhr=latest('resting_hr'),ch=freshToday(hrv,now)&&compareLatest(own(hrv),hrv,{now}),cr=freshToday(rhr,now)&&compareLatest(own(rhr),rhr,{now});
+  if(ch&&cr&&ch.days>=7&&cr.days>=7){const score=ch.z-cr.z,level=score>.75?'high':score<-.75?'low':'moderate';readiness={level,basis:'HRV and resting heart rate against your usual',kind:hrv.kind}}}
  if(readiness){const [headline,advice]=readinessCopy[readiness.level];Object.assign(readiness,{headline,advice})}
+ readiness=feelingWins(readiness,checkin);
  const need=latest('sleep_needed'),sleep=freshToday(need,now)&&Number(need.value)>0?{hours:Math.round(Number(need.value)*10)/10,text:`Aim for ${Math.round(Number(need.value)*10)/10} h of sleep tonight`}:null;
  const changes=[];
  for(const m of metrics){
@@ -56,6 +69,26 @@ export function todayBrief(readings,metrics,{now=Date.now(),delta,limit=2}={}){
  }
  changes.sort((a,b)=>Number(b.unusual)-Number(a.unusual)||Math.abs(b.z)-Math.abs(a.z));
  return {readiness,sleep,changes:changes.slice(0,limit)};
+}
+
+// Which signals actually move with how the person says they feel, across their own check-ins. Each signal is the
+// day's mean on the check-in's date, set against the mood (great 5 … rough 1); a correlation, never a cause.
+// Also counts the check-ins where feeling and data disagreed (rough or low on a high-recovery day, or great or good
+// on a low one), which is where the data alone would have given the wrong advice.
+const moodScore={great:5,good:4,okay:3,low:2,rough:1};
+const pearson=(xs,ys)=>{const n=xs.length,mx=xs.reduce((s,v)=>s+v,0)/n,my=ys.reduce((s,v)=>s+v,0)/n;let a=0,b=0,c=0;for(let i=0;i<n;i++){const dx=xs[i]-mx,dy=ys[i]-my;a+=dx*dy;b+=dx*dx;c+=dy*dy}return b&&c?a/Math.sqrt(b*c):0};
+export function moodMatch(entries,readings,metrics,{min=8,kinds=['recovery','hrv','hrv_sdnn','resting_hr','sleep','sleep_performance']}={}){
+ const tagged=entries.filter(e=>moodScore[e.mood]);
+ const daily=kind=>{const by=new Map();for(const r of readings){if(r.kind!==kind)continue;const v=Number(r.value);if(!Number.isFinite(v))continue;const k=localKey(Date.parse(r.observed_at)),l=by.get(k)||[];l.push(v);by.set(k,l)}return new Map([...by].map(([k,l])=>[k,l.reduce((s,v)=>s+v,0)/l.length]))};
+ const signals=[];
+ for(const kind of kinds){const m=metrics.find(x=>x.kind===kind);if(!m)continue;const values=daily(kind),pairs=tagged.filter(e=>values.has(e.logged_on));if(pairs.length<min)continue;
+  const r=pearson(pairs.map(e=>moodScore[e.mood]),pairs.map(e=>values.get(e.logged_on)));signals.push({kind,name:m.name,r:Math.round(r*100)/100,n:pairs.length,strength:Math.abs(r)>=.5?'closely':Math.abs(r)>=.3?'loosely':'barely',
+   // Resting heart rate is expected to fall on better days; every other signal to rise. "opposite" means it moves the other way.
+   aligned:(kind==='resting_hr'?-r:r)>=0})}
+ signals.sort((a,b)=>Math.abs(b.r)-Math.abs(a.r));
+ const recovery=daily('recovery');let compared=0,mismatches=0;
+ for(const e of tagged){if(!recovery.has(e.logged_on))continue;compared++;const v=recovery.get(e.logged_on),felt=moodScore[e.mood];if((felt<=2&&v>=67)||(felt>=4&&v<34))mismatches++}
+ return {signals,compared,mismatches};
 }
 
 // Rounds parts to `decimals` so the displayed parts add up exactly to the displayed total (largest remainder).

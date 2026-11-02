@@ -1,5 +1,7 @@
 // Import explicit measured fields only. Original files stay in the browser.
 const DAY=86400000;
+// Whole history: Apple Health began in 2014, Fitbit in 2009. Anything before 2000 is a broken clock, not a reading.
+export const EARLIEST=Date.UTC(2000,0,1);
 export function parseDate(value){if(typeof value!=='string')return null;let v=value.trim();if(/^\d{4}-\d{2}-\d{2}$/.test(v))v+='T12:00:00Z';v=v.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) ([+-]\d{2})(\d{2})$/,'$1T$2$3:$4');const m=v.match(/^(\d{2})\/(\d{2})\/(\d{2}|\d{4})(.*)$/);if(m)v=`${m[3].length===2?'20'+m[3]:m[3]}-${m[1]}-${m[2]}${m[4].trim()?'T'+m[4].trim():'T12:00:00'}Z`;const time=Date.parse(v);return Number.isFinite(time)?new Date(time).toISOString():null;}
 // 53-bit string hash: on multi-million-sample exports each dedupe key costs one number, not a long string.
 function hash53(text){let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return 4294967296*(2097151&b)+(a>>>0)}
@@ -9,7 +11,7 @@ export function wallDay(value){if(typeof value!=='string')return '';const v=valu
 export function createCollector(now=Date.now()){
  const days=new Map(),seen=new Set();let ignored=0;
  function add(kind,value,unit,date,device='',mode='mean',identity='',day=''){
-  const time=parseDate(date);if(value===null||value===undefined||value===''||!time||Date.parse(time)<now-90*DAY||Date.parse(time)>now+DAY||!Number.isFinite(Number(value))||+value<0){ignored++;return}value=+value;device=String(device).slice(0,70);
+  const time=parseDate(date);if(value===null||value===undefined||value===''||!time||Date.parse(time)<EARLIEST||Date.parse(time)>now+DAY||!Number.isFinite(Number(value))||+value<0){ignored++;return}value=+value;device=String(device).slice(0,70);
   const id=hash53([kind,device,identity||time+'|'+value].join('|'));if(seen.has(id))return;seen.add(id);
   const local=day||wallDay(date)||time.slice(0,10),key=[kind,local,device].join('|'),old=days.get(key);
   if(!old)days.set(key,{kind,value,unit,observed_at:time,device,mode,count:1,day:local});

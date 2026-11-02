@@ -1,6 +1,8 @@
 import {providerName,providerCompany} from './ai-providers.js';
 import {dotShare} from './charts.js';
 import {escapeHTML as esc,localDay,dateLocale} from './domain.js';
+import {moodMatch} from './insights.js';
+import {metrics} from './metrics.js';
 export const moods=[['great','Great'],['good','Good'],['okay','Okay'],['low','Low'],['rough','Rough']];
 const moodName=id=>moods.find(([m])=>m===id)?.[1]||'';
 // Average recovery and sleep on the days of each mood. A pattern across check-ins, not a cause.
@@ -13,7 +15,13 @@ export function moodSection(entries,readings){
  const tagged=entries.filter(e=>e.mood),head=`<div class="card-head"><span class="marker" aria-hidden="true"></span><h2 id="mood-title">Mood and your body${tagged.length>=3?` <span class="muted">· ${tagged.length} check-ins</span>`:''}</h2></div>`;
  if(tagged.length<3)return `<section class="card journal-mood" aria-labelledby="mood-title">${head}<div class="card-empty"><p>Tag your mood on a few check-ins. Xeyo will set it beside your recovery and sleep on the same days.</p><span class="mood-progress" aria-label="${tagged.length} of 3 tagged check-ins">${[0,1,2].map(i=>`<i class="${i<tagged.length?'on':''}"></i>`).join('')}<small>${tagged.length} of 3</small></span></div></section>`;
  const rows=moodPatterns(tagged,readings),cell=(v,unit,digits,share,tone)=>v===null?'<td class="mood-none">—</td>':`<td><span class="mood-value">${dotShare(share,{cols:10,rows:1,tone,px:7})}<b>${v.toFixed(digits)}<small>${unit}</small></b></span></td>`;
- return `<section class="card journal-mood" aria-labelledby="mood-title">${head}<table class="mood-table"><thead><tr><th scope="col">Mood</th><th scope="col">Recovery</th><th scope="col">Sleep</th></tr></thead><tbody>${rows.map(r=>`<tr><th scope="row"><b>${r.name}</b><small>${r.count} ${r.count===1?'day':'days'}</small></th>${cell(r.recovery,' %',0,r.recovery,'accent')}${cell(r.sleep,' h',1,r.sleep===null?0:r.sleep*10,'violet')}</tr>`).join('')}</tbody></table><p class="journal-note">Averages of the readings recorded on each check-in’s date. A pattern across your notes, not a cause.</p></section>`;
+ return `<section class="card journal-mood" aria-labelledby="mood-title">${head}<table class="mood-table"><thead><tr><th scope="col">Mood</th><th scope="col">Recovery</th><th scope="col">Sleep</th></tr></thead><tbody>${rows.map(r=>`<tr><th scope="row"><b>${r.name}</b><small>${r.count} ${r.count===1?'day':'days'}</small></th>${cell(r.recovery,' %',0,r.recovery,'accent')}${cell(r.sleep,' h',1,r.sleep===null?0:r.sleep*10,'violet')}</tr>`).join('')}</tbody></table>${matchHTML(tagged,readings)}<p class="journal-note">Averages of the readings recorded on each check-in’s date. A pattern across your notes, not a cause.</p></section>`;
+}
+// Which signals move with how you say you feel, and how often feeling and recovery disagreed.
+function matchHTML(tagged,readings){
+ const {signals,compared,mismatches}=moodMatch(tagged,readings,metrics);
+ if(!signals.length)return `<p class="journal-note mood-match-wait">After 8 check-ins with a mood, Xeyo shows which of your signals actually match how you feel.</p>`;
+ return `<div class="mood-match"><h3>What matches how you feel</h3><ul>${signals.slice(0,4).map(x=>`<li><span>${esc(x.name)}</span>${dotShare(Math.abs(x.r)*100,{cols:10,rows:1,tone:x.strength==='barely'||!x.aligned?'ink':'accent',px:7})}<small>${x.strength==='barely'?'barely':x.aligned?x.strength:x.strength+', the opposite way'} · ${x.n} days</small></li>`).join('')}</ul>${compared?`<p>Your mood and your recovery disagreed on <b>${mismatches} of ${compared}</b> check-in days.${mismatches?' On days like those, Xeyo goes with how you feel.':''}</p>`:''}</div>`;
 }
 // getSample(entries) returns the rows to show: the account's own, or (in sample mode, with none) the same sample
 // check-ins Home's "Your week" uses. Sample rows are read-only.
