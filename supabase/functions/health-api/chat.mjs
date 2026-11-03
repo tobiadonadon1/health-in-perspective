@@ -11,6 +11,11 @@ export const providers={
  deepseek:{name:'DeepSeek',model:'deepseek-chat',compatible:'https://api.deepseek.com'}
 };
 export const providerIds=Object.keys(providers);
+// Xeyo AI: the AI included with the plan, paid by Xeyo's own Anthropic key (the XEYO_ANTHROPIC_KEY secret).
+// It runs when a member has not connected their own key. Claude Haiku 5.5 keeps quality high at a small cost per answer,
+// and a daily message cap keeps one account from running up the bill.
+export const INCLUDED_MODEL='claude-haiku-5-5',INCLUDED_DAILY_MESSAGES=60;
+export const includedAI=key=>key?{provider:'anthropic',model:INCLUDED_MODEL,key,included:true}:null;
 // Model IDs for compatible providers may contain vendor prefixes (meta-llama/…, :free); they only travel in JSON bodies.
 const pathSafeModel=/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$/,bodyModel=/^[a-zA-Z0-9][a-zA-Z0-9._:\/-]{0,99}$/;
 export function validateConnection({provider,model,key}){
@@ -81,22 +86,23 @@ export async function askProvider({provider,model,key,messages,context,purpose='
  let answer=await complete({provider,model,key,system,messages},fetcher,{timeoutMessage:purpose==='journal'?'The AI response timed out. Your journal note is saved; try the reflection again.':'The AI response timed out. Your message was not saved; please try again.'});
  if(!answer)throw Error('Your provider returned no text. Try a different question or model.');return answer.slice(0,16000);
 }
-export async function handleChat(payload,{client,userId,seal,unseal}){
+export async function handleChat(payload,{client,userId,seal,unseal,included=null}){
  const action=payload.action;
  if(action==='chat-connect'){const connection=await verifyConnection(payload);const r=await client.from('chat_connections').upsert({user_id:userId,provider:connection.provider,model:connection.model,encrypted_key:await seal({key:connection.key}),updated_at:new Date().toISOString()});if(r.error)throw Error('Could not save the AI connection.');return {connected:true,provider:connection.provider,model:connection.model};}
  if(action==='chat-disconnect'){const r=await client.from('chat_connections').delete().eq('user_id',userId);if(r.error)throw Error('Could not disconnect your AI.');return {disconnected:true};}
  if(action==='chat-clear'){const r=await client.from('chat_messages').delete().eq('user_id',userId);if(r.error)throw Error('Could not clear your conversations.');return {cleared:true};}
  if(action==='chat-models')return {models:await listModels(payload)};
  const c=await client.from('chat_connections').select('*').eq('user_id',userId).maybeSingle();if(c.error)throw Error('Could not load your AI connection.');
- if(action==='chat-status')return {connection:c.data?{provider:c.data.provider,model:c.data.model,updated_at:c.data.updated_at}:null};
+ if(action==='chat-status')return {connection:c.data?{provider:c.data.provider,model:c.data.model,updated_at:c.data.updated_at}:included?{provider:included.provider,model:included.model,included:true}:null};
  if(action!=='chat-send')throw Error('Unknown chat action.');
- if(!c.data)throw Error('Connect your own AI API key before starting a conversation.');
- const {message,request_id,include_context}=validateChat(payload),{provider,model}=c.data;
+ if(!c.data&&!included)throw Error('Connect your own AI API key before starting a conversation.');
+ const {message,request_id,include_context}=validateChat(payload),{provider,model}=c.data||included;
+ if(!c.data){const used=await client.from('chat_messages').select('id',{count:'exact',head:true}).eq('user_id',userId).eq('role','user').eq('provider',provider).eq('model',model).gte('created_at',new Date(Date.now()-86400000).toISOString());if(used.error)throw Error('Could not check your daily messages.');if((used.count||0)>=INCLUDED_DAILY_MESSAGES)throw Error(`You have used today’s ${INCLUDED_DAILY_MESSAGES} Xeyo AI messages. They refresh within 24 hours, or connect your own AI key for unlimited messages.`);}
  const previous=await client.from('chat_messages').select('role,content,provider,model').eq('user_id',userId).eq('request_id',request_id);if(previous.error)throw Error('Could not check this message.');
  if(previous.data?.length){const question=previous.data.find(m=>m.role==='user'),answer=previous.data.find(m=>m.role==='assistant');if(question?.content!==message||question?.provider!==provider||question?.model!==model)throw Error('Start a new message to change your question.');if(answer)return {answer:answer.content};}
  const history=await client.from('chat_messages').select('role,content,created_at').eq('user_id',userId).eq('provider',provider).eq('model',model).order('created_at',{ascending:false}).order('role',{ascending:true}).limit(20);if(history.error)throw Error('Could not read the conversation.');
  let context=null;if(include_context){let rows=[];for(let offset=0;offset<10000;offset+=1000){const r=await client.from('health_readings').select('kind,value,unit,source,observed_at').eq('user_id',userId).gte('observed_at',new Date(Date.now()-30*86400000).toISOString()).order('observed_at',{ascending:false}).order('id').range(offset,offset+999);if(r.error)throw Error('Could not load the readings you chose to share.');rows.push(...r.data);if(r.data.length<1000)break;}context=summarizeReadings(rows);}
- const answer=await askProvider({provider,model,key:(await unseal(c.data.encrypted_key)).key,messages:[...history.data.reverse(),{role:'user',content:message}],context});
+ const answer=await askProvider({provider,model,key:c.data?(await unseal(c.data.encrypted_key)).key:included.key,messages:[...history.data.reverse(),{role:'user',content:message}],context});
  const stamp=Date.now();const saved=await client.from('chat_messages').insert([{role:'user',content:message,created_at:new Date(stamp).toISOString()},{role:'assistant',content:answer,created_at:new Date(stamp+1).toISOString()}].map(m=>({...m,user_id:userId,request_id,provider,model,context_shared:include_context})));
  if(saved.error){if(saved.error.code==='23505'){const cached=await client.from('chat_messages').select('content').eq('user_id',userId).eq('request_id',request_id).eq('role','assistant').maybeSingle();if(cached.data)return {answer:cached.data.content};}throw Error('The response could not be saved. Please retry.');}
  return {answer};
