@@ -91,3 +91,40 @@ export function parseFitbit(text,filename,collector,{weightUnit=''}={}){
   if(weight!==undefined&&weight!==''){const unit=r.weightkg!==undefined?'kg':r.weightlbs!==undefined?'lb':r.unit||weightUnit;if(!['kg','lb'].includes(unit))throw Error('This export omits weight units. Choose kg or lb before importing.');add('weight',Number(weight)*(unit==='lb'?.45359237:1),'kg',date,'last');}
  }
 }
+// WHOOP's data export (WHOOP app → More → App Settings → Data Export) is a zip of CSVs.
+// physiological_cycles.csv has one row per WHOOP day (recovery, strain and that night's sleep); sleeps.csv has one row
+// per sleep or nap. Headers are matched by their words, not exact text, so small wording changes still import.
+// Each night is filed on the day it ends, as the live WHOOP connection does, under the kinds and units it uses.
+export function whoopTime(value,zone=''){
+ const m=typeof value==='string'&&value.trim().match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(:\d{2})?/);if(!m)return null;
+ const z=String(zone).match(/([+-])(\d{1,2}):?(\d{2})?/);const offset=z?`${z[1]}${z[2].padStart(2,'0')}:${z[3]||'00'}`:'Z';
+ return parseDate(`${m[1]}T${m[2]}${m[3]||':00'}${offset}`);
+}
+export function parseWhoop(text,filename,collector){
+ const rows=parseCSV(text);if(!rows.length)return 0;
+ const keys=Object.keys(rows[0]),col=(...words)=>keys.find(k=>words.every(w=>k.includes(w)));
+ const c={start:col('cycle','start')||col('start'),end:col('cycle','end'),zone:col('timezone'),onset:col('sleep','onset')||col('onset'),wake:col('wake','onset')||col('wake'),
+  recovery:col('recovery','score'),rhr:col('resting','heart'),hrv:col('heartratevariability'),skinC:col('skintemp','celsius'),skinF:col('skintemp','fahrenheit'),spo2:col('bloodoxygen'),
+  strain:col('day','strain'),energy:col('energy','burned'),avgHr:col('average','hr'),resp:col('respiratory'),asleep:col('asleep','duration'),light:col('light','sleep'),
+  deep:col('deep'),rem:keys.find(k=>k.startsWith('rem')),awake:col('awake','duration'),performance:col('sleep','performance'),efficiency:col('sleep','efficiency'),
+  consistency:col('sleep','consistency'),debt:col('sleep','debt'),need:col('sleep','need'),nap:keys.find(k=>k==='nap')};
+ const cycles=/cycle/i.test(filename)||!!c.recovery,sleeps=!cycles&&!!(c.asleep||c.onset);if(!cycles&&!sleeps)return 0;
+ let count=0;
+ for(const r of rows){
+  const zone=r[c.zone]||'',when=whoopTime(r[c.wake],zone)||whoopTime(r[c.end],zone)||whoopTime(r[c.start],zone);if(!when)continue;
+  const day=wallDay(r[c.wake]||r[c.end]||r[c.start]||'')||when.slice(0,10),num=k=>k&&r[k]!==''&&r[k]!==undefined&&Number.isFinite(+r[k])?+r[k]:null;
+  const add=(kind,value,unit)=>{if(value===null)return;collector.add(kind,Math.round(value*100)/100,unit,when,'WHOOP','last','whoop|'+day,day);count++};
+  const nap=sleeps&&/^(true|yes|1)$/i.test(r[c.nap]||'');
+  if(nap){add('nap',num(c.asleep)===null?null:num(c.asleep)/60,'hours');continue}
+  if(cycles){
+   add('recovery',num(c.recovery),'%');add('resting_hr',num(c.rhr),'bpm');add('hrv',num(c.hrv),'ms');add('spo2',num(c.spo2),'%');
+   add('skin_temperature',num(c.skinC)??(num(c.skinF)===null?null:(num(c.skinF)-32)*5/9),'°C');
+   add('strain',num(c.strain),'');add('energy_burned',num(c.energy),'kcal');add('heart_rate',num(c.avgHr),'bpm');
+  }
+  const hours=k=>num(k)===null?null:num(k)/60;
+  add('sleep',hours(c.asleep),'hours');add('sleep_light',hours(c.light),'hours');add('sleep_deep',hours(c.deep),'hours');add('sleep_rem',hours(c.rem),'hours');
+  add('sleep_awake',num(c.awake),'min');add('respiratory_rate',num(c.resp),'breaths/min');add('sleep_performance',num(c.performance),'%');
+  add('sleep_efficiency',num(c.efficiency),'%');add('sleep_consistency',num(c.consistency),'%');add('sleep_debt',num(c.debt),'min');add('sleep_needed',hours(c.need),'hours');
+ }
+ return count;
+}
