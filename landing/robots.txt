@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /work/
+
+Sitemap: https://xeyo.ai/sitemap.xml

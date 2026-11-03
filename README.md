@@ -6,7 +6,7 @@ A real, account-based health workspace: WHOOP measurements, a nutrition journal,
 
 Account services, private storage, per-user data policies and the API are deployed. Email/password signup opens a session immediately; email confirmation is disabled. A real WHOOP account has authorized and imported readings. Recovery and sleep permissions also supply skin temperature, sleep stages, performance, efficiency, consistency, sleep need and sleep debt. WHOOP currently permits up to 10 connected members in its sandbox. Nutrition accepts descriptions, dish/label photos and voice recordings using each user's own OpenAI API key. Users can choose, resize and order up to 16 dashboard widgets; preferences are saved to their account. Apple Health XML/ZIP and selected Fitbit/Google Health JSON/CSV exports can be imported as snapshots. Automatic Apple Health and Fitbit sync are not implemented.
 
-Hosted app: https://xeyo.ai/ · Source: https://github.com/tobiadonadon1/health-in-perspective
+Website: https://xeyo.ai/ · App: https://app.xeyo.ai/ · Source: https://github.com/tobiadonadon1/health-in-perspective
 
 ## Local development
 
@@ -61,7 +61,7 @@ The dashboard uses the clear-glass styles in `src/xeyo.css`. The static orange s
 
 The compact dashboard charts show up to the latest 21 actual measurements; the detail panel retains its 7/30/90-day history. HRV and sleep use bars, while other signals use lines with an area fill. No synthetic points are inserted.
 
-The live application is available at https://xeyo.ai/ and https://www.xeyo.ai/, with active HTTPS certificates. GoDaddy manages DNS through `ns71.domaincontrol.com` and `ns72.domaincontrol.com`. Supabase's Site URL is `https://xeyo.ai`; exact sign-in and password-recovery redirects allow both hostnames, the existing hosted URL, and local development. The health API permits these same origins. The WHOOP callback remains on the Supabase Edge Function, so the provider's callback URL does not change when the frontend domain changes.
+The website is https://xeyo.ai/ (www.xeyo.ai redirects to it) and the app is https://app.xeyo.ai/. One Vercel project serves both: `npm run build` runs `scripts/site.mjs`, which puts the app in `dist/app/` and the website from `landing/` in `dist/site/`, and `vercel.json` sends each host to its own folder. Any other host, such as preview deployments, gets the app. App paths and sign-in or WHOOP return links that reach xeyo.ai are forwarded to app.xeyo.ai. The website is edited in `landing/work/index.template.html` and rebuilt with `python3 landing/work/build.py`. GoDaddy manages DNS through `ns71.domaincontrol.com` and `ns72.domaincontrol.com`; `app` is a CNAME to Vercel. Supabase's Site URL is `https://app.xeyo.ai`, and sign-in and password-recovery redirects allow app.xeyo.ai, xeyo.ai, www.xeyo.ai, the existing hosted URL, and local development. The health API always permits these origins. The WHOOP callback remains on the Supabase Edge Function, so the provider's callback URL does not change when the frontend domain changes.
 
 
 ## Personal onboarding, averages and Chatbot

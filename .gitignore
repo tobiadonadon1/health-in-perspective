@@ -9,3 +9,9 @@ dist/
 supabase/.temp/
 
 .design-preview/
+
+# The website: sources and built files are tracked, its working captures are not.
+landing/work/*
+!landing/work/build.py
+!landing/work/index.template.html
+!landing/work/og.html

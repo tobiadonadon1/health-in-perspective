@@ -1,0 +1,24 @@
+# Xeyo
+
+> Xeyo is a health dashboard that puts wearable data, nutrition and blood work in one place and makes it easy to read. It costs $5 a month, one plan, AI included.
+
+## What it does
+- Wearables: WHOOP syncs directly; Apple Watch (Apple Health export), Fitbit and Google Health import with full history. Sleep, recovery, HRV, resting heart rate and strain are each shown next to the person's own 30-day normal, in plain words.
+- Nutrition: log a meal by typing a sentence, a voice note or a photo. Xeyo estimates calories, protein, carbs and fat, editable, and shows the day against calories burned.
+- Blood work: upload a lab PDF or photo. Each marker is shown against the lab's reference range, with history.
+- Mood and body: mood check-ins (a low check-in lowers the daily read), weight, body fat and lean mass.
+- Ask Xeyo: a built-in AI assistant that answers questions from the person's own data.
+
+## How it differs from the WHOOP or Apple Watch app
+Those apps show what the device measures. Xeyo adds meals, mood, body measurements and blood work alongside it, explains every number against the person's own baseline, and lets them ask an AI about all of it in one place.
+
+## Facts
+- Price: $5 per month, cancel any time.
+- Privacy: records belong to the account; database rules stop other accounts reading them; wearable connections are stored encrypted.
+- Xeyo is not a medical device and does not diagnose or treat anything.
+
+## Links
+- Home: https://xeyo.ai/
+- App (sign in): https://app.xeyo.ai/
+- Data-use notice: https://xeyo.ai/privacy.html
+- Contact: tobia@donadon.com

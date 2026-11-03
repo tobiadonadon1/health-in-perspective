@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Xeyo: wearable data, nutrition and blood work in one place, $5/month</title>
+<meta name="description" content="Xeyo puts your WHOOP, Apple Watch or Fitbit data next to your meals, blood work and mood, and makes all of it easy to read. AI included. $5 a month.">
+<link rel="canonical" href="https://xeyo.ai/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#0b0807">
+<meta name="color-scheme" content="light">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Xeyo">
+<meta property="og:url" content="https://xeyo.ai/">
+<meta property="og:title" content="Xeyo: all your health in one place">
+<meta property="og:description" content="Wearable data, nutrition and blood work, finally easy to read. AI included. $5 a month.">
+<meta property="og:image" content="https://xeyo.ai/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Xeyo: a portrait in orange light with sample readings for recovery, nutrition and vitamin D.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Xeyo: all your health in one place">
+<meta name="twitter:description" content="Wearable data, nutrition and blood work, finally easy to read. AI included. $5 a month.">
+<meta name="twitter:image" content="https://xeyo.ai/og.png">
+<link rel="icon" href="/favicon.ico?v=2" sizes="any">
+<link rel="icon" href="/favicon-32.png?v=2" type="image/png" sizes="32x32">
+<link rel="icon" href="/favicon.png?v=2" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+<link rel="preload" href="/fonts/hanken-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/img/portrait.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 761px)">
+<link rel="preload" href="/img/portrait-640.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 760px)">
+<link rel="stylesheet" href="/styles.css">
+<script>
+// The app moved to app.xeyo.ai. Sign-in emails, password resets and WHOOP returns that still land here carry
+// their details in the address; send those on to the app so they finish there.
+(function(){var h=location.hash,q=location.search;
+if(/^#(\/|access_token=|refresh_token=|error|whoop_|type=)/.test(h)||/[?&](code|token_hash|type|reset|connection|error|error_description)=/.test(q))
+location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
+</script>
+<script>document.documentElement.classList.add('js')</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Organization",
+   "@id": "https://xeyo.ai/#org",
+   "name": "Xeyo",
+   "url": "https://xeyo.ai/",
+   "logo": "https://xeyo.ai/icon-512.png",
+   "email": "tobia@donadon.com"
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://xeyo.ai/#site",
+   "url": "https://xeyo.ai/",
+   "name": "Xeyo",
+   "publisher": {
+    "@id": "https://xeyo.ai/#org"
+   },
+   "inLanguage": "en"
+  },
+  {
+   "@type": "WebApplication",
+   "@id": "https://xeyo.ai/#app",
+   "name": "Xeyo",
+   "url": "https://xeyo.ai/",
+   "applicationCategory": "HealthApplication",
+   "operatingSystem": "Web browser on iPhone, Android, Mac and Windows",
+   "description": "A health dashboard that puts your wearable data, nutrition, blood work, mood and body measurements in one place and makes them easy to read. It works with WHOOP, Apple Watch and Fitbit, compares each signal with your own last 30 days, logs meals with AI from text, voice or a photo, and includes an AI assistant that answers from your own data.",
+   "image": "https://xeyo.ai/img/s-sleep.webp",
+   "screenshot": "https://xeyo.ai/img/s-sleep.webp",
+   "featureList": [
+    "WHOOP sync; Apple Health, Fitbit and Google Health imports with full history",
+    "Every signal compared with your own 30-day normal, in plain words",
+    "AI meal logging from a sentence, a voice note or a photo, with calories and macros",
+    "Blood test results against the lab's reference range, with history",
+    "Mood check-ins that adjust the daily read",
+    "Weight, body fat and lean mass history",
+    "Ask Xeyo: an AI assistant that answers from your own readings"
+   ],
+   "offers": {
+    "@type": "Offer",
+    "price": "5.00",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "url": "https://xeyo.ai/#price",
+    "priceSpecification": {
+     "@type": "UnitPriceSpecification",
+     "price": "5.00",
+     "priceCurrency": "USD",
+     "billingDuration": "P1M",
+     "unitText": "month"
+    }
+   },
+   "publisher": {
+    "@id": "https://xeyo.ai/#org"
+   }
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://xeyo.ai/#faq",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "How is Xeyo different from the WHOOP or Apple Watch app?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Those apps show what the device measures. Xeyo puts that next to your meals, mood, body measurements and blood work, explains each number against your own last 30 days in plain words, and lets you ask an AI about all of it in one place."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does Xeyo work with Apple Watch, or do I need a WHOOP?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Both work. WHOOP connects directly and syncs. Apple Watch data comes in from your Apple Health export with your whole history, and you can import again any time. Fitbit and Google Health exports work too."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How does nutrition tracking work?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Describe a meal in a sentence, say it in a voice note or take a photo. Xeyo estimates the calories, protein, carbs and fat, and you can correct any value. Your day is shown against the calories your wearable says you burned."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What do I get for $5 a month?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Everything: every wearable connection, nutrition logging, blood work, mood and body records, the daily read and Ask Xeyo, the built-in AI. There is one plan, and you can cancel any time."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is my health data private?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Your records belong to your account, and database rules stop any other account from reading them. Wearable connections are stored encrypted, and you can disconnect them at any time."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is Xeyo a medical device?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. Xeyo organises and explains your own data. It does not diagnose or treat anything. Talk to a doctor about symptoms, or about results outside the lab's range."
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<svg class="sr-only" aria-hidden="true" focusable="false"><filter id="lg-lens" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".006 .012" numOctaves="2" seed="7" result="n"/><feGaussianBlur in="n" stdDeviation="3" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="34" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+
+<header class="site-head">
+  <nav class="nav lg" aria-label="Main">
+    <a class="brand" href="#top" aria-label="Xeyo, home"><img src="/img/xeyo-orb.webp" alt="" width="30" height="30"><span>Xeyo</span></a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#price">Price</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-end">
+      <a class="nav-signin" href="https://app.xeyo.ai/sign-in">Sign in</a>
+      <a class="btn btn-light btn-small" href="#checkout" data-buy>Get Xeyo</a>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- 1 · Hero: what it is, what it costs, the one action, and sample readings from three kinds of data. -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero-card">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-copy">
+      <h1 id="hero-title">All your health in one place</h1>
+      <p class="lede">Wearable data, nutrition and blood work, finally easy to read.</p>
+      <div class="hero-actions">
+        <a class="btn btn-light" href="#checkout" data-buy>Get Xeyo for $5 a month</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <!-- The subject: portrait, the light behind him and an instrument ring, all moving together. -->
+      <div class="subject" aria-hidden="true">
+        <div class="halo"></div>
+        <svg class="reticle" viewBox="0 0 400 400"><circle class="ticks" cx="200" cy="200" r="192"/><circle class="ring" cx="200" cy="200" r="176"/><path class="arc" d="M200 24 A176 176 0 0 1 376 200"/><circle class="node" cx="376" cy="200" r="4"/></svg>
+        <picture class="portrait">
+          <source media="(max-width: 760px)" srcset="/img/portrait-640.webp">
+          <img src="/img/portrait.webp" alt="" width="1024" height="1536" fetchpriority="high" decoding="async">
+        </picture>
+      </div>
+
+      <!-- One pane of liquid glass held over the body: this morning's read, from three kinds of data. -->
+      <div class="lens lg" role="group" aria-labelledby="lens-title">
+        <p class="lens-head"><span id="lens-title">This morning</span><span class="tag">Example</span></p>
+        <div class="lens-grid">
+          <div class="cell" role="img" aria-label="Example: recovery 64%, your normal is 72%">
+            <p class="cell-k">Recovery</p>
+            <p class="cell-num">64<small>%</small></p>
+            <div class="bars" aria-hidden="true"><i style="--h:.72"></i><i style="--h:.58"></i><i style="--h:.81"></i><i style="--h:.64"></i><i style="--h:.42"></i><i style="--h:.55"></i><i style="--h:.86"></i><i class="now" style="--h:.66"></i></div>
+            <p class="cell-foot">Your normal is 72%</p>
+          </div>
+          <div class="cell" role="img" aria-label="Example: 1,540 kcal eaten today, 97 grams of protein">
+            <p class="cell-k">Eaten today</p>
+            <p class="cell-num">1,540<small>kcal</small></p>
+            <div class="meter" aria-hidden="true"><i style="--f:.56"></i></div>
+            <p class="cell-foot">97 g protein · 2,768 burned</p>
+          </div>
+          <div class="cell" role="img" aria-label="Example: vitamin D 22 nanograms per millilitre, below the lab's range of 30 to 100">
+            <p class="cell-k">Vitamin D</p>
+            <p class="cell-num">22<small>ng/mL</small></p>
+            <div class="range" aria-hidden="true"><i style="--at:.08"></i></div>
+            <p class="cell-foot split"><span class="flag">Below range</span><span>30–100</span></p>
+          </div>
+        </div>
+        <i class="scan" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <ul class="hero-facts">
+      <li><b>Wearables</b><span>WHOOP, Apple Watch, Fitbit</span></li>
+      <li><b>Nutrition</b><span>Text, voice or photo</span></li>
+      <li><b>Blood work</b><span>Every marker with its range</span></li>
+      <li><b>AI included</b><span>Answers from your data</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2 · How it works: four steps, each one picture and one line. -->
+<section class="how" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="how-title" class="h2">How it works</h2>
+      <p>Set it up once. Xeyo does the reading.</p>
+    </div>
+    <ol class="steps">
+      <li class="step rise">
+        <div class="tile t1" aria-hidden="true">
+          <span class="num">1</span>
+          <div class="chip-ui lg">
+            <p class="row"><img src="/img/xeyo-orb.webp" alt="" width="28" height="28"><span><b>WHOOP connected</b><small>Synced 2 minutes ago</small></span><span class="ok"></span></p>
+          </div>
+        </div>
+        <h3>Connect your wearable</h3>
+        <p>WHOOP syncs in one tap. Apple Watch and Fitbit import with your whole history.</p>
+      </li>
+      <li class="step rise">
+        <div class="tile t2" aria-hidden="true">
+          <span class="num">2</span>
+          <div class="chip-ui lg">
+            <p class="bubble">Salmon poke bowl with avocado</p>
+            <p class="row result"><span><b>680 kcal</b><small>37 g protein · 65 g carbs · 31 g fat</small></span></p>
+          </div>
+        </div>
+        <h3>Log what you eat</h3>
+        <p>Type it, say it or snap it. Xeyo works out the calories and macros.</p>
+      </li>
+      <li class="step rise">
+        <div class="tile t3" aria-hidden="true">
+          <span class="num">3</span>
+          <div class="chip-ui lg">
+            <p class="row"><span class="file"></span><span><b>Lab results.pdf</b><small>2 tests read · 1 below range</small></span></p>
+          </div>
+        </div>
+        <h3>Add your blood work</h3>
+        <p>Upload a lab PDF or a photo. Every marker lands with its range.</p>
+      </li>
+      <li class="step rise">
+        <div class="tile t4" aria-hidden="true">
+          <span class="num">4</span>
+          <div class="chip-ui lg list">
+            <p><span>Recovery</span><b>64%</b></p>
+            <p><span>Sleep</span><b>7.9 h</b></p>
+            <p><span>Eaten</span><b>1,540 kcal</b></p>
+            <p><span>Vitamin D</span><b>22 ng/mL</b></p>
+          </div>
+        </div>
+        <h3>Read it in one place</h3>
+        <p>One screen, plain words, each number next to your own normal.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 3 · Features: four night cards that stack as you scroll (sticky, no script). -->
+<section class="features" id="features" aria-labelledby="features-title">
+  <h2 id="features-title" class="sr-only">Features</h2>
+  <article class="feat-card" id="fp-1" aria-labelledby="fh-1">
+    <div class="feat-glow" aria-hidden="true"></div>
+    <ol class="feat-nav" aria-label="Features"><li><a href="#fp-1" aria-current="step"><span>01</span><em>Wearables</em></a></li><li><a href="#fp-2"><span>02</span><em>Nutrition</em></a></li><li><a href="#fp-3"><span>03</span><em>Blood work</em></a></li><li><a href="#fp-4"><span>04</span><em>Ask Xeyo</em></a></li></ol>
+    <div class="feat-panel">
+        <div class="feat-copy">
+          <p class="feat-k">01 · Wearables</p>
+          <h3 id="fh-1">Wearable data you can read at a glance</h3>
+          <p>Sleep, recovery, HRV and strain, each next to your own 30-day normal, in plain words.</p>
+        </div>
+        <figure class="feat-shot board lg" aria-label="Example: last night's sleep and this morning's readings">
+          <p class="board-head"><span>Last night · Monday</span><span class="tag">Example</span></p>
+          <div class="board-main">
+            <div>
+              <p class="big">7.9<small>hours asleep</small></p>
+              <p class="note">8 minutes more than your normal</p>
+              <div class="stages" aria-hidden="true"><i style="--f:.2"></i><i style="--f:.27"></i><i style="--f:.53"></i></div>
+              <ul class="legend"><li>Deep 1.6 h</li><li>REM 2.1 h</li><li>Light 4.2 h</li></ul>
+            </div>
+            <div class="nights" aria-hidden="true"><i style="--h:.78"></i><i style="--h:.62"></i><i style="--h:.84"></i><i style="--h:.7"></i><i style="--h:.55"></i><i style="--h:.9"></i><i style="--h:.74"></i><i style="--h:.8"></i><i style="--h:.66"></i><i style="--h:.88"></i><i style="--h:.72"></i><i style="--h:.6"></i><i style="--h:.82"></i><i class="now" style="--h:.86"></i></div>
+          </div>
+          <ul class="tiles3">
+            <li><span>Recovery</span><b>64%</b><em>Normal 72%</em></li>
+            <li><span>HRV</span><b>71 ms</b><em>22% above normal</em></li>
+            <li><span>Resting heart rate</span><b>65 bpm</b><em>Steady</em></li>
+          </ul>
+        </figure>
+    </div>
+  </article>
+  <article class="feat-card" id="fp-2" aria-labelledby="fh-2">
+    <div class="feat-glow" aria-hidden="true"></div>
+    <ol class="feat-nav" aria-label="Features"><li><a href="#fp-1"><span>01</span><em>Wearables</em></a></li><li><a href="#fp-2" aria-current="step"><span>02</span><em>Nutrition</em></a></li><li><a href="#fp-3"><span>03</span><em>Blood work</em></a></li><li><a href="#fp-4"><span>04</span><em>Ask Xeyo</em></a></li></ol>
+    <div class="feat-panel">
+        <div class="feat-copy">
+          <p class="feat-k">02 · Nutrition</p>
+          <h3 id="fh-2">The nutrition your wearable app leaves out</h3>
+          <p>Describe a meal, say it or snap it. See what you ate next to what you burned.</p>
+        </div>
+        <figure class="feat-shot board lg" aria-label="Example: a meal logged from one sentence, and the day's totals">
+          <p class="board-head"><span>Nutrition · today</span><span class="tag">Example</span></p>
+          <div class="board-split">
+            <div class="meal">
+              <p class="msg me">Salmon poke bowl with avocado</p>
+              <div class="logged">
+                <p class="logged-name">Salmon poke bowl</p>
+                <p class="big">680<small>kcal</small></p>
+                <ul class="macro-row"><li><b>37 g</b>Protein</li><li><b>65 g</b>Carbs</li><li><b>31 g</b>Fat</li></ul>
+              </div>
+            </div>
+            <div class="day">
+              <p class="day-k">Eaten</p><p class="big">1,540<small>kcal</small></p>
+              <div class="burn" aria-hidden="true"><i style="--f:.56"></i></div>
+              <p class="note">Burned 2,768 kcal · 1,228 under</p>
+              <ul class="macros big-macros" aria-hidden="true">
+                <li style="--w:.26"><span>Protein</span><b>97 g</b></li>
+                <li style="--w:.40"><span>Carbs</span><b>149 g</b></li>
+                <li style="--w:.35"><span>Fat</span><b>58 g</b></li>
+              </ul>
+            </div>
+          </div>
+        </figure>
+    </div>
+  </article>
+  <article class="feat-card" id="fp-3" aria-labelledby="fh-3">
+    <div class="feat-glow" aria-hidden="true"></div>
+    <ol class="feat-nav" aria-label="Features"><li><a href="#fp-1"><span>01</span><em>Wearables</em></a></li><li><a href="#fp-2"><span>02</span><em>Nutrition</em></a></li><li><a href="#fp-3" aria-current="step"><span>03</span><em>Blood work</em></a></li><li><a href="#fp-4"><span>04</span><em>Ask Xeyo</em></a></li></ol>
+    <div class="feat-panel">
+        <div class="feat-copy">
+          <p class="feat-k">03 · Blood work</p>
+          <h3 id="fh-3">Blood work you can actually read</h3>
+          <p>Every marker against the lab's range, with how it has moved since your last test.</p>
+        </div>
+        <figure class="feat-shot board lg" aria-label="Example: three blood markers against the lab's range">
+          <p class="board-head"><span>Blood results · Sep 14</span><span class="tag">Example</span></p>
+          <ul class="markers">
+            <li><div><b>Vitamin D</b><span class="flag">Below range</span></div><p class="big">22<small>ng/mL</small></p><div class="range" aria-hidden="true"><i style="--at:.06"></i></div><p class="note">Lab range 30 to 100 · first result</p></li>
+            <li><div><b>Ferritin</b><span class="ok-t">In range</span></div><p class="big">84<small>ng/mL</small></p><div class="range" aria-hidden="true"><i style="--at:.17"></i></div><p class="note">Lab range 30 to 400 · up 23 since March</p></li>
+            <li><div><b>HbA1c</b><span class="ok-t">In range</span></div><p class="big">5.2<small>%</small></p><div class="range" aria-hidden="true"><i style="--at:.75"></i></div><p class="note">Lab range 4.0 to 5.6 · unchanged</p></li>
+          </ul>
+        </figure>
+    </div>
+  </article>
+  <article class="feat-card" id="fp-4" aria-labelledby="fh-4">
+    <div class="feat-glow" aria-hidden="true"></div>
+    <ol class="feat-nav" aria-label="Features"><li><a href="#fp-1"><span>01</span><em>Wearables</em></a></li><li><a href="#fp-2"><span>02</span><em>Nutrition</em></a></li><li><a href="#fp-3"><span>03</span><em>Blood work</em></a></li><li><a href="#fp-4" aria-current="step"><span>04</span><em>Ask Xeyo</em></a></li></ol>
+    <div class="feat-panel">
+        <div class="feat-copy">
+          <p class="feat-k">04 · Ask Xeyo</p>
+          <h3 id="fh-4">An AI that knows your numbers</h3>
+          <p>Ask why you slept badly or what to eat tonight. It answers from your own data.</p>
+        </div>
+        <figure class="feat-shot board lg chat-shot" aria-label="Example conversation with Ask Xeyo">
+          <p class="board-head"><span>Ask Xeyo</span><span class="tag">Example</span></p>
+          <div class="chat">
+            <p class="msg me">Why do I feel so tired today?</p>
+            <p class="msg xeyo">You slept 6.2 hours, 1.6 hours under your normal, and your HRV is 14% below your 30-day average. You also ate about 900 kcal less than you burned yesterday. An easy day and an earlier night should help.</p>
+            <p class="msg me">What should I eat tonight?</p>
+            <p class="msg xeyo">You're at 52 g of protein today, well under your usual 95 g. Something like salmon with rice and greens would close most of that gap.</p>
+          </div>
+        </figure>
+    </div>
+  </article>
+</section>
+
+<!-- 4 · Price: one plan, what it includes, one action. -->
+<section class="price lit" id="price" aria-labelledby="price-title">
+  <div class="light" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="wrap narrow">
+    <div class="sec-head rise">
+      <p class="pre">One plan</p>
+      <h2 id="price-title" class="h2 price-h">Everything for <b>$5</b> a month</h2>
+    </div>
+    <div class="incl-glass lg lg-light rise">
+    <table class="incl">
+      <caption class="sr-only">What the $5 plan includes</caption>
+      <tbody>
+        <tr><th scope="row">Wearable data</th><td>WHOOP, Apple Watch and Fitbit</td></tr>
+        <tr><th scope="row">Nutrition</th><td>Meals by text, voice or photo</td></tr>
+        <tr><th scope="row">Blood work</th><td>Every marker with its range</td></tr>
+        <tr><th scope="row">Mood and body</th><td>Check-ins, weight and body fat</td></tr>
+        <tr><th scope="row">Ask Xeyo AI</th><td>Answers from your own data</td></tr>
+        <tr><th scope="row">Private</th><td>Only your account can read it</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="price-cta rise">
+      <a class="btn btn-dark" href="#checkout" data-buy id="checkout">Get Xeyo for $5 a month</a>
+      <p>About 17¢ a day. Cancel any time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · Answers, folded so the page stays short; all text is in the page for search and assistants. -->
+<section class="faq lit" id="faq" aria-labelledby="faq-title">
+  <div class="light" aria-hidden="true"><i></i><i></i></div>
+  <div class="wrap faq-grid">
+    <div class="faq-side">
+      <h2 id="faq-title" class="h2">Questions</h2>
+      <p>Something else? <a href="mailto:tobia@donadon.com">Email us</a>.</p>
+      <a class="btn btn-dark faq-cta" href="#checkout" data-buy>Get Xeyo for $5 a month</a>
+    </div>
+    <div class="faq-list lg lg-light">
+        <details class="qa" open>
+          <summary><h3>How is Xeyo different from the WHOOP or Apple Watch app?</h3><span class="qa-icon" aria-hidden="true"></span></summary>
+          <p>Those apps show what the device measures. Xeyo puts that next to your meals, mood, body measurements and blood work, explains each number against your own last 30 days in plain words, and lets you ask an AI about all of it in one place.</p>
+        </details>
+        <details class="qa">
+          <summary><h3>Does Xeyo work with Apple Watch, or do I need a WHOOP?</h3><span class="qa-icon" aria-hidden="true"></span></summary>
+          <p>Both work. WHOOP connects directly and syncs. Apple Watch data comes in from your Apple Health export with your whole history, and you can import again any time. Fitbit and Google Health exports work too.</p>
+        </details>
+        <details class="qa">
+          <summary><h3>How does nutrition tracking work?</h3><span class="qa-icon" aria-hidden="true"></span></summary>
+          <p>Describe a meal in a sentence, say it in a voice note or take a photo. Xeyo estimates the calories, protein, carbs and fat, and you can correct any value. Your day is shown against the calories your wearable says you burned.</p>
+        </details>
+        <details class="qa">
+          <summary><h3>What do I get for $5 a month?</h3><span class="qa-icon" aria-hidden="true"></span></summary>
+          <p>Everything: every wearable connection, nutrition logging, blood work, mood and body records, the daily read and Ask Xeyo, the built-in AI. There is one plan, and you can cancel any time.</p>
+        </details>
+        <details class="qa">
+          <summary><h3>Is my health data private?</h3><span class="qa-icon" aria-hidden="true"></span></summary>
+          <p>Your records belong to your account, and database rules stop any other account from reading them. Wearable connections are stored encrypted, and you can disconnect them at any time.</p>
+        </details>
+        <details class="qa">
+          <summary><h3>Is Xeyo a medical device?</h3><span class="qa-icon" aria-hidden="true"></span></summary>
+          <p>No. Xeyo organises and explains your own data. It does not diagnose or treat anything. Talk to a doctor about symptoms, or about results outside the lab&#x27;s range.</p>
+        </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="foot-card">
+    <div class="foot-glow" aria-hidden="true"></div>
+    <div class="foot-cta">
+      <p class="foot-h">Everything you measure in one place</p>
+      <a class="btn btn-light" href="#checkout" data-buy>Get Xeyo for $5 a month</a>
+    </div>
+    <nav class="foot-cols" aria-label="Footer">
+      <div><p class="foot-k">Product</p>
+        <ul><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#price">Price</a></li><li><a href="#faq">FAQ</a></li></ul></div>
+      <div><p class="foot-k">Account</p>
+        <ul><li><a href="https://app.xeyo.ai/sign-in">Sign in</a></li><li><a href="/privacy.html">Data-use notice</a></li><li><a href="mailto:tobia@donadon.com">Contact</a></li></ul></div>
+    </nav>
+    <p class="wordmark" aria-hidden="true">Xeyo</p>
+    <div class="foot-base">
+      <p>Xeyo is not a medical device and does not diagnose or treat anything.</p>
+      <p>© 2026 Xeyo</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/main.js" defer></script>
+</body>
+</html>

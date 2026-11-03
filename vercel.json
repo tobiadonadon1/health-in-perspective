@@ -3,7 +3,18 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/((?!assets/|images/|.*\\..*).*)", "destination": "/index.html" }],
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "www.xeyo.ai" }], "destination": "https://xeyo.ai/:path*", "permanent": true },
+    { "source": "/:slug(login|sign-in|signin|signup|sign-up|register|forgot-password|reset|onboarding|home|vitals|body|nutrition|journal|sleep|labs|integrations|profile)", "has": [{ "type": "host", "value": "xeyo.ai" }], "destination": "https://app.xeyo.ai/:slug", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/", "has": [{ "type": "host", "value": "xeyo.ai" }], "destination": "/site/index.html" },
+    { "source": "/whoop.html", "has": [{ "type": "host", "value": "xeyo.ai" }], "destination": "/app/whoop.html" },
+    { "source": "/images/:path*", "has": [{ "type": "host", "value": "xeyo.ai" }], "destination": "/app/images/:path*" },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "xeyo.ai" }], "destination": "/site/:path*" },
+    { "source": "/((?!assets/|images/|.*\\..*).*)", "destination": "/app/index.html" },
+    { "source": "/(.*)", "destination": "/app/$1" }
+  ],
   "headers": [
     { "source": "/(.*)", "headers": [
       { "key": "X-Content-Type-Options", "value": "nosniff" },
