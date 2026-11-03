@@ -17,4 +17,6 @@ const skip = new Set(['work', 'DIRECTION.md', 'CRITIQUE.md', '.DS_Store']);
 cpSync('landing', site, { recursive: true, filter: src => !skip.has(src.split('/').pop()) });
 
 cpSync(join(app, '404.html'), join(dist, '404.html'));
+// One data-use notice for both sites: the app's copy also serves xeyo.ai/privacy.html.
+cpSync(join(app, 'privacy.html'), join(site, 'privacy.html'));
 console.log('dist/app and dist/site ready');
