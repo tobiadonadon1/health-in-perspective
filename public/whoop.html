@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Xeyo: WHOOP integration screens</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+ body{margin:0;background:#ebe7e1;color:#141210;font:17px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+ main{max-width:1100px;margin:0 auto;padding:56px 24px 80px}
+ h1{margin:0;font-size:40px;font-weight:500;letter-spacing:-.03em}
+ .lede{margin:12px 0 0;color:#57524c;max-width:62ch}
+ figure{margin:48px 0 0}
+ figure img{display:block;width:100%;height:auto;border-radius:18px;box-shadow:0 0 0 1px rgb(20 18 16/.1),0 30px 60px -40px rgb(0 0 0/.5)}
+ h2{margin:0 0 6px;font-size:22px;font-weight:500}
+ figcaption{margin-top:14px;color:#57524c;max-width:70ch}
+ .scopes{margin:18px 0 0;padding-left:20px;color:#57524c}
+ a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+ <h1>Xeyo and WHOOP</h1>
+ <p class="lede">Xeyo (<a href="https://xeyo.ai">xeyo.ai</a>) is a web health dashboard that puts a member's WHOOP data next to their nutrition, mood, body measurements and blood work, and explains each reading against the member's own last 30 days. These are screens from the app with sample data.</p>
+ <ul class="scopes">
+  <li><b>read:recovery</b> and <b>read:cycles</b>: recovery, HRV, resting heart rate and strain on the dashboard, each against the member's own baseline.</li>
+  <li><b>read:sleep</b>: last night's sleep and stages on the Sleep page.</li>
+  <li><b>offline</b>: keeps the dashboard current without reconnecting. Members can disconnect at any time, which revokes the token.</li>
+ </ul>
+
+ <figure>
+  <h2>1. Connecting WHOOP</h2>
+  <img src="/images/whoop/integrations.webp" width="1600" height="600" alt="Xeyo's Integrations page with WHOOP connected, the last sync time, and Sync now and Disconnect buttons.">
+  <figcaption>Integrations: the member connects WHOOP through WHOOP's OAuth consent screen, then can sync or disconnect here. Disconnecting revokes Xeyo's access.</figcaption>
+ </figure>
+
+ <figure>
+  <h2>2. The dashboard</h2>
+  <img src="/images/whoop/dashboard.webp" width="1600" height="1000" alt="Xeyo dashboard with WHOOP recovery 64%, HRV 71 ms, resting heart rate 65 bpm, sleep 7.9 hours and strain 11.5, each next to its 30-day average.">
+  <figcaption>Home: WHOOP recovery, HRV, resting heart rate, sleep and strain, each next to the member's own 30-day average, plus the day's read.</figcaption>
+ </figure>
+
+ <figure>
+  <h2>3. Sleep</h2>
+  <img src="/images/whoop/sleep.webp" width="1600" height="1000" alt="Xeyo sleep page: 7.9 hours asleep from WHOOP with deep, REM and light sleep, sleep goals and the last 15 nights.">
+  <figcaption>Sleep: last night from WHOOP with sleep stages, goals and the last 15 nights.</figcaption>
+ </figure>
+</main>
+</body>
+</html>
