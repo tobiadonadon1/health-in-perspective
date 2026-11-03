@@ -119,7 +119,6 @@ h1{font-size:clamp(46px,6.2vw,92px);font-weight:400;line-height:.98;letter-spaci
 .cell-foot.split{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .meter{height:6px;margin:12px 0 4px;border-radius:3px;background:rgb(255 255 255 / .22);overflow:hidden}
 .meter i{display:block;height:100%;width:calc(var(--f)*100%);border-radius:3px;background:var(--white)}
-.scan{position:absolute;z-index:-1;left:0;right:0;top:0;height:40%;background:linear-gradient(to bottom,transparent,rgb(255 255 255 / .07) 85%,rgb(255 255 255 / .22) 99%,transparent);pointer-events:none;opacity:0}
 .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;letter-spacing:.02em;color:var(--white)}
 .tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px rgb(255 95 31 / .25)}
 .bars{display:flex;align-items:flex-end;gap:4px;height:30px;margin-top:6px}
@@ -299,7 +298,6 @@ h1{font-size:clamp(46px,6.2vw,92px);font-weight:400;line-height:.98;letter-spaci
  .js .subject{animation:settle 1.4s var(--ease) both}
  .js .lens{animation:float-in 1s var(--ease) .4s both}
  .reticle{animation:spin 90s linear infinite}
- .scan{animation:scan 7s cubic-bezier(.45,0,.25,1) 1.6s infinite}
  .light i{animation:drift 22s ease-in-out infinite alternate}
  .light i:nth-child(2){animation-duration:28s;animation-direction:alternate-reverse}
  .js .hero-copy > *{animation:float-in .9s var(--ease) both}
@@ -321,7 +319,6 @@ h1{font-size:clamp(46px,6.2vw,92px);font-weight:400;line-height:.98;letter-spaci
 @keyframes settle{from{opacity:0;transform:translateX(-50%) translateY(40px) scale(1.04)}to{opacity:1;transform:translateX(-50%)}}
 @keyframes float-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes scan{0%{transform:translateY(-100%);opacity:0}12%{opacity:1}70%{opacity:1}100%{transform:translateY(260%);opacity:0}}
 @keyframes drift{from{transform:translate3d(-30px,0,0) scale(1)}to{transform:translate3d(40px,-30px,0) scale(1.08)}}
 @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes breathe{from{opacity:.85;transform:scale(.98)}to{opacity:1;transform:scale(1.03)}}
