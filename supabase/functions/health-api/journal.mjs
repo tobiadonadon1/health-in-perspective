@@ -9,6 +9,7 @@ export function journalContext(rows,now=Date.now()){
   return {...mean,period_days:30,recent_7_day_mean:recent?.mean??null,recent_recorded_days:recent?.recorded_days??0,latest:{value:Number(group[0].value),observed_at:group[0].observed_at}};
  });
 }
+/** @param {any} payload @param {any} ctx */
 export async function handleJournal(payload,{client,userId,unseal,included=null,fetcher=fetch}){
  if(payload.action!=='journal-reflect'||!uuid(payload.entry_id))throw Error('Choose a saved journal entry.');
  const entry=checked(await client.from('journal_entries').select('id,content,logged_on').eq('user_id',userId).eq('id',payload.entry_id).maybeSingle());

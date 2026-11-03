@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Connecting Fitbit · Xeyo</title>
+<script>
+// Google returns here after a member signs in for Fitbit. The one-time code moves into the address fragment,
+// which never reaches a server log, and the app finishes the connection. A refusal goes back as a status.
+(function(){
+  var q=new URLSearchParams(location.search),code=q.get('code'),state=q.get('state');
+  if(code&&state)location.replace('/#'+new URLSearchParams({google_state:state,google_code:code}).toString());
+  else location.replace('/?connection='+(q.get('error')==='access_denied'?'google-denied':'google-failed'));
+})();
+</script>
+</head>
+<body><p>Connecting Fitbit…</p></body>
+</html>

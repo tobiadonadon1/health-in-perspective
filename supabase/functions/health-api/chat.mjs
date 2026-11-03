@@ -86,6 +86,7 @@ export async function askProvider({provider,model,key,messages,context,purpose='
  let answer=await complete({provider,model,key,system,messages},fetcher,{timeoutMessage:purpose==='journal'?'The AI response timed out. Your journal note is saved; try the reflection again.':'The AI response timed out. Your message was not saved; please try again.'});
  if(!answer)throw Error('Your provider returned no text. Try a different question or model.');return answer.slice(0,16000);
 }
+/** @param {any} payload @param {any} ctx */
 export async function handleChat(payload,{client,userId,seal,unseal,included=null}){
  const action=payload.action;
  if(action==='chat-connect'){const connection=await verifyConnection(payload);const r=await client.from('chat_connections').upsert({user_id:userId,provider:connection.provider,model:connection.model,encrypted_key:await seal({key:connection.key}),updated_at:new Date().toISOString()});if(r.error)throw Error('Could not save the AI connection.');return {connected:true,provider:connection.provider,model:connection.model};}
