@@ -1,11 +1,14 @@
 import {strFromU8} from 'fflate';
-import {createCollector,createAppleParser,parseFitbit,parseWhoop} from './wearable-import.js';
+import {createCollector,createAppleParser,parseFitbit,readWhoopUploads} from './wearable-import.js';
 import {zipEntries,readEntry} from './zip-reader.js';
-// Exports are streamed: an Apple Watch archive of several GB never has to fit in memory.
-const MAX_FITBIT_FILE=200*1024*1024,MAX_FITBIT_TOTAL=1536*1024*1024,MAX_ROWS=25000;
+// Exports are streamed: an Apple Watch archive of several GB never has to fit in memory. Every daily row is kept (whole
+// history, no cap): the page uploads them in batches of 2,000.
+const MAX_FITBIT_FILE=200*1024*1024,MAX_FITBIT_TOTAL=1536*1024*1024;
 async function streamFile(file,onChunk,onProgress){const reader=file.stream().getReader();let read=0;while(true){const {done,value}=await reader.read();if(done)break;read+=value.length;onChunk(value);onProgress(read/(file.size||1))}}
 self.onmessage=async({data})=>{try{
  const {files,provider,weightUnit}=data,collector=createCollector(),total=files.reduce((s,f)=>s+f.size,0)||1;let done=0,matched=0,last=0;
+ // WHOOP: the whole history, uncapped, with a preview (counts per file type and measurement, date range) for the upload page.
+ if(provider==='whoop'){self.postMessage(await readWhoopUploads(files,{onProgress:v=>{if(v-last>=.01||v===1){last=v;self.postMessage({progress:v})}}}));return}
  const progress=(file,fraction)=>{const value=Math.min(1,(done+file.size*fraction)/total);if(value-last>=.01||value===1){last=value;self.postMessage({progress:value})}};
  for(const file of files){
   const zip=file.name.toLowerCase().endsWith('.zip');
@@ -15,12 +18,6 @@ self.onmessage=async({data})=>{try{
    else if(/\.xml$/i.test(file.name))await streamFile(file,feed,f=>progress(file,f));
    else throw Error('Choose export.zip or export.xml from the iPhone Health app.');
    parser.push(decoder.decode());parser.end();matched++;
-  }else if(provider==='whoop'){
-   const entries=zip?(await zipEntries(file)).filter(e=>/\.csv$/i.test(e.name)&&!/__MACOSX/.test(e.name)):[{name:file.name,size:file.size}];
-   if(!entries.length)throw Error('This archive has no CSV files. Choose the zip WHOOP emailed you, or physiological_cycles.csv and sleeps.csv.');
-   let index=0;for(const entry of entries){if(entry.size>MAX_FITBIT_FILE)continue;let text;
-    if(zip){const parts=[];let length=0;await readEntry(file,entry,ch=>{parts.push(ch);length+=ch.length});const bytes=new Uint8Array(length);let o=0;for(const part of parts){bytes.set(part,o);o+=part.length}text=strFromU8(bytes)}else text=await file.text();
-    if(parseWhoop(text,entry.name,collector))matched++;progress(file,++index/entries.length);}
   }else{
    const entries=zip?(await zipEntries(file)).filter(e=>/\.(json|csv)$/i.test(e.name)&&!/__MACOSX/.test(e.name)):[{name:file.name,size:file.size}];
    let index=0,extracted=0;for(const entry of entries){
@@ -33,7 +30,6 @@ self.onmessage=async({data})=>{try{
   done+=file.size;progress(file,0);
  }
  const result=collector.result();
- if(!matched||!result.rows.length)throw Error(provider==='whoop'?'No WHOOP recovery or sleep data was found. Choose the zip WHOOP emailed you, or its physiological_cycles.csv and sleeps.csv files.':provider==='apple'?'No supported measurements from the last 90 days were found in this Apple Health export.':'No supported measurements from the last 90 days were found. Select a Fitbit/Google Health archive, or heart-rate, sleep, HRV, body-fat or weight JSON/CSV files.');
- if(result.rows.length>MAX_ROWS)result.rows=result.rows.sort((a,b)=>b.observed_at.localeCompare(a.observed_at)).slice(0,MAX_ROWS);
+ if(!matched||!result.rows.length)throw Error(provider==='apple'?'No supported measurements were found in this Apple Health export.':'No supported measurements were found. Select a Fitbit/Google Health archive, or heart-rate, sleep, HRV, body-fat or weight JSON/CSV files.');
  self.postMessage(result);
 }catch(e){self.postMessage({error:e?.message||'This export could not be read.'})}};

@@ -1,0 +1,3 @@
+﻿CYCLE TIMEZONE,Wake onset,Cycle start time,Sleep onset,Day Strain,Recovery Score %,Skin Temp (fahrenheit),Energy Burned (kcal),HRV Export Version,Heart rate variability (ms),Resting heart rate (bpm),Asleep duration (min),Cycle end time
+UTC-05:00,2026-10-30 06:30:00,2026-10-29 22:15:00,2026-10-29 22:15:00,10.2,58,93.2,2450,v2,62,57,402,2026-10-30 22:40:00
+"UTC-05:00","2026-10-31 06:45:00","2026-10-30 22:40:00","2026-10-30 22:40:00","13.5","77","92.5","2890","v2","70","54","431",""

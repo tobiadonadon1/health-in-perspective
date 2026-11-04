@@ -1,0 +1,20 @@
+Cycle start time,Cycle end time,Cycle timezone,Question text,Answered yes,Notes
+2026-10-31 23:05:00,2026-11-01 23:20:00,UTC+01:00,Had any alcoholic drinks?,false,
+2026-10-31 23:05:00,2026-11-01 23:20:00,UTC+01:00,Have any caffeine?,true,
+2026-10-31 23:05:00,2026-11-01 23:20:00,UTC+01:00,Read (non-screened device) while in bed?,false,
+2026-10-30 23:40:00,2026-10-31 23:05:00,UTC+01:00,Had any alcoholic drinks?,true,"Two glasses of wine, one ""small"" beer
+at dinner"
+2026-10-30 23:40:00,2026-10-31 23:05:00,UTC+01:00,Have any caffeine?,true,
+2026-10-30 23:40:00,2026-10-31 23:05:00,UTC+01:00,Read (non-screened device) while in bed?,false,
+2026-10-29 23:10:00,2026-10-30 23:40:00,UTC+01:00,Had any alcoholic drinks?,false,
+2026-10-29 23:10:00,2026-10-30 23:40:00,UTC+01:00,Have any caffeine?,true,
+2026-10-29 23:10:00,2026-10-30 23:40:00,UTC+01:00,Read (non-screened device) while in bed?,false,
+2026-10-28 22:55:00,2026-10-29 23:10:00,UTC+01:00,Had any alcoholic drinks?,false,
+2026-10-28 22:55:00,2026-10-29 23:10:00,UTC+01:00,Have any caffeine?,true,
+2026-10-28 22:55:00,2026-10-29 23:10:00,UTC+01:00,Read (non-screened device) while in bed?,true,
+2026-10-24 23:30:00,2026-10-28 22:55:00,UTC+02:00,Had any alcoholic drinks?,false,
+2026-10-24 23:30:00,2026-10-28 22:55:00,UTC+02:00,Have any caffeine?,true,
+2026-10-24 23:30:00,2026-10-28 22:55:00,UTC+02:00,Read (non-screened device) while in bed?,false,
+2026-10-23 23:45:00,2026-10-24 23:30:00,UTC+02:00,Had any alcoholic drinks?,true,
+2026-10-23 23:45:00,2026-10-24 23:30:00,UTC+02:00,Have any caffeine?,true,
+2026-10-23 23:45:00,2026-10-24 23:30:00,UTC+02:00,Read (non-screened device) while in bed?,false,

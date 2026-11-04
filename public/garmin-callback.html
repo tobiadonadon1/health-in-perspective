@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Connecting Garmin · Xeyo</title>
+<script>
+// Garmin Connect returns here after a member allows (or declines) sharing. The one-time code moves into the address
+// fragment, which never reaches a server log, and the app finishes the connection. Anything else goes back as a status:
+// a refusal (or a return without a code) is "denied", an error Garmin names is "failed".
+(function(){
+  var q=new URLSearchParams(location.search),code=q.get('code'),state=q.get('state'),error=q.get('error');
+  if(code&&state)location.replace('/#'+new URLSearchParams({garmin_state:state,garmin_code:code}).toString());
+  else location.replace('/?connection='+(error==='access_denied'||!error?'garmin-denied':'garmin-failed'));
+})();
+</script>
+</head>
+<body><p>Connecting Garmin…</p></body>
+</html>

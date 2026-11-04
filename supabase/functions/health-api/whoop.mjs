@@ -22,7 +22,7 @@ export async function collectWhoopData(accessToken,options={}){
  const [recovery,sleeps,cycles]=await Promise.all([fetchWhoopPages('recovery',accessToken,options),fetchWhoopPages('activity/sleep',accessToken,options),fetchWhoopCycles(accessToken,options)]);
  return {recovery,sleeps,cycles:cycles||[],cyclesAvailable:cycles!==null};
 }
-export function mapWhoopReadings(userId,recovery,sleeps,cycles=[]){
+export function mapWhoopReadings(userId,recovery,sleeps,cycles=[],{now=Date.now()}={}){
  const rows=[],sleepById=new Map(sleeps.map(v=>[String(v.id),v]));
  const add=(base,kind,unit,value)=>{if(Number.isFinite(value))rows.push({...base,kind,unit,value:Math.round(value*100)/100})};
  for(const v of recovery){
@@ -43,10 +43,14 @@ export function mapWhoopReadings(userId,recovery,sleeps,cycles=[]){
    if(needed){if(Number.isFinite(needed.need_from_sleep_debt_milli)&&needed.need_from_sleep_debt_milli>=0)add(base,'sleep_debt','min',needed.need_from_sleep_debt_milli/60000);const parts=['baseline_milli','need_from_sleep_debt_milli','need_from_recent_strain_milli','need_from_recent_nap_milli'].map(k=>needed[k]);if(parts.every(Number.isFinite)&&parts.reduce((a,b)=>a+b,0)>=0)add(base,'sleep_needed','hours',parts.reduce((a,b)=>a+b,0)/3600000);}
   }
  }
- // A cycle is WHOOP's physiological day. An ongoing cycle has end:null and is re-upserted on each sync.
+ // A cycle is WHOOP's physiological day, from one sleep onset to the next, so one cycle's end is the next one's start:
+ // stamped at a boundary, yesterday's total and today's would share last night's time and date. Each cycle is filed
+ // 12 hours after it starts (the day it covers, for any bedtime), or now while that is still ahead; an ongoing cycle
+ // (end:null) is re-upserted on each sync.
  for(const v of cycles||[]){
   if(v.score_state!=='SCORED'||!v.score||v.id==null)continue;
-  const observed_at=v.end||v.start;if(!Number.isFinite(Date.parse(observed_at)))continue;
+  const start=Date.parse(v.start);if(!Number.isFinite(start))continue;
+  const observed_at=new Date(Math.min(start+12*3600000,Date.parse(v.end)||now,now)).toISOString();
   const base={user_id:userId,source:'WHOOP',external_id:String(v.id),observed_at};
   add(base,'strain','',v.score.strain);
   if(Number.isFinite(v.score.kilojoule))add(base,'energy_burned','kcal',v.score.kilojoule/4.184);

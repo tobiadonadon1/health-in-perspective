@@ -1,0 +1,99 @@
+/* Xeyo Pro: the paywall gate (pro/gate.js), the upgrade dialog and the feature list shared with onboarding.
+   A locked card keeps its size: the example sits blurred in the flow and the veil is stacked on top of it in the same
+   grid cell, so the card is as tall as the larger of the two and nothing jumps when it unlocks. */
+.pro-gate{position:relative;display:grid;min-width:0;overflow:hidden;border-radius:inherit;isolation:isolate}
+.pro-gate>.pro-gate-preview,.pro-gate>.pro-gate-veil{grid-area:1/1;min-width:0}
+.pro-gate-preview{filter:blur(5px) saturate(.85);opacity:.85;pointer-events:none;user-select:none;-webkit-user-select:none}
+.pro-example{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;background:#ffffffd9;box-shadow:inset 0 0 0 1px var(--line);font-size:12px;color:var(--ink-2)}
+/* The veil only softens the example; the words sit on their own small glass plate, so they stay legible over any shape. */
+.pro-gate-veil{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:46px 16px 16px;border-radius:inherit;background:linear-gradient(180deg,#ffffff14 0%,#ffffff59 100%)}
+.pro-gate-panel{display:flex;flex-direction:column;align-items:flex-start;gap:8px;max-width:440px;padding:16px 18px 18px;border-radius:16px;background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-edge)}
+.pro-badge{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px;border-radius:999px;background:var(--ink);color:#fff;font-size:12px;font-weight:500}
+.pro-badge::before{content:'';width:8px;height:8px;border-radius:2px;background:var(--accent-fill)}
+.pro-gate-title{font-size:18px;font-weight:400;letter-spacing:-.02em;line-height:1.25}
+.pro-gate-value{max-width:46ch;font-size:13px;color:var(--ink-2)}
+.pro-gate-note{font-size:13px;font-weight:500;color:var(--ink)}
+.pro-gate-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:6px}
+.pro-gate-price{font-size:12px;color:var(--ink-3)}
+/* Compact: a strip inside a smaller host (the Ask Xeyo drawer, a tile). */
+.pro-gate.compact .pro-gate-veil{padding:40px 12px 12px}
+.pro-gate.compact .pro-gate-panel{gap:6px;padding:14px 16px}
+.pro-gate.compact .pro-gate-title{font-size:15px}
+.pro-gate.compact .pro-gate-value{font-size:12px}
+.pro-gate.compact .pro-example{top:10px;left:10px}
+/* Inside a dark focal card, the veil darkens instead. */
+.card.dark .pro-gate-veil,.card.night .pro-gate-veil{background:linear-gradient(180deg,#1b1b1b14 0%,#1b1b1b66 100%)}
+.card.dark .pro-gate-panel,.card.night .pro-gate-panel{background:var(--glass-dark),#232323d9;box-shadow:var(--glass-dark-edge)}
+.card.dark .pro-gate-value,.card.night .pro-gate-value,.card.dark .pro-gate-price,.card.night .pro-gate-price{color:var(--on-dark-2)}
+.card.dark .pro-gate-title,.card.night .pro-gate-title,.card.dark .pro-gate-note,.card.night .pro-gate-note{color:var(--on-dark)}
+.card.dark .pro-badge,.card.night .pro-badge{background:var(--on-dark);color:var(--ink)}
+.card.dark .pro-gate .btn,.card.night .pro-gate .btn{background:var(--on-dark);color:var(--ink)}
+.card.dark .pro-example,.card.night .pro-example{background:#ffffff1f;box-shadow:inset 0 0 0 1px var(--dark-line);color:var(--on-dark)}
+
+/* What Pro adds: a quiet list split by thin lines. The feature the member came from is marked. */
+.pro-features{display:flex;flex-direction:column;margin:18px 0 0;padding:0;list-style:none}
+.pro-features li{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:4px 16px;padding:12px 0;border-top:1px solid var(--line)}
+.pro-features li:last-child{border-bottom:1px solid var(--line)}
+.pro-features b{display:flex;align-items:baseline;gap:8px;font-size:14px;font-weight:500;line-height:1.35}
+.pro-features span{font-size:13px;color:var(--ink-2);line-height:1.5}
+.pro-features em{font-style:normal;color:var(--ink);font-weight:500;white-space:nowrap}
+.pro-features li.is-focus b::before{content:'';width:9px;height:9px;flex-shrink:0;border-radius:2px;background:var(--accent-fill);transform:translateY(-1px)}
+.pro-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 14px;margin-top:20px;padding-top:16px;border-top:1px solid var(--ink)}
+.pro-price .stat-caption{margin:0}
+.pro-dialog-note{margin-top:16px;padding:11px 14px;border-radius:var(--radius-control);background:var(--accent-soft);color:var(--accent-deep);font-size:13px}
+.pro-dialog-footer{border-top:0;padding-top:0}
+.pro-dialog-actions{display:inline-flex;flex-wrap:wrap;gap:10px;margin-left:auto}
+.pro-dialog-footer .btn{min-height:44px}
+
+@media(max-width:560px){
+ .pro-features li{grid-template-columns:minmax(0,1fr)}
+ .pro-gate-veil{padding:42px 10px 10px}
+ .pro-dialog-footer{flex-direction:column-reverse;align-items:stretch}
+ .pro-dialog-actions{flex-direction:column-reverse;margin-left:0}
+ .pro-dialog-footer .btn{width:100%}
+}
+/* Reduced transparency: an almost solid veil and a fainter example, so the words never sit on busy shapes. */
+@media(prefers-reduced-transparency:reduce){
+ .pro-gate-preview{opacity:.35}
+ .pro-gate-veil{background:#ffffffb3}
+ .pro-gate-panel{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none}
+ .card.dark .pro-gate-veil,.card.night .pro-gate-veil{background:#1b1b1bb3}
+ .card.dark .pro-gate-panel,.card.night .pro-gate-panel{background:var(--dark)}
+}
+@media(prefers-contrast:more){
+ .pro-gate-preview{opacity:.2}
+ .pro-gate-panel{background:var(--surface);box-shadow:inset 0 0 0 1px var(--ink)}
+ .pro-gate-value,.pro-gate-price{color:var(--ink)}
+ .card.dark .pro-gate-panel,.card.night .pro-gate-panel{background:var(--dark);box-shadow:inset 0 0 0 1px var(--on-dark)}
+}
+@media(forced-colors:active){
+ .pro-gate-preview{visibility:hidden}
+ .pro-gate-panel{background:Canvas;border:1px solid CanvasText}
+ .pro-badge::before,.pro-features li.is-focus b::before{background:Highlight}
+}
+
+/* One-time notices above the page (the WHOOP change, a lapsed Pro subscription). */
+.notice-banner{display:flex;gap:20px;align-items:center;justify-content:space-between;margin:0 0 var(--gap);padding:18px 22px;border-radius:22px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(80,40,20,.08);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.notice-banner h2{font-size:18px;font-weight:500;margin:0 0 4px}
+.notice-banner p{margin:0;max-width:78ch;color:var(--muted,#5b5b5b);font-size:14px;line-height:1.5}
+.notice-banner::before{content:'';flex:none;align-self:flex-start;width:10px;height:10px;margin-top:7px;border-radius:3px;background:var(--accent,#ff5a1f)}
+.notice-banner>div:first-of-type{flex:1}
+.notice-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;flex:none}
+@media (max-width:760px){.notice-banner{flex-direction:column;align-items:stretch;padding:16px}.notice-banner::before{display:none}}
+
+/* Pro insights under Home: the weekly report and the strongest patterns. */
+.home-pro{margin-top:var(--gap)}
+.insights-card{padding:22px 24px}
+.insights-card>p{max-width:72ch;line-height:1.55}
+.insight-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0 0;padding:0;list-style:none;counter-reset:act}
+.insight-actions li{counter-increment:act;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.05);line-height:1.45;font-size:14px}
+.insight-actions li::before{content:counter(act);display:inline-grid;place-items:center;width:22px;height:22px;margin-right:8px;border-radius:50%;background:#16120f;color:#fff;font-size:12px}
+.insight-actions li b{font-weight:500}
+.insight-actions li span,.insight-actions li p{display:block;margin:6px 0 0;color:var(--muted,#5b5b5b)}
+.insight-sub{font-size:14px;font-weight:500;margin:18px 0 6px}
+.insight-patterns{margin:0;padding-left:18px;line-height:1.5;font-size:14px}
+.insight-patterns li+li{margin-top:6px}
+.dialog .insight-actions{grid-template-columns:1fr}
+@media (max-width:900px){.insight-actions{grid-template-columns:1fr}}
+.metric-periods .is-locked{opacity:.85}
+.lock-icon{width:13px;height:13px;margin-right:4px;vertical-align:-2px;fill:none;stroke:currentColor;stroke-width:1.8}

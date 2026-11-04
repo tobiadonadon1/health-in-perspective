@@ -32,34 +32,51 @@ const iso=d=>d.toISOString().slice(0,10);
 const civil=d=>({date:{year:d.getUTCFullYear(),month:d.getUTCMonth()+1,day:d.getUTCDate()},time:{hours:0,minutes:0,seconds:0,nanos:0}});
 const dateString=d=>d&&d.year?`${d.year}-${String(d.month).padStart(2,'0')}-${String(d.day).padStart(2,'0')}`:'';
 
-// The docs show both snake_case and camelCase filter fields; try one, then the other.
+// The reference spells filter fields snake_case (weight.sample_time.physical_time) but shows one daily example in
+// camelCase (dailyHeartRateVariability.date). Only a 400 (the field name was refused) tries the other spelling: a 403
+// (scope not granted) or an outage would fail the same way twice.
 const camel=s=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase());
 async function call(fetcher,token,url,init={}){
  const r=await fetcher(url,{...init,headers:{Authorization:'Bearer '+token,Accept:'application/json',...(init.body?{'Content-Type':'application/json'}:{}),...(init.headers||{})},signal:AbortSignal.timeout(20000)});
  const j=await r.json().catch(()=>({}));
  if(r.status===401)throw Error('Google access expired or was revoked. Reconnect Fitbit.');
+ // A rate limit covers the whole account: stop, so the next sync retries everything, instead of saving a silent partial.
+ if(r.status===429)throw Object.assign(Error('Google Health is temporarily limiting requests. Your existing readings are unchanged; sync again later.'),{status:429});
  return {ok:r.ok,status:r.status,json:j};
 }
 async function listAll(fetcher,token,type,filterField,op,value,{pageSize,maxPages=8}={}){
  for(const field of [filterField,camel(filterField)]){
-  const points=[];let pageToken='',ok=true;
+  const points=[];let pageToken='',status=200;
   for(let page=0;page<maxPages;page++){
    const q=new URLSearchParams({filter:`${field} ${op} "${value}"`});if(pageSize)q.set('pageSize',String(pageSize));if(pageToken)q.set('pageToken',pageToken);
    const r=await call(fetcher,token,`${API}/dataTypes/${type}/dataPoints?${q}`);
-   if(!r.ok){ok=false;break}
+   if(!r.ok){status=r.status;break}
    points.push(...(r.json.dataPoints||[]));pageToken=r.json.nextPageToken||'';if(!pageToken)break;
   }
-  if(ok)return points;
+  if(status<300)return points;
+  if(status!==400)break;
  }
  return null; // this data type is unavailable for this member (missing scope or unsupported); others still sync
 }
+// dailyRollUp takes at most 90 days per request (civil, end exclusive) and 90 windows per page.
 async function dailyRollUp(fetcher,token,type,since,until){
- const r=await call(fetcher,token,`${API}/dataTypes/${type}/dataPoints:dailyRollUp`,{method:'POST',body:JSON.stringify({range:{start:civil(since),end:civil(until)},windowSizeDays:1,pageSize:90})});
- return r.ok?(r.json.rollupDataPoints||[]):null;
+ const points=[];
+ for(let start=since;start<until;){
+  const end=new Date(Math.min(until.getTime(),start.getTime()+90*86400000));let pageToken='';
+  for(let page=0;page<4;page++){
+   const r=await call(fetcher,token,`${API}/dataTypes/${type}/dataPoints:dailyRollUp`,{method:'POST',body:JSON.stringify({range:{start:civil(start),end:civil(end)},windowSizeDays:1,pageSize:90,...(pageToken?{pageToken}:{})})});
+   if(!r.ok)return null;
+   points.push(...(r.json.rollupDataPoints||[]));pageToken=r.json.nextPageToken||'';if(!pageToken)break;
+  }
+  start=end;
+ }
+ return points;
 }
 
 export async function collectGoogleHealth(token,{days=30,now=Date.now(),fetcher=fetch}={}){
- const since=new Date(now-days*86400000),until=new Date(now+86400000);since.setUTCHours(0,0,0,0);until.setUTCHours(0,0,0,0);
+ // Rollups are in the member's civil time, which Xeyo does not know. Ending two UTC days ahead keeps "today" in range
+ // for every time zone (east of UTC the local day starts before the UTC one); days that have not begun are dropped later.
+ const since=new Date(now-days*86400000),until=new Date(now+2*86400000);since.setUTCHours(0,0,0,0);until.setUTCHours(0,0,0,0);
  const day=iso(since),stamp=since.toISOString();
  const [sleep,rhr,hrv,spo2,resp,weight,bodyFat,steps,energy]=await Promise.all([
   listAll(fetcher,token,'sleep','sleep.interval.end_time','>=',stamp,{pageSize:25}),
@@ -74,10 +91,16 @@ export async function collectGoogleHealth(token,{days=30,now=Date.now(),fetcher=
  return {sleep,rhr,hrv,spo2,resp,weight,bodyFat,steps,energy};
 }
 
-export function mapGoogleHealth(userId,data){
+// Daily values are filed at noon UTC of their date, which is the right local day from UTC-11 to UTC+11. Today's value is
+// filed at the sync time instead while noon is still ahead: a future time would leave it out of trends and comparisons,
+// which only count readings up to now, while the tile already shows it.
+export function mapGoogleHealth(userId,data,{now=Date.now()}={}){
  const rows=[],num=v=>v===undefined||v===null||v===''?NaN:Number(v);
  const add=(kind,unit,value,observed_at,external_id)=>{if(Number.isFinite(value)&&value>=0&&Number.isFinite(Date.parse(observed_at)))rows.push({user_id:userId,source:'Fitbit',kind,unit,value:Math.round(value*100)/100,observed_at:new Date(observed_at).toISOString(),external_id})};
- const daily=(list,field,pick,kind,unit)=>{for(const p of list||[]){const v=p[field],date=dateString(v?.date);if(date)add(kind,unit,num(pick(v)),date+'T12:00:00Z','gh:'+kind+':'+date)}};
+ const noon=date=>new Date(Math.min(Date.parse(date+'T12:00:00Z'),now)).toISOString();
+ // A date that has not started anywhere yet (the earliest zone is UTC+14) cannot hold a reading.
+ const begun=date=>Date.parse(date+'T00:00:00Z')-14*3600000<=now;
+ const daily=(list,field,pick,kind,unit)=>{for(const p of list||[]){const v=p[field],date=dateString(v?.date);if(date&&begun(date))add(kind,unit,num(pick(v)),noon(date),'gh:'+kind+':'+date)}};
  for(const p of data.sleep||[]){
   const s=p.sleep,end=s?.interval?.endTime;if(!s||!end)continue;
   const id='gh:'+(p.name||end),nap=s.metadata?.nap===true||s.metadata?.mainSleep===false,asleep=num(s.summary?.minutesAsleep);
@@ -91,7 +114,9 @@ export function mapGoogleHealth(userId,data){
  daily(data.resp,'dailyRespiratoryRate',v=>v.breathsPerMinute,'respiratory_rate','breaths/min');
  for(const p of data.weight||[]){const w=p.weight,t=w?.sampleTime?.physicalTime;if(t)add('weight','kg',num(w.weightGrams)/1000,t,'gh:'+(p.name||t))}
  for(const p of data.bodyFat||[]){const b=p.bodyFat,t=b?.sampleTime?.physicalTime;if(t)add('body_fat','%',num(b.percentage),t,'gh:'+(p.name||t))}
+ // A rolled-up day of 0 is a day without the tracker (or one that has not synced yet), not a measured zero: shown as
+ // "0 steps today" it would replace yesterday's real count on Home and pull every average down.
  for(const [list,field,pick,kind,unit] of [[data.steps,'steps',v=>v.countSum,'steps',''],[data.energy,'activeEnergyBurned',v=>v.kcalSum,'active_energy','kcal']])
-  for(const p of list||[]){const date=dateString(p.civilStartTime?.date);if(date&&p[field])add(kind,unit,num(pick(p[field])),date+'T12:00:00Z','gh:'+kind+':'+date)}
+  for(const p of list||[]){const date=dateString(p.civilStartTime?.date),value=p[field]?num(pick(p[field])):NaN;if(date&&begun(date)&&value>0)add(kind,unit,value,noon(date),'gh:'+kind+':'+date)}
  return rows;
 }

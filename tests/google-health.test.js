@@ -88,3 +88,49 @@ test('the sync controller refreshes Fitbit as well as WHOOP', async () => {
  await c.run();
  assert.deepEqual(synced.sort(),['google_health','whoop']);
 });
+
+const dayOf=c=>`${c.date.year}-${String(c.date.month).padStart(2,'0')}-${String(c.date.day).padStart(2,'0')}`;
+const rollupBodies=calls=>calls.filter(c=>c.url.includes(':dailyRollUp')&&c.url.includes('/steps/')).map(c=>JSON.parse(c.init.body));
+
+test('steps and active calories cover today in every time zone, including just after midnight east of UTC', async () => {
+ // 23:30 UTC on 3 Nov is already 4 Nov in Rome: the exclusive civil end must be after 4 Nov.
+ const {fetcher,calls}=fakeGoogle();
+ await collectGoogleHealth('tok',{fetcher,now:Date.parse('2026-11-03T23:30:00Z')});
+ const [body]=rollupBodies(calls);
+ assert.equal(dayOf(body.range.end),'2026-11-05');
+ assert.equal(dayOf(body.range.start),'2026-10-04');
+});
+
+test('a long history is rolled up in ranges of at most 90 days, end to end', async () => {
+ const {fetcher,calls}=fakeGoogle();
+ await collectGoogleHealth('tok',{fetcher,days:200,now:Date.parse('2026-11-03T10:00:00Z')});
+ const bodies=rollupBodies(calls),span=b=>(Date.parse(dayOf(b.range.end))-Date.parse(dayOf(b.range.start)))/86400000;
+ assert.ok(bodies.length>=3);
+ assert.ok(bodies.every(b=>span(b)<=90&&b.pageSize<=90));
+ for(let i=1;i<bodies.length;i++)assert.equal(dayOf(bodies[i].range.start),dayOf(bodies[i-1].range.end));
+});
+
+test("today's daily values are filed at the sync time, not in the future; empty and not-yet-begun days are dropped", () => {
+ const now=Date.parse('2026-11-03T07:00:00Z');
+ const rows=mapGoogleHealth('u1',{
+  rhr:[{dailyRestingHeartRate:{date:d(2026,11,3),beatsPerMinute:'57'}},{dailyRestingHeartRate:{date:d(2026,11,2),beatsPerMinute:'59'}}],
+  steps:[{civilStartTime:{date:d(2026,11,2)},steps:{countSum:'9120'}},{civilStartTime:{date:d(2026,11,3)},steps:{countSum:'640'}},{civilStartTime:{date:d(2026,11,4)},steps:{countSum:'0'}},{civilStartTime:{date:d(2026,11,5)},steps:{countSum:'12'}}],
+  energy:[{civilStartTime:{date:d(2026,11,1)},activeEnergyBurned:{kcalSum:0}}]},{now});
+ const at=(k,day)=>rows.find(r=>r.kind===k&&r.external_id.endsWith(day))?.observed_at;
+ assert.equal(at('resting_hr','2026-11-03'),'2026-11-03T07:00:00.000Z');
+ assert.equal(at('resting_hr','2026-11-02'),'2026-11-02T12:00:00.000Z');
+ assert.ok(rows.every(r=>Date.parse(r.observed_at)<=now));
+ assert.deepEqual(rows.filter(r=>r.kind==='steps').map(r=>r.value),[9120,640]);
+ assert.equal(rows.filter(r=>r.kind==='active_energy').length,0);
+});
+
+test('only a refused filter field is retried in camelCase; a missing permission is asked once', async () => {
+ const {fetcher,calls}=fakeGoogle({missing:['weight']});
+ await collectGoogleHealth('tok',{fetcher});
+ assert.equal(calls.filter(c=>c.url.includes('/weight/')).length,1);
+});
+
+test('a Google rate limit stops the sync with a retry message instead of saving a silent partial', async () => {
+ const fetcher=async url=>String(url).includes('/body-fat/')?json({error:{code:429}},429):json({});
+ await assert.rejects(collectGoogleHealth('tok',{fetcher}),/temporarily limiting/);
+});

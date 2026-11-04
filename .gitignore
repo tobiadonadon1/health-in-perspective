@@ -15,3 +15,9 @@ landing/work/*
 !landing/work/build.py
 !landing/work/index.template.html
 !landing/work/og.html
+
+# Real WHOOP exports used for local testing: personal health data, never committed.
+tests/fixtures/whoop/real/
+
+# Review screenshots (large): kept locally, not committed.
+docs/screenshots/

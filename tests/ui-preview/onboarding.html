@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Onboarding preview (local harness)</title></head>
+<body><div id="app"></div><div id="harness-toast" role="status" style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:999px;background:#161616;color:#fff;font:13px 'DM Sans',sans-serif" hidden></div>
+<script type="module">
+// LOCAL UI HARNESS. The real onboarding module with fake dependencies; nothing reaches Supabase, Stripe or a wearable.
+// Query: step=wearables|connect|about|community|insight|pro_offer  wearables=whoop,garmin  seats=3 (left)  cap=10  mine=1
+// waitlisted=1  position=4  whoop=import|pro|waitlist  pro=1  garmin=0  fitbit=0  connected=garmin,google_health
+// insight=1  gender=woman  profile=1 (edit flow)  log=1
+import '../../src/ui/base.css';import '../../src/ui/card.css';import '../../src/ui/shell.css';import '../../src/ui/auth.css';import '../../src/ui/dialogs.css';import '../../src/ui/onboarding.css';import '../../src/ui/pro.css';
+import {openOnboarding,progressKey} from '../../src/profile/onboarding.js';
+import {brandOrb} from '../../src/brand.js';
+const q=new URLSearchParams(location.search),list=k=>(q.get(k)||'').split(',').filter(Boolean),userId='00000000-0000-4000-8000-0000000000aa';
+const mem=new Map(),storage={getItem:k=>mem.has(k)?mem.get(k):null,setItem:(k,v)=>mem.set(k,String(v)),removeItem:k=>mem.delete(k)};
+const step=q.get('step')||'wearables',wearables=list('wearables'),later=['insight','pro_offer'].includes(step);
+if(step!=='wearables'||wearables.length)storage.setItem(progressKey(userId),JSON.stringify({v:1,at:Date.now(),step,wearables:wearables.length?wearables:['whoop','garmin'],whoopChoice:q.get('whoop'),openAfter:list('after'),waitlistPosition:q.get('position')?Number(q.get('position')):null,saved:later,draft:{representation:q.get('rep')||'photo',gender:q.get('gender')||'woman',age:q.get('age')??'34',peer_opt_in:false}}));
+const cap=Number(q.get('cap')||10),left=q.has('seats')?Number(q.get('seats')):3;
+const toast=t=>{const el=document.querySelector('#harness-toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)};
+window.__events=[];
+const profile=q.get('profile')==='1'||later?{representation:'photo',gender:q.get('gender')||'woman',age:34,peer_opt_in:false,photo_record_id:null}:null;
+const finished=(title,meta)=>{document.querySelector('#app').innerHTML=`<main class="frame"><section class="card" style="max-width:560px;margin:40px auto"><div class="card-head"><span class="marker"></span><h2>${title}</h2></div><pre style="white-space:pre-wrap;font-size:12px">${JSON.stringify(meta,null,1)}</pre></section></main>`};
+openOnboarding({app:document.querySelector('#app'),profile,photos:[],orb:brandOrb,userId,storage,
+ save:async input=>{await new Promise(r=>setTimeout(r,250));return {...input,user_id:userId}},
+ done:async(saved,meta)=>finished('Workspace (harness)',{saved,meta}),signOut:async()=>finished('Signed out (harness)',{}),
+ api:async action=>{await new Promise(r=>setTimeout(r,300));if(action==='garmin-connect')return {url:'https://connect.garmin.com/oauth2Confirm?harness=1'};if(action==='google-health-connect')return {url:'https://accounts.google.com/o/oauth2/v2/auth?harness=1'};if(action==='whoop-connect')return {url:'https://api.prod.whoop.com/oauth/oauth2/auth?harness=1'};if(action==='whoop-waitlist-join')return {waitlisted:true,position:Number(q.get('position')||4)};throw Error('Unknown action '+action)},
+ capabilities:{garmin:q.get('garmin')!=='0',googleHealth:q.get('fitbit')!=='0'},connections:list('connected').map(provider=>({provider})),plan:{pro:q.get('pro')==='1'},
+ seats:q.get('seats')==='none'?null:{cap,taken:cap-left,left,mine:q.get('mine')==='1'},waitlisted:q.get('waitlisted')==='1',
+ firstInsight:q.get('insight')==='1'?{title:'Your HRV is 9 ms above your usual on nights you sleep 7 hours or more.',text:'Across your last 21 nights, the 12 nights over 7 hours averaged 61 ms; the shorter ones averaged 52 ms. Your own readings only.',metric:{value:'+9',unit:'ms',label:'HRV after 7+ hours of sleep'}}:null,
+ track:(event,props)=>{window.__events.push({event,...props});if(q.get('log')==='1')console.log(event,props)},
+ startCheckout:async source=>{toast('Harness: would open Stripe checkout ('+source+')')},openWhoopUpload:()=>toast('Harness: would open the WHOOP upload'),openImport:p=>toast('Harness: would open the '+p+' import'),savePreferences:async p=>{window.__prefs=p},
+ navigate:url=>toast('Harness: would go to '+new URL(url).origin)});
+</script></body></html>
