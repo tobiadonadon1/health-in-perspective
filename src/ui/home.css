@@ -95,29 +95,41 @@
 .weight-form>.btn{align-self:flex-end;margin-top:auto}
 /* The ruler, sized for a tile. */
 
-/* Your week: seven days of recovery, sleep, strain and mood; today's column in the accent. */
+/* Your week: seven days of recovery, sleep, strain and mood on a bordeaux-to-ember gradient; today is a glass column. */
+.card.week-card{background:radial-gradient(90% 120% at 100% 0%,#ff6a2a59 0%,#ff6a2a00 55%),radial-gradient(70% 90% at 0% 100%,#2a050c99 0%,#2a050c00 60%),linear-gradient(150deg,#3d0a14 0%,#6b1320 48%,#9c2419 100%);color:#fff;box-shadow:inset 0 1px 0 #ffffff2e,0 18px 40px -26px #6b1320d9}
 .week-card .card-head{gap:12px}
+.week-card .card-head h2{color:#fff}
+.week-card .text-button{color:#ffffffd9}
+.week-card .chip{background:#ffffff1f;color:#fff;box-shadow:inset 0 0 0 1px #ffffff33}
 .week-card .chip.is-cta{background:var(--accent-fill);color:#fff;box-shadow:none}
-.week-table{flex:1;width:100%;border-collapse:separate;border-spacing:4px 0;table-layout:fixed;margin:-2px -4px 0;width:calc(100% + 8px);font-variant-numeric:tabular-nums}
-.week-table th,.week-table td{padding:4px 6px;text-align:left;font-weight:400;vertical-align:middle}
-.week-table thead th,.week-table tr:first-child th{font-size:12px;color:var(--ink-3);white-space:nowrap}
-.week-table tr:first-child th small{margin-left:4px;color:var(--ink-3)}
+.week-table{width:100%;border-collapse:separate;border-spacing:4px 0;table-layout:fixed;margin:0;font-variant-numeric:tabular-nums}
+.week-table th,.week-table td{padding:3px 7px;text-align:left;font-weight:400;vertical-align:middle}
+.week-table thead th,.week-table tr:first-child th{font-size:12px;color:#ffffffa6;white-space:nowrap}
+.week-table tr:first-child th small{margin-left:4px;color:#ffffffa6}
 .week-table tr:first-child th:first-child{width:22%}
-.week-table th[scope=row]{white-space:nowrap}
-.week-signal{font-size:13px;color:var(--ink);text-align:left}
-.week-signal small{font-size:12px;color:var(--ink-3)}
-.week-signal:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-strong)}
-.week-table td{font-size:13px;color:var(--ink)}
+.week-table th[scope=row]{white-space:nowrap;padding-left:0}
+.week-signal{font-size:13px;color:#fff;text-align:left}
+.week-signal small{font-size:12px;color:#ffffff99}
+.week-signal:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:#ffffff66}
+.week-table td{font-size:13px;color:#fff}
 .week-table td b{display:block;font-weight:400}
-.week-table td i{display:block;height:3px;margin-top:4px;border-radius:999px;background:var(--line-strong)}
-.week-table .is-today{background:var(--accent-soft)}
-.week-table tr:first-child .is-today{border-radius:10px 10px 0 0;color:var(--accent-deep);font-weight:500}
-.week-table tr:last-child .is-today{border-radius:0 0 10px 10px}
-.week-table td.is-today i{background:var(--accent)}
-.week-none{color:var(--ink-3)}
-.week-mood{font-size:12px;color:var(--ink-2)}
+.week-table td i{display:block;max-width:100%;height:3px;margin-top:5px;border-radius:999px;background:#ffffff3d}
+.week-table .is-today{background:#ffffff21;box-shadow:inset 1px 0 0 #ffffff2e,inset -1px 0 0 #ffffff2e}
+.week-table tr:first-child .is-today{border-radius:12px 12px 0 0;color:#fff;font-weight:600;box-shadow:inset 1px 0 0 #ffffff2e,inset -1px 0 0 #ffffff2e,inset 0 1px 0 #ffffff40}
+.week-table tr:last-child .is-today{border-radius:0 0 12px 12px;box-shadow:inset 1px 0 0 #ffffff2e,inset -1px 0 0 #ffffff2e,inset 0 -1px 0 #ffffff2e}
+.week-table td.is-today i{background:#ffb27a}
+.week-none{color:#ffffff59}
+.week-mood{font-size:12px;color:#ffffffcc}
 .week-add{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent-fill);color:#fff}
 .week-add svg{width:13px;height:13px}
+.week-sums{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;margin:auto 0 0;padding:8px 0 0;list-style:none;border-top:1px solid #ffffff26}
+.week-sums li{display:flex;align-items:baseline;gap:6px;min-width:0;white-space:nowrap;overflow:hidden}
+.week-sums span{font-size:12px;color:#ffffffa6}
+.week-sums b{font-size:16px;font-weight:300;letter-spacing:-.03em;color:#fff;font-variant-numeric:tabular-nums}
+.week-sums b small{margin-left:2px;font-size:11px;color:#ffffffa6}
+.week-sums em{font-style:normal;font-size:11px;color:#ffffffbf;white-space:nowrap}
+.week-sums em.up{color:#ffc9a0}
+@media(forced-colors:active){.card.week-card{background:Canvas;color:CanvasText;border:1px solid CanvasText}.week-table .is-today{outline:1px solid Highlight}}
 
 /* Signal chooser dialog. */
 .widget-categories{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 16px}
@@ -125,8 +137,9 @@
 .widget-categories button[aria-pressed=true]{background:var(--ink);color:#fff}
 .widget-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
 .widget-choice{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:var(--radius-row);background:var(--well);text-align:left;transition:background .15s}
-.widget-choice:hover:not(:disabled){background:#ebebe8}
-.widget-choice:disabled{opacity:1;cursor:default;background:var(--accent-soft)}
+.widget-choice:hover{background:#ebebe8}
+.widget-choice.is-added{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.widget-choice.is-added:hover{background:#ffe3d3}
 .widget-choice.no-data{opacity:.75}
 .widget-choice-head{display:flex;align-items:center;gap:8px;font-size:13px}
 .widget-choice-head>span:not(.metric-icon){flex:1}
@@ -182,7 +195,7 @@
  .home-grid .card{min-height:0}
  .home-grid .tile .mini-chart{min-height:90px}
  .home-grid .month-card{min-height:440px}
- .week-table{border-spacing:2px 0;margin:0 -2px;width:calc(100% + 4px)}
+ .week-table{border-spacing:2px 0}
  .week-table th,.week-table td{padding:4px 3px}
  .week-table tr:first-child th small{display:none}
  .week-table tr:first-child th:first-child{width:27%}
@@ -201,3 +214,14 @@
 .start-steps .is-done span{text-decoration:line-through;text-decoration-color:#ffffff59}
 .start-steps .is-done i{background:#ffffff26;box-shadow:none;color:var(--on-dark)}
 .start-sample{align-self:flex-start;margin-top:auto;padding-top:6px;color:var(--on-dark-2);font-size:12px}
+
+/* Above the tiles: Edit Home, and the editing controls while editing. */
+.home-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;margin:0 0 12px}
+.home-bar-note{margin:0;font-size:14px;color:var(--ink)}
+.home-bar-note span{color:var(--ink-3)}
+.home-bar .btn svg{width:14px;height:14px;margin-right:6px;vertical-align:-2px}
+.home-bar.is-editing{padding:10px 10px 10px 18px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 10px 30px -20px #ff5a1f99}
+.home-bar-actions{display:inline-flex;flex-wrap:wrap;gap:8px}
+@media(max-width:640px){.home-bar.is-editing{border-radius:20px;padding:12px}.home-bar-actions{width:100%}.home-bar-actions .btn{flex:1}}
+/* Narrow screens: the week card grows with its content, so each average gets two lines instead of being cut. */
+@media(max-width:900px){.week-sums li{flex-wrap:wrap;gap:0 5px;white-space:normal;overflow:visible}.week-sums em{flex-basis:100%}}

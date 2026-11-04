@@ -53,7 +53,7 @@ export function upgradeDialog({feature,seats=null,plan={pro:false}}={}){
  const seatsFull=seats&&!seats.mine&&Number(seats.left)<=0;
  const rows=ORDER.map(id=>`<li${id===feature?' class="is-focus"':''}><b>${esc(FEATURES[id].title)}</b><span>${esc(FEATURES[id].value)}${id==='whoop_live'&&seatLine(seats)?` <em class="pro-seat-note">${esc(seatLine(seats))}.</em>`:''}</span></li>`).join('');
  if(plan?.pro)return `<div class="dialog-kicker"><span class="marker" aria-hidden="true"></span>Xeyo Pro</div><h2 id="dialog-title">You already have Xeyo Pro.</h2><p>${f?`${esc(f.title)} is included in your plan.`:'Everything below is included in your plan.'}${feature==='whoop_live'&&seatsFull?' Live WHOOP seats are full right now; join the waitlist and we will connect you when one opens.':''}</p><ul class="pro-features">${rows}</ul><div class="dialog-footer pro-dialog-footer"><button type="button" class="btn light" data-action="close">Close</button>${feature==='whoop_live'&&seatsFull?'<button type="button" class="btn" data-action="whoop-waitlist">Join the waitlist</button>':'<button type="button" class="btn light" data-action="billing-portal">Manage billing</button>'}</div>`;
- return `<div class="dialog-kicker"><span class="marker" aria-hidden="true"></span>Xeyo Pro</div><h2 id="dialog-title">${f?esc(f.title)+' is part of Xeyo Pro.':'More from the data you already have.'}</h2>${f?`<p>${esc(f.value)}</p>`:'<p>Free keeps your last 30 days and every manual entry. Pro adds:</p>'}<ul class="pro-features">${rows}</ul>${feature==='whoop_live'&&seatsFull?'<p class="pro-dialog-note">Live WHOOP seats are full. You can still buy Pro for everything else, and join the waitlist for a seat.</p>':''}<div class="pro-price"><span class="stat"><b>€5</b><small>/month</small></span><span class="stat-caption">Cancel anytime.</span></div><div class="dialog-footer pro-dialog-footer"><button type="button" class="btn light" data-action="close">Not now</button><span class="pro-dialog-actions">${feature==='whoop_live'&&seatsFull?'<button type="button" class="btn light" data-action="whoop-waitlist">Join the waitlist</button>':''}<button type="button" class="btn" data-action="checkout" data-feature="${esc(known(feature)?feature:'')}">Upgrade · ${PRICE}</button></span></div>`;
+ return `<div class="dialog-kicker"><span class="marker" aria-hidden="true"></span>Xeyo Pro</div><h2 id="dialog-title">${f?esc(f.title)+' is part of Xeyo Pro.':'More from the data you already have.'}</h2><p>${f?'Tap a tile to see what else Pro adds.':'Free keeps your last 30 days and every manual entry. Tap a tile to see what Pro adds.'}</p>${proShowcase({seats,focus:feature})}${feature==='whoop_live'&&seatsFull?'<p class="pro-dialog-note">Live WHOOP seats are full. You can still buy Pro for everything else, and join the waitlist for a seat.</p>':''}<div class="dialog-footer pro-dialog-footer"><button type="button" class="btn light" data-action="close">Not now</button><span class="pro-dialog-actions">${feature==='whoop_live'&&seatsFull?'<button type="button" class="btn light" data-action="whoop-waitlist">Join the waitlist</button>':''}<button type="button" class="btn" data-action="checkout" data-feature="${esc(known(feature)?feature:'')}">Upgrade · ${PRICE}</button></span></div>`;
 }
 
 // The visible offer: a card (not a pill) where a Free member meets a limit, e.g. under a metric's chart or in the
@@ -94,6 +94,43 @@ export function proCard({feature='',title,body,points,status=null,now=Date.now()
  const ids=(points||[feature,'full_history','smart_ai','weekly_report','whoop_live']).filter((id,i,a)=>TILES[id]&&a.indexOf(id)===i).slice(0,4);
  const insight=count?`<p class="pro-insight"><b>${count.toLocaleString('en-GB')}</b> of your readings from before the last 30 days are saved and waiting. Pro shows them again.</p>`:'';
  const tiles=ids.map(id=>`<li class="pro-tile${id===feature?' is-focus':''}">${icon(id)}<b>${esc(TILES[id][0])}</b><span>${esc(TILES[id][1])}</span></li>`).join('');
- return `<section class="pro-card" data-feature="${esc(feature)}" aria-label="Xeyo Pro"><div class="pro-card-copy"><span class="pro-badge">Xeyo Pro</span><h3 class="pro-card-title">${esc(title||f?.title||'Get more from your data')}</h3><p class="pro-card-body">${esc(body||f?.value||'')}</p>${insight}</div>${historyStrip(hidden,now)}<ul class="pro-tiles">${tiles}</ul>${aiMeter(status?.usage?.ai)}<div class="pro-card-cta"><button type="button" class="btn pro-card-button" data-action="upgrade" data-feature="${esc(feature)}">Upgrade to Pro · ${PRICE}</button><span class="pro-gate-price">Cancel anytime. Your data stays yours.</span></div></section>`;
+ return `<section class="pro-card pro-live" data-feature="${esc(feature)}" aria-label="Xeyo Pro">${proFluid()}<div class="pro-card-copy"><span class="pro-badge">Xeyo Pro</span><h3 class="pro-card-title">${esc(title||f?.title||'Get more from your data')}</h3><p class="pro-card-body">${esc(body||f?.value||'')}</p>${insight}</div>${historyStrip(hidden,now)}<ul class="pro-tiles">${tiles}</ul>${aiMeter(status?.usage?.ai)}<div class="pro-card-cta"><button type="button" class="btn pro-card-button" data-action="upgrade" data-feature="${esc(feature)}">Upgrade to Pro · ${PRICE}</button><span class="pro-gate-price">Cancel anytime. Your data stays yours.</span></div></section>`;
+}
+
+// The liquid glass shared by every Pro surface: four soft orange clouds drifting under a glass rim, plus a light that
+// follows the pointer. Pure decoration (aria-hidden); CSS stops the drift under reduced motion.
+export const proFluid=()=>'<span class="pro-fluid" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
+export const proIcon=icon;
+const PICKS=['full_history','smart_ai','weekly_report','correlations','whoop_live','csv_export'];
+const detailHTML=(id,seats)=>{const f=FEATURES[id],seat=id==='whoop_live'&&seatLine(seats)?` <em>${esc(seatLine(seats))}.</em>`:'';return `${icon(id)}<span class="pro-detail-copy"><b>${esc(f.title)}</b><span>${esc(f.value)}${seat}</span></span>`};
+// What Pro adds, as six tiles under one orange glass card. The glass shows the price and, in full, the tile that is
+// picked; tiles cycle on their own until the member touches one (enhancePro below).
+export function proShowcase({seats=null,focus=''}={}){
+ const first=PICKS.includes(focus)?focus:PICKS[0];
+ const picks=PICKS.map(id=>`<li><button type="button" class="pro-pick" data-pro-pick="${id}" data-title="${esc(FEATURES[id].title)}" data-value="${esc(FEATURES[id].value)}${id==='whoop_live'&&seatLine(seats)?` ${esc(seatLine(seats))}.`:''}" aria-pressed="${id===first}">${icon(id)}<b>${esc(TILES[id][0])}</b><span>${esc(TILES[id][1])}</span></button></li>`).join('');
+ return `<div class="pro-showcase"><section class="pro-glass pro-live" aria-label="Xeyo Pro, €5 a month">${proFluid()}<div class="pro-glass-top"><span class="pro-badge">Xeyo Pro</span><span class="pro-glass-note">Cancel anytime</span></div><div class="pro-glass-price"><b>€5</b><small>/month</small></div><div class="pro-detail" aria-live="off">${detailHTML(first,seats)}</div></section><ul class="pro-picks" aria-label="What Pro adds">${picks}</ul></div>`;
+}
+// One set of document listeners for every Pro surface, installed once: tile picks, the pointer light, the slow cycle.
+let enhanced=false;
+export function enhancePro(doc=globalThis.document){
+ if(enhanced||!doc?.addEventListener)return;enhanced=true;
+ const show=(button,user)=>{
+  const box=button.closest('.pro-showcase'),detail=box?.querySelector('.pro-detail');if(!detail)return;
+  box.querySelectorAll('[data-pro-pick]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+  if(user){box.dataset.touched='1';detail.setAttribute('aria-live','polite')}
+  detail.innerHTML=`${icon(button.dataset.proPick)}<span class="pro-detail-copy"><b>${esc(button.dataset.title)}</b><span>${esc(button.dataset.value)}</span></span>`;
+  detail.classList.remove('is-new');void detail.offsetWidth;detail.classList.add('is-new');
+ };
+ doc.addEventListener('click',e=>{const b=e.target.closest?.('[data-pro-pick]');if(b)show(b,true)});
+ doc.addEventListener('pointermove',e=>{const el=e.target.closest?.('.pro-live');if(!el)return;const r=el.getBoundingClientRect();el.style.setProperty('--px',`${Math.round(e.clientX-r.left)}px`);el.style.setProperty('--py',`${Math.round(e.clientY-r.top)}px`)},{passive:true});
+ const still=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+ setInterval(()=>{
+  if(doc.hidden||still?.matches)return;
+  doc.querySelectorAll('.pro-showcase:not([data-touched])').forEach(box=>{
+   if(box.matches(':hover,:focus-within'))return;
+   const all=[...box.querySelectorAll('[data-pro-pick]')],at=all.findIndex(b=>b.getAttribute('aria-pressed')==='true');
+   if(all.length)show(all[(at+1)%all.length],false);
+  });
+ },5000);
 }
 export {upgradeButton};

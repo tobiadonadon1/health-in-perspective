@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FEATURES,proGate,lockedFrom,quotaNote,upgradeDialog,seatLine,proCard,historyStrip} from '../src/pro/gate.js';
+import {FEATURES,proGate,lockedFrom,quotaNote,upgradeDialog,seatLine,proCard,historyStrip,proShowcase} from '../src/pro/gate.js';
 import {createTracker,sanitizeProps} from '../src/analytics.js';
 
 const preview='<ul class="ex"><li>Late workout → HRV <b>−8 ms</b></li><li><button>Open</button></li></ul>';
@@ -87,4 +87,13 @@ test('Pro card: the member’s hidden history as a count and a timeline, four ti
  assert.ok(!proCard({status:{usage:{ai:{tier:'pro',percent:10}}}}).includes('pro-ai'),'Pro members never see the Free meter');
  assert.match(historyStrip({readings:5,since:'2026-09-06'},now),/pro-history-free" style="flex-basis:50%/,'two months of data: the 30 lit days are half the bar');
  assert.match(historyStrip(null,now),/pro-history-free" style="flex-basis:8%/,'no data yet: a year, with 30 days lit');
+});
+
+test('Pro showcase: moving glass with the price, six tiles, the focused feature first and in full',()=>{
+ const html=proShowcase({focus:'correlations',seats:{cap:10,left:3}});
+ assert.match(html,/class="pro-glass pro-live"/);assert.match(html,/class="pro-fluid" aria-hidden="true"/);assert.match(html,/€5<\/b><small>\/month/);
+ assert.equal((html.match(/data-pro-pick=/g)||[]).length,6);
+ assert.match(html,/data-pro-pick="correlations"[^>]*aria-pressed="true"/);assert.match(html,/<b>Correlations across wearables<\/b>/);
+ assert.match(html,/3 of 10 live seats left/);assert.ok(!html.includes('$'));
+ assert.match(proCard({feature:'full_history'}),/class="pro-card pro-live"/);
 });

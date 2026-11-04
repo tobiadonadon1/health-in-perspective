@@ -56,13 +56,13 @@ test('a failed workspace transition does not repeat a confirmed save',async()=>{
 });
 
 // The rebuilt flow: pure step logic, progress that survives an OAuth round trip, and funnel tracking.
-import {onboardingSteps,toggleWearable,reduceOnboarding,readProgress,writeProgress,progressKey,resumeStep,connectItems,connectHTML,insightHTML,createOnboardingFlow,openAfterList} from '../src/profile/onboarding.js';
+import {onboardingSteps,toggleWearable,toggleFocus,reduceOnboarding,readProgress,writeProgress,progressKey,resumeStep,connectItems,connectHTML,insightHTML,createOnboardingFlow,openAfterList} from '../src/profile/onboarding.js';
 const memory=()=>{const m=new Map();return {m,getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)}};
 const uid='10000000-0000-4000-8000-0000000000bb';
 
 test('steps: one question per screen, Pro members skip the offer, editing a profile is the short flow',()=>{
- assert.deepEqual(onboardingSteps({wearables:['whoop']}),['wearables','connect','about','community','insight','pro_offer']);
- assert.deepEqual(onboardingSteps({wearables:['none'],plan:{pro:true}}),['wearables','connect','about','community','insight']);
+ assert.deepEqual(onboardingSteps({wearables:['whoop']}),['wearables','focus','connect','about','community','insight','pro_offer']);
+ assert.deepEqual(onboardingSteps({wearables:['none'],plan:{pro:true}}),['wearables','focus','connect','about','community','insight']);
  assert.deepEqual(onboardingSteps({flow:'profile'}),['about','community']);
 });
 test('wearable choice: None is exclusive and the order follows the list',()=>{
@@ -72,7 +72,7 @@ test('wearable choice: None is exclusive and the order follows the list',()=>{
 });
 test('reducer moves through the steps and keeps choices',()=>{
  const steps=onboardingSteps({});let s={step:'wearables',wearables:[],whoopChoice:null,openAfter:[],draft:{}};
- s=reduceOnboarding(s,{type:'toggle_wearable',id:'whoop',steps});s=reduceOnboarding(s,{type:'next',steps});assert.equal(s.step,'connect');
+ s=reduceOnboarding(s,{type:'toggle_wearable',id:'whoop',steps});s=reduceOnboarding(s,{type:'next',steps});assert.equal(s.step,'focus');s=reduceOnboarding(s,{type:'next',steps});assert.equal(s.step,'connect');
  s=reduceOnboarding(s,{type:'whoop',choice:'import',steps});s=reduceOnboarding(s,{type:'whoop',choice:'bogus',steps});assert.equal(s.whoopChoice,'import');
  s=reduceOnboarding(s,{type:'open_after',id:'apple',on:true,steps});assert.deepEqual(s.openAfter,['apple']);
  s=reduceOnboarding(s,{type:'back',steps});s=reduceOnboarding(s,{type:'back',steps});assert.equal(s.step,'wearables');
@@ -123,9 +123,9 @@ test('insight: real insight escaped; without one, no invented numbers',()=>{
 test('tracking: viewed once per step, completed on moving on, OAuth is not a drop, pagehide is',()=>{
  const storage=memory(),events=[];const flow=createOnboardingFlow({userId:uid,storage,track:(e,p)=>events.push([e,p.step,p.via||p.reason||''])});
  assert.equal(flow.mode,'full');assert.equal(flow.state.step,'wearables');
- flow.view();flow.view();flow.dispatch({type:'toggle_wearable',id:'garmin'});flow.next();flow.view();
+ flow.view();flow.view();flow.dispatch({type:'toggle_wearable',id:'garmin'});flow.next();flow.next();flow.view();
  flow.leave({via:'oauth',provider:'garmin'});assert.equal(flow.drop('pagehide'),false);
- assert.deepEqual(events,[['onboarding_step_viewed','wearables',''],['onboarding_step_completed','wearables',''],['onboarding_step_viewed','connect',''],['onboarding_step_completed','connect','oauth']]);
+ assert.deepEqual(events,[['onboarding_step_viewed','wearables',''],['onboarding_step_completed','wearables',''],['onboarding_step_completed','focus',''],['onboarding_step_viewed','connect',''],['onboarding_step_completed','connect','oauth']]);
  assert.equal(readProgress(storage,uid).step,'connect');
  // Back from Garmin: the same member resumes at connect with their choice.
  const again=[],resumed=createOnboardingFlow({userId:uid,storage,track:(e,p)=>again.push([e,p.step,p.reason||''])});
@@ -149,4 +149,14 @@ test('editing an existing profile is not onboarding: short flow, no funnel event
  const storage=memory(),events=[];const flow=createOnboardingFlow({userId:uid,storage,profile:{representation:'photo',gender:'woman',age:29},track:e=>events.push(e)});
  assert.equal(flow.mode,'profile');assert.equal(flow.state.step,'about');assert.equal(flow.state.draft.age,'29');
  flow.view();flow.next();flow.drop('exit');assert.deepEqual(events,[]);assert.equal(storage.m.size,0);
+});
+
+test('what to follow: up to six signals in the order picked, unknown ids ignored, kept across a reload',()=>{
+ let f=toggleFocus([],'hrv');f=toggleFocus(f,'sleep');assert.deepEqual(f,['hrv','sleep']);
+ assert.deepEqual(toggleFocus(f,'hrv'),['sleep']);assert.deepEqual(toggleFocus(f,'pebble'),f);
+ const full=['recovery','hrv','resting_hr','sleep','strain','heart_rate'];assert.deepEqual(toggleFocus(full,'steps'),full);
+ const storage=memory();const flow=createOnboardingFlow({userId:uid,storage});
+ assert.deepEqual(flow.state.focus,full);flow.dispatch({type:'toggle_focus',id:'strain'});flow.dispatch({type:'toggle_focus',id:'spo2'});
+ assert.deepEqual(createOnboardingFlow({userId:uid,storage}).state.focus,['recovery','hrv','resting_hr','sleep','heart_rate','spo2']);
+ assert.equal(createOnboardingFlow({userId:uid,storage}).state.draft.representation,'digital');
 });

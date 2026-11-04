@@ -5,6 +5,9 @@
 /* Progress: six steps on the glass panel, and a thin black meter beside the step count. */
 .onboard-progress.steps-6 li,.onboard-progress.steps-5 li{height:36px}
 .onboard-progress.steps-6 b,.onboard-progress.steps-5 b{width:28px;height:28px}
+.onboard-progress.steps-7{gap:6px}
+.onboard-progress.steps-7 li{height:34px}
+.onboard-progress.steps-7 b{width:26px;height:26px}
 .onboard-progress span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .onboard-meter{flex:1;max-width:180px;height:2px;margin-left:6px;border-radius:2px;background:var(--line-strong);overflow:hidden}
 .onboard-meter i{display:block;height:100%;background:var(--ink);transition:width .3s var(--ease)}
@@ -12,7 +15,8 @@
 .onboarding .onboard-actions .btn{min-height:44px}
 .onboarding .onboard-actions>.onboard-pair{display:inline-flex;flex:0 0 auto;flex-wrap:wrap;gap:10px;font-size:13px}
 .onboard-legend{margin-bottom:12px;padding:0;font-size:13px;color:var(--ink-2)}
-.step-about .representation-options{margin-top:24px}
+.step-about .representation-options{margin-top:24px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.step-about .representation-art{height:150px}
 .age-note{margin-top:-6px}
 
 /* Shared tick in the corner of a selectable tile. */
@@ -21,15 +25,35 @@
 .wearable-option:has(input:checked) .choice-check::after,.choice-card:has(input:checked) .choice-check::after{content:'';position:absolute;left:8px;top:5px;width:5px;height:9px;border:solid #fff;border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
 
 /* Step 1: which wearables. Plain names, no logos; one line on how each one gets into Xeyo. */
-.wearable-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0;padding:0;border:0}
-.wearable-option{position:relative;display:flex;min-height:92px;padding:16px 44px 16px 16px;border-radius:16px;background:var(--well);cursor:pointer;transition:background .15s,box-shadow .15s}
+.wearable-options{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:1fr;gap:10px;margin:0;padding:0;border:0}
+.wearable-option{grid-column:span 2}
+.wearable-option:nth-child(n+5){grid-column:span 3}
+.wearable-option{position:relative;display:flex;min-height:88px;padding:16px;border-radius:16px;background:var(--well);cursor:pointer;transition:background .15s,box-shadow .15s}
 .wearable-option:hover{background:#ebebe8}
 .wearable-option input{position:absolute;opacity:0;pointer-events:none}
 .wearable-option:has(input:checked){background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ink)}
 .wearable-option:has(input:focus-visible),.choice-card:has(input:focus-visible),.after-toggle:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
-.wearable-copy{display:flex;flex-direction:column;justify-content:flex-end;gap:4px;min-width:0}
-.wearable-copy strong{font-size:17px;font-weight:450;letter-spacing:-.02em;line-height:1.2}
+.wearable-copy{display:flex;flex-direction:column;justify-content:flex-start;gap:6px;min-width:0}
+.wearable-copy strong{padding-right:30px;font-size:17px;font-weight:450;letter-spacing:-.02em;line-height:1.2}
 .wearable-copy small{font-size:12px;color:var(--ink-2);line-height:1.45}
+
+/* What to follow: twelve signals, up to six; the number is the tile's place on Home. */
+.focus-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr;gap:8px;margin:0;padding:0;border:0}
+.focus-options legend{grid-column:1/-1}
+.focus-options legend b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.focus-option{position:relative;display:flex;min-height:74px;padding:13px 14px;border-radius:16px;background:var(--well);cursor:pointer;transition:background .15s,box-shadow .15s,opacity .15s}
+.focus-option:hover{background:#ebebe8}
+.focus-option input{position:absolute;opacity:0;pointer-events:none}
+.focus-option:has(input:checked){background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.focus-option:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.focus-option.is-full{opacity:.55;cursor:not-allowed}
+.focus-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.focus-copy strong{padding-right:28px;font-size:15px;font-weight:500;letter-spacing:-.01em;line-height:1.2}
+.focus-copy small{font-size:12px;color:var(--ink-2);line-height:1.4}
+.focus-order{position:absolute;top:12px;right:12px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line-strong);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.focus-option:has(input:checked) .focus-order{background:var(--accent-fill);color:#fff;box-shadow:none}
+@media(max-width:1180px){.focus-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(forced-colors:active){.focus-option{border:1px solid CanvasText}.focus-option:has(input:checked) .focus-order{background:Highlight}}
 
 /* Step 2: connect. One row per chosen wearable, outlined by a thin line. */
 .connect-list{display:flex;flex-direction:column;gap:10px}
@@ -82,15 +106,10 @@
 .insight-next li:last-child{border-bottom:1px solid #ffffff26}
 .insight-next li::before{content:counter(next,decimal-leading-zero);font-size:12px;color:var(--accent-2);font-variant-numeric:tabular-nums}
 
-/* Step 6: the Pro offer. What it adds as a quiet list, the price on a small dark tile. */
-.onboard-pro{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.7fr);gap:14px;align-items:start}
-.onboard-pro .pro-features{margin:0}
-.pro-price-tile{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:var(--radius-card);background:var(--glass-dark),linear-gradient(160deg,var(--dark-2) 0%,var(--dark) 60%);box-shadow:var(--glass-dark-edge);color:var(--on-dark)}
-.pro-price-tile .eyebrow{margin:0;color:var(--on-dark-2)}
-.pro-price-tile .stat b{font-size:52px;color:#fff}
-.pro-price-tile .stat small,.pro-price-tile .stat-caption{color:var(--on-dark-2)}
+/* Step 6: the Pro offer is the shared showcase (pro.css): orange liquid glass with the price, six tiles below. */
+.onboard-pro{margin-top:4px}
 
-@media(max-width:1180px){.wearable-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1180px){.wearable-options{grid-template-columns:repeat(2,minmax(0,1fr))}.wearable-option,.wearable-option:nth-child(n+5){grid-column:auto}.wearable-option:last-child{grid-column:1/-1}}
 @media(max-width:860px){.onboard-meter{max-width:none}}
 /* Six steps on a phone: the done and upcoming ones shrink to small numbered circles so the current one keeps its name. */
 @media(max-width:560px){
@@ -100,13 +119,10 @@
  .onboard-progress li.active{padding-right:12px}
 }
 @media(max-width:700px){
- .whoop-choice,.onboard-pro{grid-template-columns:minmax(0,1fr)}
- .pro-price-tile{order:-1;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
- .pro-price-tile .eyebrow{flex-basis:100%}
- .pro-price-tile .stat b{font-size:40px}
+ .whoop-choice{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:560px){
- .wearable-option{min-height:84px;padding:14px 40px 14px 14px}
+ .wearable-option{min-height:84px;padding:14px}
  .wearable-option .choice-check,.choice-card .choice-check{top:12px;right:12px;left:auto}
  .wearable-copy strong{font-size:16px}
  .connect-row{padding:16px}
@@ -120,3 +136,4 @@
  .onboard-pair .btn{flex:1}
 }
 @media(forced-colors:active){.wearable-option,.choice-card,.connect-row{border:1px solid CanvasText}.onboard-meter i{background:Highlight}}
+@media(max-width:560px){.step-about .representation-options{grid-template-columns:minmax(0,1fr)}.step-about .representation-art{height:96px}}

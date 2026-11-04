@@ -1,21 +1,44 @@
 import {escapeHTML as esc} from '../domain.js';
 import {representations,validateProfile,digitalFigure} from './domain.js';
 import {createOnboardingSubmitter} from './persistence.js';
-import {FEATURES,PRICE,seatLine} from '../pro/gate.js';
+import {PRICE,seatLine,proShowcase,enhancePro} from '../pro/gate.js';
+import {homeDefaults,BOARD_LIMIT} from '../board.js';
 
 // Onboarding, one question per screen: wearables → connect → about you → community → first insight → Pro offer.
 // The step logic below is pure (no DOM), so it is tested on its own; openOnboarding at the bottom only draws it.
 
+// Five cards, one short line each so every card reads the same. "No wearable" is not a card: continuing with nothing
+// ticked means none (kept as the internal id 'none', so the connect and insight steps still say the right thing).
 export const WEARABLES=[
- {id:'whoop',label:'WHOOP',note:'Export file free, live sync with Pro'},
+ {id:'whoop',label:'WHOOP',note:'Free import, live sync with Pro'},
  {id:'garmin',label:'Garmin',note:'Live sync'},
  {id:'fitbit',label:'Fitbit',note:'Live sync through Google'},
- {id:'apple',label:'Apple Watch',note:'Import from the iPhone Health app'},
- {id:'other',label:'Something else',note:'Xeyo works without it'},
- {id:'none',label:'None',note:'Meals, weight and journal'}
+ {id:'apple',label:'Apple Watch',note:'Import from iPhone Health'},
+ {id:'other',label:'Something else',note:'Xeyo works without one'}
 ];
-export const STEPS=[{id:'wearables',label:'Your wearables'},{id:'connect',label:'Connect'},{id:'about',label:'About you'},{id:'community',label:'Community'},{id:'insight',label:'First insight'},{id:'pro_offer',label:'Xeyo Pro'}];
-const ORDER=STEPS.map(s=>s.id),WEARABLE_IDS=WEARABLES.map(w=>w.id),WHOOP_CHOICES=['import','pro','waitlist'],IMPORTS=['apple','fitbit'];
+// What the member wants to keep an eye on: these become the tiles on Home, in the order picked (Edit Home changes them).
+export const FOCUS=[
+ {id:'recovery',label:'Recovery',note:'How ready your body is today'},
+ {id:'hrv',label:'HRV',note:'Stress and recovery, beat to beat'},
+ {id:'resting_hr',label:'Resting heart rate',note:'Fitness and fatigue over weeks'},
+ {id:'sleep',label:'Sleep',note:'Hours asleep each night'},
+ {id:'strain',label:'Strain',note:'How hard the day was'},
+ {id:'heart_rate',label:'Heart rate',note:'Your average through the day'},
+ {id:'spo2',label:'Blood oxygen',note:'Oxygen in your blood overnight'},
+ {id:'respiratory_rate',label:'Breathing rate',note:'Breaths per minute at night'},
+ {id:'sleep_deep',label:'Deep sleep',note:'The restorative part of the night'},
+ {id:'steps',label:'Steps',note:'How much you move each day'},
+ {id:'energy_burned',label:'Calories burned',note:'Energy spent across the day'},
+ {id:'body_fat',label:'Body fat',note:'From a smart scale or a scan'}
+];
+const FOCUS_IDS=FOCUS.map(f=>f.id);
+export function toggleFocus(list,id){
+ if(!FOCUS_IDS.includes(id))return list;
+ if(list.includes(id))return list.filter(x=>x!==id);
+ return list.length>=BOARD_LIMIT?list:[...list,id];
+}
+export const STEPS=[{id:'wearables',label:'Your wearables'},{id:'focus',label:'What to follow'},{id:'connect',label:'Connect'},{id:'about',label:'About you'},{id:'community',label:'Community'},{id:'insight',label:'First insight'},{id:'pro_offer',label:'Xeyo Pro'}];
+const ORDER=STEPS.map(s=>s.id),WEARABLE_IDS=[...WEARABLES.map(w=>w.id),'none'],WHOOP_CHOICES=['import','pro','waitlist'],IMPORTS=['apple','fitbit'];
 const AFTER_SAVE=['insight','pro_offer'],MAX_AGE=30*86400000;
 const PROVIDER={garmin:'garmin',fitbit:'google_health',whoop:'whoop'};
 // OAuth destinations are checked before leaving the page: a tampered or misconfigured reply must not send anyone elsewhere.
@@ -44,6 +67,7 @@ export function reduceOnboarding(state,action){
  const at=steps.indexOf(state.step);
  switch(action.type){
   case 'toggle_wearable':return {...state,wearables:toggleWearable(state.wearables,action.id)};
+  case 'toggle_focus':return {...state,focus:toggleFocus(state.focus||[],action.id)};
   case 'whoop':return WHOOP_CHOICES.includes(action.choice)||action.choice===null?{...state,whoopChoice:action.choice}:state;
   case 'open_after':{const set=new Set(state.openAfter);if(!IMPORTS.includes(action.id))return state;action.on?set.add(action.id):set.delete(action.id);return {...state,openAfter:IMPORTS.filter(i=>set.has(i))};}
   case 'draft':return {...state,draft:{...state.draft,...action.patch}};
@@ -71,13 +95,13 @@ export function readProgress(storage,userId,{now=Date.now()}={}){
  try{
   const raw=JSON.parse(storage.getItem(progressKey(userId))||'null');
   if(!raw||raw.v!==1||!ORDER.includes(raw.step)||!(now-Number(raw.at)<MAX_AGE))return null;
-  return {step:raw.step,wearables:(Array.isArray(raw.wearables)?raw.wearables:[]).filter(w=>WEARABLE_IDS.includes(w)),whoopChoice:WHOOP_CHOICES.includes(raw.whoopChoice)?raw.whoopChoice:null,openAfter:(Array.isArray(raw.openAfter)?raw.openAfter:[]).filter(i=>IMPORTS.includes(i)),waitlistPosition:Number.isInteger(raw.waitlistPosition)?raw.waitlistPosition:null,saved:raw.saved===true,draft:cleanDraft(raw.draft)};
+  return {step:raw.step,wearables:(Array.isArray(raw.wearables)?raw.wearables:[]).filter(w=>WEARABLE_IDS.includes(w)),whoopChoice:WHOOP_CHOICES.includes(raw.whoopChoice)?raw.whoopChoice:null,openAfter:(Array.isArray(raw.openAfter)?raw.openAfter:[]).filter(i=>IMPORTS.includes(i)),waitlistPosition:Number.isInteger(raw.waitlistPosition)?raw.waitlistPosition:null,saved:raw.saved===true,...(Array.isArray(raw.focus)?{focus:raw.focus.filter((f,i,a)=>FOCUS_IDS.includes(f)&&a.indexOf(f)===i).slice(0,BOARD_LIMIT)}:{}),draft:cleanDraft(raw.draft)};
  }catch{return null}
 }
 export function writeProgress(storage,userId,state,{now=Date.now()}={}){
  if(!storage||!userId)return;
  const draft=Object.fromEntries(DRAFT_KEYS.filter(k=>k in state.draft).map(k=>[k,state.draft[k]]));
- try{storage.setItem(progressKey(userId),JSON.stringify({v:1,at:now,step:state.step,wearables:state.wearables,whoopChoice:state.whoopChoice,openAfter:state.openAfter,waitlistPosition:state.waitlistPosition,saved:state.saved,draft}))}catch{/* private mode or full storage: resume is a convenience */}
+ try{storage.setItem(progressKey(userId),JSON.stringify({v:1,at:now,step:state.step,wearables:state.wearables,whoopChoice:state.whoopChoice,openAfter:state.openAfter,waitlistPosition:state.waitlistPosition,saved:state.saved,focus:state.focus,draft}))}catch{/* private mode or full storage: resume is a convenience */}
 }
 export function clearProgress(storage,userId){try{storage?.removeItem(progressKey(userId))}catch{}}
 // A stored step that no longer applies (Pro bought, so no offer) moves forward to the next one that does; the steps
@@ -143,19 +167,18 @@ export function insightHTML(insight,{wearables=[],whoopChoice=null,connections=[
  if(!next.length)next.push(wearables.some(w=>!['none','other'].includes(w))?'Connect or import a wearable from Integrations.':'Log a few meals and your weight on Home.');
  return `<article class="onboard-insight is-empty" aria-labelledby="insight-title"><span class="eyebrow">Not enough readings yet</span><h2 id="insight-title">Your first insight needs a few days of your own data.</h2><p>Xeyo compares each day with your usual range, so it waits until there is a range to compare with. Rather than show you a made-up number, this space stays empty until then.</p><ol class="insight-next">${next.map(n=>`<li>${esc(n)}</li>`).join('')}</ol><p class="mini-note">Your first insight then appears on Home.</p></article>`;
 }
-export function proOfferHTML({seats=null}={}){
- const rows=Object.entries(FEATURES).map(([id,f])=>`<li><b>${esc(f.title)}</b><span>${esc(f.value)}${id==='whoop_live'&&seatLine(seats)?` <em>${esc(seatLine(seats))}.</em>`:''}</span></li>`).join('');
- return `<div class="onboard-pro"><ul class="pro-features">${rows}</ul><aside class="pro-price-tile" aria-label="Price"><span class="eyebrow">Xeyo Pro</span><div class="stat"><b>€5</b><small>/month</small></div><span class="stat-caption">Cancel anytime. Free has no time limit.</span></aside></div>`;
-}
+export function proOfferHTML({seats=null}={}){return `<div class="onboard-pro">${proShowcase({seats})}</div>`;}
 
 // Tracking and progress for one run of the flow. Viewed once per step; completed when the member moves on (an OAuth or
 // checkout redirect counts as completed, with how); dropped only when they leave from a step without finishing it.
 export function createOnboardingFlow({userId,storage,track=()=>{},plan={pro:false},profile=null,flow,now=()=>Date.now()}={}){
  const stored=readProgress(storage,userId,{now:now()});
  const mode=flow||(stored||!profile?'full':'profile'),full=mode==='full';
- const base={representation:'photo',gender:'',age:'',peer_opt_in:false,photo_record_id:null,...cleanDraft(profile||{})};
- let state={step:null,wearables:[],whoopChoice:null,openAfter:[],waitlistPosition:null,saved:false,draft:base};
+ const base={representation:'digital',gender:'',age:'',peer_opt_in:false,photo_record_id:null,...cleanDraft(profile||{})};
+ let state={step:null,wearables:[],focus:homeDefaults.filter(id=>FOCUS_IDS.includes(id)),whoopChoice:null,openAfter:[],waitlistPosition:null,saved:false,draft:base};
  if(full&&stored)state={...state,...stored,draft:{...base,...stored.draft}};
+ // The photo portrait is no longer offered here: a draft that picked it without a saved photo starts on the digital human.
+ if(state.draft.representation==='photo'&&!profile?.photo_record_id)state={...state,draft:{...state.draft,representation:'digital'}};
  const steps=()=>onboardingSteps({wearables:state.wearables,plan,flow:mode});
  state.step=resumeStep(state.step||steps()[0],steps(),{hasProfile:!!profile});
  let viewed=null,leaving=false,finished=false;
@@ -180,19 +203,23 @@ export function createOnboardingFlow({userId,storage,track=()=>{},plan={pro:fals
  };
 }
 
+// Onboarding offers the two standard views; the photo portrait stays valid for profiles that already use it.
+const CHOICES=representations.filter(r=>r.id!=='photo');
 const glowFigure=gender=>gender==='woman'?'/images/glow-woman.webp':'/images/glow-man.webp';
 const COPY={
- wearables:['Which wearables do you use?','Choose all that apply. Xeyo reads them side by side, and works without one too.','You can change this later in Integrations.'],
+ focus:['What do you want to keep an eye on?',`Pick up to ${BOARD_LIMIT}. They become the tiles on your Home, in the order you pick them.`,'Change them anytime with Edit Home.'],
+ wearables:['Which wearables do you use?','Choose all that apply. Xeyo reads them side by side, and works without one too.','No wearable? Just continue.'],
  connect:['Bring your data in.','Only for what you chose. Anything you skip can be connected later from Integrations.','Nothing connects without your say.'],
  about:['A little about you.','This puts your numbers in context. It is never used to assign a health score.','Just a little context.'],
  community:['Your progress, in perspective.','See where your readings sit among people your age. Participation is optional.','Your preferences can be changed anytime.'],
  insight:['Your first insight.','Built only from your own readings, never from an average person.','From your readings only.'],
- pro_offer:['Xeyo Pro, if you want it.','Free stays free: Garmin and Fitbit sync, file imports, your last 30 days and everyday AI with Claude Haiku for meals, questions and your journal. Pro adds:','You can upgrade later from Integrations.']
+ pro_offer:['Xeyo Pro, if you want it.','Free stays free. Pro opens your whole history and a smarter AI. Tap a tile to see what it does.','You can upgrade later from Integrations.']
 };
 
-export function openOnboarding({app,profile,photos=[],save,done,signOut,orb,userId,api,capabilities={},connections=[],plan={pro:false},seats=null,waitlisted=false,firstInsight=null,track=()=>{},startCheckout,openWhoopUpload,openImport,savePreferences,storage=globalThis.localStorage,flow,navigate=url=>location.assign(url)}){
+export function openOnboarding({app,profile,save,saveBoard,done,signOut,orb,userId,api,capabilities={},connections=[],plan={pro:false},seats=null,waitlisted=false,firstInsight=null,track=()=>{},startCheckout,openWhoopUpload,openImport,savePreferences,storage=globalThis.localStorage,flow,navigate=url=>location.assign(url)}){
  const run=createOnboardingFlow({userId,storage,track,plan,profile,flow});
- let selectedFile=null,busy=false,shownStep=null,savedProfile=null,ended=false;
+ enhancePro();
+ let busy=false,shownStep=null,savedProfile=null,ended=false;
  const submit=createOnboardingSubmitter({save,done:async saved=>{savedProfile=saved;run.dispatch({type:'set',patch:{saved:true}})}});
  const onHide=()=>{run.drop('pagehide')};
  // Back from OAuth through the browser's back button: the page is restored as it was left, so unlock it.
@@ -206,8 +233,9 @@ export function openOnboarding({app,profile,photos=[],save,done,signOut,orb,user
  function stepBody(step,s){
   const d=s.draft;
   if(step==='wearables')return `<fieldset class="wearable-options"><legend class="sr-only">Wearables you use</legend>${WEARABLES.map(w=>`<label class="wearable-option"><input type="checkbox" name="wearable" value="${w.id}" ${s.wearables.includes(w.id)?'checked':''}><span class="wearable-copy"><strong>${w.label}</strong><small>${w.note}</small></span><span class="choice-check" aria-hidden="true"></span></label>`).join('')}</fieldset>`;
+  if(step==='focus'){const n=s.focus.length;return `<fieldset class="focus-options"><legend class="onboard-legend" aria-live="polite"><b>${n} of ${BOARD_LIMIT}</b> chosen${n>=BOARD_LIMIT?'. Untick one to swap it.':''}</legend>${FOCUS.map(f=>{const at=s.focus.indexOf(f.id),on=at>=0;return `<label class="focus-option${!on&&n>=BOARD_LIMIT?' is-full':''}"><input type="checkbox" name="focus" value="${f.id}" ${on?'checked':''} ${!on&&n>=BOARD_LIMIT?'disabled':''}><span class="focus-copy"><strong>${f.label}</strong><small>${f.note}</small></span><span class="focus-order" aria-hidden="true">${on?at+1:''}</span></label>`}).join('')}</fieldset>`;}
   if(step==='connect')return connectHTML(connectItems({wearables:s.wearables,capabilities,connections,seats,waitlisted,plan,whoopChoice:s.whoopChoice,waitlistPosition:s.waitlistPosition,openAfter:s.openAfter}));
-  if(step==='about')return `<div class="onboard-basics"><fieldset><legend>How do you describe yourself?</legend><div class="gender-options">${[['woman','Woman'],['man','Man'],['nonbinary','Non-binary'],['unspecified','Prefer not to say']].map(([v,t])=>`<label><input type="radio" name="gender" value="${v}" ${d.gender===v?'checked':''} required><span>${t}</span></label>`).join('')}</div><p class="mini-note">Used for your profile, not to assume a body type or assign a health score.</p></fieldset><label class="field age-field">Your age<div><input name="age" type="number" inputmode="numeric" min="18" max="120" step="1" required value="${esc(d.age)}" placeholder="28"><span>years</span></div></label><p class="mini-note age-note">Xeyo is currently for people aged 18 and over. Your age is kept private.</p></div><fieldset class="representation-options"><legend class="onboard-legend">How would you like to see yourself on Home and Body?</legend>${representations.map(r=>`<label class="representation-option"><input type="radio" name="representation" value="${r.id}" ${d.representation===r.id?'checked':''}><span class="representation-art art-${r.id}">${r.id==='stats'?'<i></i><i></i><i></i><i></i>':r.id==='digital'?`<img class="digital-art" src="${digitalFigure(d.gender).src}" alt="" width="256" height="256">`:'<img src="/images/human-portrait.webp" alt="" width="1024" height="1536">'}</span><span class="representation-copy"><strong>${r.title}${r.label?`<small>${r.label}</small>`:''}</strong><span>${r.description}</span></span><span class="choice-check" aria-hidden="true"></span></label>`).join('')}</fieldset><div class="onboard-photo" ${d.representation==='photo'?'':'hidden'}><div><h2 class="onboard-subhead">The reference for your portrait</h2><p>Choose a clear photo of just you. We use it to create your portrait with the original model as the style reference.</p></div><label class="btn light photo-picker">${selectedFile?esc(selectedFile.name):'Choose photo'}<input id="onboard-file" type="file" accept="image/*,.heic,.heif"></label>${selectedFile?'<span class="status-pill on">Ready to upload</span>':''}${photos.length?`<label class="field">Or use a saved photo<select id="saved-photo"><option value="">Choose later</option>${photos.map(p=>`<option value="${esc(p.id)}" ${d.photo_record_id===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>`:''}<p class="mini-note">After saving, open the portrait studio to generate and review your likeness using your own OpenAI key. Your photo stays private; it is not displayed on your dashboard. You can do this later.</p></div>`;
+  if(step==='about')return `<div class="onboard-basics"><fieldset><legend>How do you describe yourself?</legend><div class="gender-options">${[['woman','Woman'],['man','Man'],['nonbinary','Non-binary'],['unspecified','Prefer not to say']].map(([v,t])=>`<label><input type="radio" name="gender" value="${v}" ${d.gender===v?'checked':''} required><span>${t}</span></label>`).join('')}</div><p class="mini-note">Used for your profile, not to assume a body type or assign a health score.</p></fieldset><label class="field age-field">Your age<div><input name="age" type="number" inputmode="numeric" min="18" max="120" step="1" required value="${esc(d.age)}" placeholder="28"><span>years</span></div></label><p class="mini-note age-note">Xeyo is currently for people aged 18 and over. Your age is kept private.</p></div><fieldset class="representation-options"><legend class="onboard-legend">How would you like to see yourself on Home and Body?</legend>${CHOICES.map(r=>`<label class="representation-option"><input type="radio" name="representation" value="${r.id}" ${d.representation===r.id?'checked':''}><span class="representation-art art-${r.id}">${r.id==='stats'?'<i></i><i></i><i></i><i></i>':`<img class="digital-art" src="${digitalFigure(d.gender).src}" alt="" width="256" height="256">`}</span><span class="representation-copy"><strong>${r.title}</strong><span>${r.description}</span></span><span class="choice-check" aria-hidden="true"></span></label>`).join('')}</fieldset>`;
   if(step==='community')return `<div class="peer-intro"><div class="peer-illustration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div><h2 class="onboard-subhead">A private place in the bigger picture.</h2><p>Compare 30-day averages within your age group, using the same measurement and source. Your name, photo and individual readings are never displayed to other members.</p></div></div><label class="peer-consent"><input type="checkbox" name="peer_opt_in" ${d.peer_opt_in?'checked':''}><span><strong>Include me in anonymous peer comparisons</strong><small>Your readings contribute to group averages and percentiles. Results need at least 20 other participating people and 7 recorded days per person. You can leave anytime in Profile.</small></span></label><p class="mini-note">A percentile describes your position in this Xeyo group. A higher number does not necessarily mean better health. No public profiles or global health scores.</p>`;
   if(step==='insight')return insightHTML(firstInsight,{wearables:s.wearables,whoopChoice:s.whoopChoice,connections});
   if(step==='pro_offer')return proOfferHTML({seats});
@@ -273,6 +301,7 @@ export function openOnboarding({app,profile,photos=[],save,done,signOut,orb,user
   };
   const back=$('#onboard-back');if(back)back.onclick=()=>{if(busy)return;capture();run.back();render()};
   app.querySelectorAll('[name=wearable]').forEach(el=>el.onchange=()=>{run.dispatch({type:'toggle_wearable',id:el.value});fail('');render()});
+  app.querySelectorAll('[name=focus]').forEach(el=>el.onchange=()=>{run.dispatch({type:'toggle_focus',id:el.value});fail('');render()});
   app.querySelectorAll('[name=whoop]').forEach(el=>el.onchange=()=>{run.dispatch({type:'whoop',choice:el.value});render()});
   app.querySelectorAll('[data-open-after]').forEach(el=>el.onchange=()=>run.dispatch({type:'open_after',id:el.dataset.openAfter,on:el.checked}));
   app.querySelectorAll('[data-connect]').forEach(el=>el.onclick=()=>oauth(el.dataset.connect,el));
@@ -286,8 +315,6 @@ export function openOnboarding({app,profile,photos=[],save,done,signOut,orb,user
   app.querySelectorAll('[name=gender]').forEach(el=>el.onchange=()=>{run.dispatch({type:'draft',patch:{gender:el.value}});const art=$('#onboard-figure');if(art)art.src=glowFigure(el.value);const digital=$('.digital-art');if(digital)digital.src=digitalFigure(el.value).src});
   const age=app.querySelector('[name=age]');if(age)age.onchange=()=>run.dispatch({type:'draft',patch:{age:age.value}});
   const peer=app.querySelector('[name=peer_opt_in]');if(peer)peer.onchange=()=>run.dispatch({type:'draft',patch:{peer_opt_in:peer.checked}});
-  const file=$('#onboard-file');if(file)file.onchange=()=>{selectedFile=file.files[0]||null;render()};
-  const saved=$('#saved-photo');if(saved)saved.onchange=()=>{run.dispatch({type:'draft',patch:{photo_record_id:saved.value||null}});selectedFile=null;render()};
   const notNow=$('#pro-not-now');if(notNow)notNow.onclick=async()=>{if(busy)return;busy=true;lock(true);run.track('pro_offer_skipped',{step:'pro_offer'});try{await finish({choice:'not_now'})}catch(error){busy=false;lock(false);fail(error.message)}};
   const tryPro=$('#pro-try');if(tryPro)tryPro.onclick=async()=>{
    if(busy)return;if(typeof startCheckout!=='function'){fail('Checkout isn’t available right now. You can upgrade later from Integrations.');return;}
@@ -299,17 +326,20 @@ export function openOnboarding({app,profile,photos=[],save,done,signOut,orb,user
    e.preventDefault();if(busy)return;capture();const s=run.state;fail('');
    try{
     if(s.step==='wearables'){
-     if(!s.wearables.length)throw Error('Choose at least one, or None.');
-     if(typeof savePreferences==='function')Promise.resolve().then(()=>savePreferences({wearables:s.wearables})).catch(()=>{});
+     if(!s.wearables.length)run.dispatch({type:'toggle_wearable',id:'none'});
+     const chosen=run.state.wearables;if(typeof savePreferences==='function')Promise.resolve().then(()=>savePreferences({wearables:chosen})).catch(()=>{});
+    }
+    if(s.step==='focus'){
+     if(!s.focus.length)throw Error('Pick at least one signal to follow.');
+     const ids=[...s.focus];if(typeof saveBoard==='function')Promise.resolve().then(()=>saveBoard(ids)).catch(()=>{});
     }
     if(s.step==='about')validateProfile({...s.draft,peer_opt_in:false});
    }catch(error){fail(error.message);(app.querySelector('#onboard-form :invalid')||app.querySelector('#onboard-form input'))?.focus();return;}
    if(s.step==='community'){
     const b=e.target.querySelector('[type=submit]');busy=true;lock(true);b.textContent='Saving your workspace…';
-    try{await submit(validateProfile(s.draft),s.draft.representation==='photo'?selectedFile:null);}
+    try{await submit(validateProfile(s.draft),null);}
     catch(error){
      busy=false;if(!$('#onboard-error'))return;lock(false);b.innerHTML='Try again';fail(error.message);
-     if(error.code==='PHOTO_UPLOAD_FAILED'){const skip=document.createElement('button');skip.type='button';skip.className='btn light';skip.textContent='Continue without photo';skip.onclick=()=>{selectedFile=null;$('#onboard-form').requestSubmit()};$('#onboard-error').append(document.createElement('br'),skip);}
      return;
     }
     busy=false;
@@ -317,7 +347,7 @@ export function openOnboarding({app,profile,photos=[],save,done,signOut,orb,user
    }
    const steps=run.steps;
    if(steps.indexOf(s.step)===steps.length-1){busy=true;lock(true);try{await finish()}catch(error){busy=false;lock(false);fail(error.message)}return;}
-   run.next(s.step==='connect'?{whoop_choice:s.whoopChoice||'none'}:s.step==='wearables'?{wearables:s.wearables}:{});render();
+   run.next(s.step==='connect'?{whoop_choice:s.whoopChoice||'none'}:s.step==='wearables'?{wearables:run.state.wearables}:s.step==='focus'?{focus:s.focus}:{});render();
   };
  }
  render();
