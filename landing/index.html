@@ -27,8 +27,10 @@
 <link rel="icon" href="/favicon.png?v=2" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 <link rel="preload" href="/fonts/hanken-grotesk.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/img/portrait.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 761px)">
-<link rel="preload" href="/img/portrait-640.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 760px)">
+<link rel="preload" href="/img/glow-man.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 761px)">
+<link rel="preload" href="/img/glow-woman.webp" as="image" type="image/webp" fetchpriority="high" media="(min-width: 761px)">
+<link rel="preload" href="/img/glow-man-480.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 760px)">
+<link rel="preload" href="/img/glow-woman-480.webp" as="image" type="image/webp" fetchpriority="high" media="(max-width: 760px)">
 <link rel="stylesheet" href="/styles.css">
 <script>
 // The app moved to app.xeyo.ai. Sign-in emails, password resets and WHOOP returns that still land here carry
@@ -191,14 +193,25 @@ location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
     </div>
 
     <div class="hero-visual">
-      <!-- The subject: portrait, the light behind him and an instrument ring, all moving together. -->
-      <div class="subject" aria-hidden="true">
+      <!-- The subject: a woman and a man, back to back. At rest they are quiet grey; under the pointer
+           (or in turn, on touch screens) the light comes on: the heart beats and energy runs outward. -->
+      <div class="subject pair" aria-hidden="true">
         <div class="halo"></div>
         <svg class="reticle" viewBox="0 0 400 400"><circle class="ticks" cx="200" cy="200" r="192"/><circle class="ring" cx="200" cy="200" r="176"/><path class="arc" d="M200 24 A176 176 0 0 1 376 200"/><circle class="node" cx="376" cy="200" r="4"/></svg>
-        <picture class="portrait">
-          <source media="(max-width: 760px)" srcset="/img/portrait-640.webp">
-          <img src="/img/portrait.webp" alt="" width="1024" height="1536" fetchpriority="high" decoding="async">
-        </picture>
+        <div class="figures">
+          <div class="figure f-woman">
+            <picture><source media="(max-width: 760px)" srcset="/img/glow-woman-480.webp"><img class="still" src="/img/glow-woman.webp" alt="" width="864" height="1152" fetchpriority="high" decoding="async"></picture>
+            <picture><source media="(max-width: 760px)" srcset="/img/glow-woman-480.webp"><img class="live" src="/img/glow-woman.webp" alt="" width="864" height="1152" decoding="async"></picture>
+            <picture><source media="(max-width: 760px)" srcset="/img/glow-woman-480.webp"><img class="flow" src="/img/glow-woman.webp" alt="" width="864" height="1152" decoding="async"></picture>
+            <i class="beat"></i>
+          </div>
+          <div class="figure f-man">
+            <picture><source media="(max-width: 760px)" srcset="/img/glow-man-480.webp"><img class="still" src="/img/glow-man.webp" alt="" width="864" height="1152" fetchpriority="high" decoding="async"></picture>
+            <picture><source media="(max-width: 760px)" srcset="/img/glow-man-480.webp"><img class="live" src="/img/glow-man.webp" alt="" width="864" height="1152" decoding="async"></picture>
+            <picture><source media="(max-width: 760px)" srcset="/img/glow-man-480.webp"><img class="flow" src="/img/glow-man.webp" alt="" width="864" height="1152" decoding="async"></picture>
+            <i class="beat"></i>
+          </div>
+        </div>
       </div>
 
       <!-- One pane of liquid glass held over the body: this morning's read, from three kinds of data. -->

@@ -56,6 +56,9 @@
 /* Onboarding: the steps live on the glass panel, the questions in the white card. */
 .onboard-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr)}
 .onboard-grid .auth-figure{left:50%;bottom:auto;top:-2%;height:auto;width:118%;transform:translateX(-46%)}
+/* Onboarding art: the glowing anatomical figure (woman or man, by the answer given) on night. */
+.onboard-glow{background:#0c0807}
+.onboard-glow .auth-figure{filter:none;mix-blend-mode:normal;width:92%;top:-4%;transform:translateX(-50%)}
 .onboard-grid .auth-panel{top:auto;left:16px;right:16px;bottom:16px;width:auto;padding:24px}
 .onboard-grid .auth-panel h2{font-size:30px;margin-bottom:20px}
 .onboard-grid .auth-caption{top:16px;bottom:auto}
