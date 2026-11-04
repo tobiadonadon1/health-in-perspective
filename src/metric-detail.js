@@ -1,6 +1,7 @@
 import {escapeHTML as esc,metricSeries,chartNow,dateLocale} from './domain.js';
 import {formatValue} from './metrics.js';
 import {metricSummary} from './profile/domain.js';
+import {proCard} from './pro/gate.js';
 import {metricExplanation} from './metric-explanations.js';
 import {compareLatest,staleDays} from './insights.js';
 import {metricDelta} from './metric-style.js';
@@ -27,7 +28,7 @@ export function openMetricDetail({metric:m,reading:r,readings,showModal,heading,
  const named=/^[A-Z]{2}/.test(m.name)?m.name:m.name[0].toLowerCase()+m.name.slice(1);
  const explain=`<section class="metric-explainer"><h3>What ${esc(named)} means</h3><p>${esc(info.meaning)}</p><p class="metric-context">${esc(info.context)}</p><a href="${info.url}" target="_blank" rel="noopener">${info.source} ↗</a></section>`;
  if(!r){showModal(`${heading(m.name,'Your signals')}${switcher}<div class="detail-empty"><h3>No measurement yet.</h3><p>Connect a source or import measured data to see your trend.</p><button class="btn" data-action="to-integrations">Connect a source ↗</button></div>${explain}`);bindSwitch();return;}
- showModal(`${heading(m.name,esc(r.source)+' / Your trend')}${switcher}<div id="metric-explorer"></div>${explain}`);bindSwitch();
+ showModal(`${heading(m.name,esc(r.source)+' / Your trend')}${switcher}<div id="metric-explorer"></div>${pro?'':proCard({feature:'full_history',title:`See your ${named} over 90 days and a year`,body:'Free shows your last 30 days. Pro keeps every reading you have ever synced and draws 90-day and 1-year charts.',points:['whoop_live','weekly_report','correlations']})}${explain}`);bindSwitch();
  const host=document.querySelector('#metric-explorer');let period=30;
  // Each day is compared with the same baseline the cards use: the person's other days in the last 30.
  const baseline=staleDays(r)?null:compareLatest(readings.filter(x=>x.kind===m.kind&&x.source===r.source&&x.unit===r.unit),r);

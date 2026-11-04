@@ -97,3 +97,31 @@
 @media (max-width:900px){.insight-actions{grid-template-columns:1fr}}
 .metric-periods .is-locked{opacity:.85}
 .lock-icon{width:13px;height:13px;margin-right:4px;vertical-align:-2px;fill:none;stroke:currentColor;stroke-width:1.8}
+
+/* The visible offer (pro/gate.js proCard): a real card where a Free member meets a limit, not a chip. */
+.pro-card{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin:16px 0;padding:20px 22px;border-radius:20px;background:linear-gradient(135deg,#1b1b1b 0%,#2a1d17 100%);color:var(--on-dark,#fff);box-shadow:0 10px 30px -18px #ff5a1f99}
+.pro-card-copy{display:flex;flex-direction:column;align-items:flex-start;gap:8px;flex:1 1 280px;min-width:0}
+.pro-card .pro-badge{background:#ffffff1f;color:#fff}
+.pro-card-title{font-size:20px;font-weight:400;letter-spacing:-.02em;line-height:1.25;color:#fff}
+.pro-card-body{max-width:52ch;font-size:13px;line-height:1.5;color:#ffffffb8}
+.pro-card-points{display:flex;flex-wrap:wrap;gap:6px 16px;margin:2px 0 0;padding:0;list-style:none;font-size:12px;color:#ffffffcc}
+.pro-card-points li{display:flex;align-items:center;gap:7px}
+.pro-card-points li::before{content:'';width:7px;height:7px;border-radius:2px;background:var(--accent-fill)}
+.pro-card-cta{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.pro-card .pro-gate-price{color:#ffffff99}
+.pro-card-button,.upgrade-cta{background:var(--accent-fill);color:#fff;border:0}
+.pro-card-button:hover,.upgrade-cta:hover{filter:brightness(1.06)}
+/* Top bar: always visible for Free members. */
+.upgrade-cta{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap}
+.upgrade-cta svg{width:15px;height:15px;fill:currentColor;stroke:none}
+@media (max-width:900px){.upgrade-cta-long{display:none}.upgrade-cta{padding:0 12px}}
+/* Refresh without a live source: how new data gets in. */
+.update-list{display:flex;flex-direction:column;margin:16px 0 0;padding:0;list-style:none}
+.update-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.update-row:last-child{border-bottom:1px solid var(--line)}
+.update-logo{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--surface-2,#f1efec);font-weight:600;font-size:14px}
+.update-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.update-copy b{font-size:14px;font-weight:500}
+.update-copy small{font-size:12px;color:var(--ink-2);line-height:1.45}
+.update-copy small b{font-size:12px;color:var(--ink)}
+@media (max-width:560px){.update-row{grid-template-columns:36px minmax(0,1fr)}.update-row .btn{grid-column:2;justify-self:start}}
