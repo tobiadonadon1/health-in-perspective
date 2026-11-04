@@ -58,19 +58,20 @@ export async function handleStripeHook(rawBody,signature,ctx){
 const CSV_COLUMNS=['observed_at','kind','value','unit','source'];
 const csvCell=v=>{let s=v==null?'':String(v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return /[",\n\r]/.test(s)?'"'+s.replaceAll('"','""')+'"':s};
 const safeZone=z=>{try{new Intl.DateTimeFormat('en',{timeZone:String(z)});return String(z)}catch{return 'UTC'}};
-async function readingsSince(client,userId,since,until=null){
- const rows=[];for(let offset=0;offset<100000;offset+=1000){let q=client.from('health_readings').select('kind,value,unit,source,observed_at,external_id').eq('user_id',userId).gte('observed_at',since.toISOString());if(until)q=q.lte('observed_at',until.toISOString());const r=await q.order('observed_at').order('id').range(offset,offset+999);if(r.error)throw Error('Could not read your readings.');rows.push(...r.data);if(r.data.length<1000)break}
+// Garmin's terms: Garmin data is never sent to an AI system, so anything that feeds the AI asks with forAI.
+async function readingsSince(client,userId,since,until=null,{forAI=false}={}){
+ const rows=[];for(let offset=0;offset<100000;offset+=1000){let q=client.from('health_readings').select('kind,value,unit,source,observed_at,external_id').eq('user_id',userId).gte('observed_at',since.toISOString());if(forAI)q=q.neq('source','Garmin');if(until)q=q.lte('observed_at',until.toISOString());const r=await q.order('observed_at').order('id').range(offset,offset+999);if(r.error)throw Error('Could not read your readings.');rows.push(...r.data);if(r.data.length<1000)break}
  return rows;
 }
-async function correlationsFor(client,userId,timeZone){
- const [readings,behaviors]=await Promise.all([readingsSince(client,userId,new Date(Date.now()-366*86400000)),client.from('wearable_behaviors').select('day,question,answered_yes').eq('user_id',userId).gte('day',new Date(Date.now()-366*86400000).toISOString().slice(0,10))]);
+async function correlationsFor(client,userId,timeZone,{forAI=false}={}){
+ const [readings,behaviors]=await Promise.all([readingsSince(client,userId,new Date(Date.now()-366*86400000),null,{forAI}),client.from('wearable_behaviors').select('day,question,answered_yes').eq('user_id',userId).gte('day',new Date(Date.now()-366*86400000).toISOString().slice(0,10))]);
  return {readings,result:computeCorrelations({readings,behaviors:behaviors.data||[],timeZone})};
 }
 // The member's weekly report for a week (default: the last complete one), generated once and stored.
 export async function weeklyReportFor(client,userId,{weekStart,timeZone='UTC',ai=null,refresh=false}={}){
  const ws=weekStart?mondayOf(weekStart):previousWeekStart({timeZone});
  if(!refresh){const saved=await client.from('weekly_reports').select('content').eq('user_id',userId).eq('week_start',ws).maybeSingle();if(saved.data)return saved.data.content}
- const {readings,result}=await correlationsFor(client,userId,timeZone),start=Date.parse(ws+'T00:00:00Z');
+ const {readings,result}=await correlationsFor(client,userId,timeZone,{forAI:true}),start=Date.parse(ws+'T00:00:00Z');
  const window=readings.filter(r=>{const t=Date.parse(r.observed_at);return t>=start-29*86400000&&t<=start+8*86400000});
  const report=await weeklyReport({stats:buildWeeklyStats({readings:window,weekStart:ws,timeZone}),correlations:result,ai});delete report.aiError;
  const w=await client.from('weekly_reports').upsert({user_id:userId,week_start:report.weekStart,content:report,model:report.model||null},{onConflict:'user_id,week_start'});if(w.error)throw Error('Could not save your weekly report.');
