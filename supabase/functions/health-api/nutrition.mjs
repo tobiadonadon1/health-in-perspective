@@ -32,7 +32,7 @@ export function parseMealResponse(response){
   let value;try{value=JSON.parse(text)}catch{throw Error('The meal analysis was incomplete. Please try again.')}
   return validateMealEstimate(value);
 }
-export async function analyzeMeal({text='',image,correction='',previous}, {apiKey,model,provider='openai',fetcher=fetch}){
+export async function analyzeMeal({text='',image,correction='',previous}, {apiKey,model,provider='openai',fetcher=fetch,onUsage}){
   if(!apiKey||!model)throw Error('The nutrition assistant is being connected. You can enter nutrition facts for now.');
   if(typeof text!=='string'||text.length>4000||typeof correction!=='string'||correction.length>2000)throw Error('Keep your meal description under 4,000 characters.');
   if(!text.trim()&&!image)throw Error('Add a meal photo or describe what you ate.');
@@ -40,7 +40,7 @@ export async function analyzeMeal({text='',image,correction='',previous}, {apiKe
   const prior=previous?validateMealEstimate(previous):null;
   const request=JSON.stringify({description:text,correction,previous_estimate:prior});
   if(provider!=='openai'){
-    let answer;try{answer=await complete({provider,model,key:apiKey,system:JSON_INSTRUCTIONS,messages:[{role:'user',content:request}],image,maxTokens:3500,json:true},fetcher,{timeout:50000,timeoutMessage:'The nutrition assistant took too long. Try again or enter the facts.'})}catch(e){throw Error(/rate|credit/.test(e.message)?'The nutrition assistant is at its usage limit. Try again later or enter the facts.':/model|rejected|timed|took too long/.test(e.message)?e.message:'The nutrition assistant is unavailable. Try again later or enter the facts.')}
+    let answer;try{answer=await complete({provider,model,key:apiKey,system:JSON_INSTRUCTIONS,messages:[{role:'user',content:request}],image,maxTokens:3500,json:true,onUsage},fetcher,{timeout:50000,timeoutMessage:'The nutrition assistant took too long. Try again or enter the facts.'})}catch(e){throw Error(/rate|credit/.test(e.message)?'The nutrition assistant is at its usage limit. Try again later or enter the facts.':/model|rejected|timed|took too long/.test(e.message)?e.message:'The nutrition assistant is unavailable. Try again later or enter the facts.')}
     return parseMealText(answer);
   }
   const content=[{type:'input_text',text:request}];

@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FEATURES,proGate,lockedFrom,quotaNote,upgradeDialog,seatLine} from '../src/pro/gate.js';
+import {FEATURES,proGate,lockedFrom,quotaNote,upgradeDialog,seatLine,proCard,historyStrip} from '../src/pro/gate.js';
 import {createTracker,sanitizeProps} from '../src/analytics.js';
 
 const preview='<ul class="ex"><li>Late workout → HRV <b>−8 ms</b></li><li><button>Open</button></li></ul>';
 test('every Pro feature has a title and one value line',()=>{
- assert.deepEqual(Object.keys(FEATURES),['whoop_live','weekly_report','correlations','full_history','csv_export','ask_unlimited']);
+ assert.deepEqual(Object.keys(FEATURES),['whoop_live','weekly_report','correlations','full_history','csv_export','smart_ai']);
  for(const f of Object.values(FEATURES)){assert.ok(f.title.length>3);assert.ok(f.value.length>20&&!f.value.includes('\n'))}
 });
 test('locked: the example is blurred behind the veil, hidden from assistive tech and inert, with one upgrade button',()=>{
@@ -27,14 +27,16 @@ test('note and feature id are escaped; the caller-made preview is trusted HTML',
 test('lockedFrom recognises pro_required and quota errors only',()=>{
  const err=(code,feature)=>Object.assign(Error('locked'),{code,feature,status:402});
  assert.equal(lockedFrom(err('pro_required','weekly_report')),'weekly_report');
- assert.equal(lockedFrom(err('quota','ask_unlimited')),'ask_unlimited');
- assert.equal(lockedFrom(err('quota')),'ask_unlimited');
+ assert.equal(lockedFrom(err('quota','smart_ai')),'smart_ai');
+ assert.equal(lockedFrom(err('quota')),'smart_ai');
+ assert.equal(lockedFrom(Object.assign(err('quota','smart_ai'),{pro:true})),null,'a Pro member out of allowance has nothing to upgrade to');
  assert.equal(lockedFrom(err('pro_required','not_a_feature')),null);
  assert.equal(lockedFrom(err('seats_full','whoop_live')),null);
  assert.equal(lockedFrom(Error('Failed to fetch')),null);assert.equal(lockedFrom(null),null);
 });
 test('quota note and seat line say plain numbers',()=>{
- assert.equal(quotaNote({code:'quota',used:3,quota:3}),'You have used 3 of your 3 free questions this month.');
+ assert.equal(quotaNote({code:'quota',used:100,quota:100,resets:'2026-12-01'}),'You have used this month’s free AI. It resets on 1 December.');
+ assert.equal(quotaNote({code:'quota'}),'You have used this month’s free AI.');
  assert.equal(quotaNote({code:'pro_required'}),'');
  assert.equal(seatLine({cap:10,taken:7,left:3}),'3 of 10 live seats left');
  assert.equal(seatLine({cap:10,taken:10,left:0}),'Pro WHOOP seats are full');
@@ -66,4 +68,23 @@ test('tracker: fire-and-forget, valid names only, no health values or free text'
  const failing=createTracker({insert:()=>Promise.reject(Error('offline'))});assert.equal(failing.track('pro_offer_skipped'),true);
  const throwing=createTracker({insert:()=>{throw Error('boom')}});assert.equal(throwing.track('pro_offer_skipped'),false);
  await new Promise(r=>setTimeout(r,5));
+});
+
+test('Pro card: the member’s hidden history as a count and a timeline, four tiles, the AI meter and one checkout button',()=>{
+ const now=Date.parse('2026-11-04T12:00:00Z');
+ const status={hidden:{readings:1284,since:'2025-11-04'},usage:{ai:{tier:'free',model:'claude-haiku-5-5',modelName:'Claude Haiku',percent:34}}};
+ const html=proCard({feature:'full_history',title:'See your HRV over a year',body:'Free shows 30 days.',status,now});
+ assert.match(html,/<b>1,284<\/b> of your readings from before the last 30 days are saved and waiting/);
+ assert.match(html,/Since 4 Nov 2025/);
+ assert.equal(html.match(/<li class="pro-tile/g).length,4);
+ assert.match(html,/pro-tile is-focus">.*?<b>1 year\+<\/b>/);
+ assert.match(html,/34% used/);assert.match(html,/aria-label="34% of this month’s free AI used"/);
+ assert.equal(html.match(/data-action="upgrade"/g).length,1);assert.match(html,/Upgrade to Pro · €5\/month/);
+ assert.ok(!html.includes('$'),'the price is in euros');
+ const bare=proCard({feature:'whoop_live'});
+ assert.ok(!bare.includes('pro-insight')&&!bare.includes('pro-ai'),'no invented numbers without a status');
+ assert.match(bare,/A year with Pro/);
+ assert.ok(!proCard({status:{usage:{ai:{tier:'pro',percent:10}}}}).includes('pro-ai'),'Pro members never see the Free meter');
+ assert.match(historyStrip({readings:5,since:'2026-09-06'},now),/pro-history-free" style="flex-basis:50%/,'two months of data: the 30 lit days are half the bar');
+ assert.match(historyStrip(null,now),/pro-history-free" style="flex-basis:8%/,'no data yet: a year, with 30 days lit');
 });

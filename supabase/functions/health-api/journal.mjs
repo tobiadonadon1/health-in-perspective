@@ -17,7 +17,7 @@ export async function handleJournal(payload,{client,userId,unseal,included=null,
  const c=checked(await client.from('chat_connections').select('provider,model,encrypted_key').eq('user_id',userId).maybeSingle());
  let connection=c;
  if(!connection){const ai=checked(await client.from('ai_credentials').select('encrypted_key').eq('user_id',userId).maybeSingle());if(ai)connection={provider:'openai',model:providers.openai.model,encrypted_key:ai.encrypted_key};}
- if(!connection&&included)connection=included;
+ if(!connection&&included)connection=typeof included==='function'?await included():included;
  if(!connection)throw Error('Your note is saved. Connect your AI in Chatbot to add a reflection.');
  const previous=checked(await client.from('journal_reflections').select('*').eq('entry_id',entry.id).eq('user_id',userId).maybeSingle());
  if(previous?.status==='ready')return {reflection:previous};
@@ -32,7 +32,7 @@ export async function handleJournal(payload,{client,userId,unseal,included=null,
  try{
   let context=null;
   if(job.context_shared){let rows=[];for(let offset=0;offset<10000;offset+=1000){const r=checked(await client.from('health_readings').select('kind,value,unit,source,observed_at').eq('user_id',userId).neq('source','Garmin').gte('observed_at',new Date(Date.now()-30*86400000).toISOString()).order('observed_at',{ascending:false}).order('id').range(offset,offset+999));rows.push(...r);if(r.length<1000)break;}context=journalContext(rows);}
-  const content=await askProvider({provider,model,key:connection.included?connection.key:(await unseal(connection.encrypted_key)).key,purpose:'journal',messages:[{role:'user',content:`Journal date: ${entry.logged_on}\nMy note: ${entry.content}`}],context},fetcher);
+  const content=await askProvider({provider,model,key:connection.included?connection.key:(await unseal(connection.encrypted_key)).key,purpose:'journal',onUsage:connection.onUsage,messages:[{role:'user',content:`Journal date: ${entry.logged_on}\nMy note: ${entry.content}`}],context},fetcher);
   const result=await client.from('journal_reflections').update({status:'ready',content,updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',userId).select('*').maybeSingle();
   if(result.error||!result.data)throw Error('Your note changed while the reflection was being prepared. Request a new reflection for the current note.');
   return {reflection:result.data};

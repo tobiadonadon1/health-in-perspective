@@ -10,9 +10,9 @@ export const FEATURES={
  correlations:{title:'Correlations across wearables',value:'See how your late workouts and short nights move your HRV and recovery.'},
  full_history:{title:'Full history',value:'Every reading you have ever synced, with 90-day and 1-year charts instead of the last 30 days.'},
  csv_export:{title:'CSV export',value:'Take every reading into a spreadsheet, one row per measurement.'},
- ask_unlimited:{title:'Unlimited Ask Xeyo',value:'Ask about your data as often as you like, instead of 3 questions a month.'}
+ smart_ai:{title:'Claude Sonnet for your AI',value:'Your questions, meal photos and journal reflections answered by Claude Sonnet, a deeper model than Free’s Claude Haiku, with three times the monthly AI allowance.'}
 };
-const ORDER=['whoop_live','weekly_report','correlations','full_history','csv_export','ask_unlimited'];
+const ORDER=['full_history','smart_ai','weekly_report','correlations','whoop_live','csv_export'];
 const known=id=>Object.hasOwn(FEATURES,id);
 const upgradeButton=(feature,label='Upgrade')=>`<button type="button" class="btn" data-action="upgrade" data-feature="${esc(feature)}">${label}</button>`;
 
@@ -27,15 +27,18 @@ export function proGate({feature,preview='',locked=true,compact=false,note=''}={
 // The edge function answers a locked request with 402 {code:'pro_required',feature} or {code:'quota',feature,used,quota}.
 export function lockedFrom(error){
  if(!error||!['pro_required','quota'].includes(error.code))return null;
+ if(error.code==='quota'&&error.pro)return null;
  if(known(error.feature))return error.feature;
- return error.code==='quota'?'ask_unlimited':null;
+ return error.code==='quota'?'smart_ai':null;
 }
 // The one line under a quota gate: what was used, in plain numbers.
 export function quotaNote(error){
  if(error?.code!=='quota')return '';
- const used=Number(error.used),quota=Number(error.quota);
- return Number.isFinite(used)&&Number.isFinite(quota)?`You have used ${used} of your ${quota} free questions this month.`:'You have used this month’s free questions.';
+ const day=resetDay(error.resets);
+ return `You have used this month’s free AI.${day?` It resets on ${day}.`:''}`;
 }
+const resetDay=iso=>{const t=Date.parse(iso||'');return Number.isFinite(t)?new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'long',timeZone:'UTC'}):''};
+const shortDay=iso=>{const t=Date.parse(iso||'');return Number.isFinite(t)?new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}):''};
 export function seatLine(seats){
  if(!seats||!Number.isFinite(Number(seats.cap)))return '';
  if(seats.mine)return 'Your live WHOOP seat is reserved.';
@@ -53,11 +56,44 @@ export function upgradeDialog({feature,seats=null,plan={pro:false}}={}){
  return `<div class="dialog-kicker"><span class="marker" aria-hidden="true"></span>Xeyo Pro</div><h2 id="dialog-title">${f?esc(f.title)+' is part of Xeyo Pro.':'More from the data you already have.'}</h2>${f?`<p>${esc(f.value)}</p>`:'<p>Free keeps your last 30 days and every manual entry. Pro adds:</p>'}<ul class="pro-features">${rows}</ul>${feature==='whoop_live'&&seatsFull?'<p class="pro-dialog-note">Live WHOOP seats are full. You can still buy Pro for everything else, and join the waitlist for a seat.</p>':''}<div class="pro-price"><span class="stat"><b>€5</b><small>/month</small></span><span class="stat-caption">Cancel anytime.</span></div><div class="dialog-footer pro-dialog-footer"><button type="button" class="btn light" data-action="close">Not now</button><span class="pro-dialog-actions">${feature==='whoop_live'&&seatsFull?'<button type="button" class="btn light" data-action="whoop-waitlist">Join the waitlist</button>':''}<button type="button" class="btn" data-action="checkout" data-feature="${esc(known(feature)?feature:'')}">Upgrade · ${PRICE}</button></span></div>`;
 }
 
-// The visible offer: a full card (not a pill) where a Free member meets a limit, e.g. under a metric's chart or in the
-// refresh panel. One headline, one line on what changes, three things Pro adds, one orange button that opens checkout.
-export function proCard({feature='',title,body,points}={}){
- const f=FEATURES[feature];
- const list=(points||['full_history','whoop_live','weekly_report'].filter(id=>id!==feature).slice(0,3)).map(id=>FEATURES[id]?.title).filter(Boolean);
- return `<section class="pro-card" data-feature="${esc(feature)}" aria-label="Xeyo Pro"><div class="pro-card-copy"><span class="pro-badge">Xeyo Pro</span><h3 class="pro-card-title">${esc(title||f?.title||'Get more from your data')}</h3><p class="pro-card-body">${esc(body||f?.value||'')}</p>${list.length?`<ul class="pro-card-points">${list.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}</div><div class="pro-card-cta"><button type="button" class="btn pro-card-button" data-action="upgrade" data-feature="${esc(feature)}">Upgrade to Pro</button><span class="pro-gate-price">${PRICE} · cancel anytime</span></div></section>`;
+// The visible offer: a card (not a pill) where a Free member meets a limit, e.g. under a metric's chart or in the
+// refresh panel. It shows, from the member's own account, what Free is holding back right now: how many of their
+// readings sit beyond the 30-day window (counts only, never values), drawn as a timeline, and how much of this month's
+// free AI they have used. Then four things Pro adds, as tiles, and one orange button that opens checkout.
+const ICONS={
+ full_history:'<path d="M4 19V9M9 19V5M14 19v-7M19 19V8"/>',
+ smart_ai:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>',
+ weekly_report:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+ correlations:'<circle cx="6" cy="17" r="1.6"/><circle cx="10" cy="13" r="1.6"/><circle cx="14" cy="12" r="1.6"/><circle cx="18" cy="7" r="1.6"/><path d="M4 20L20 4" stroke-dasharray="2 3"/>',
+ whoop_live:'<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M4 4v4h4M20 20v-4h-4"/>',
+ csv_export:'<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16M4 14h16M10 5v14"/>'
+};
+const TILES={
+ full_history:['1 year+','of charts, not 30 days'],
+ smart_ai:['Sonnet','deeper AI, 3× the allowance'],
+ weekly_report:['Weekly','report on what changed and why'],
+ correlations:['Patterns','what moves your HRV and recovery'],
+ whoop_live:['Live','WHOOP sync, no more uploads'],
+ csv_export:['CSV','every reading in a spreadsheet']
+};
+const icon=id=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[id]||ICONS.full_history}</svg>`;
+// Timeline of the member's history: the last 30 days lit (what Free shows), everything before hatched (kept for Pro).
+export function historyStrip(hidden,now=Date.now()){
+ const since=Date.parse(hidden?.since||''),count=Number(hidden?.readings)||0;
+ const span=count&&Number.isFinite(since)?Math.max(60,Math.ceil((now-since)/86400000)):365,free=Math.max(4,Math.round(30/span*100));
+ const left=count&&Number.isFinite(since)?`Since ${shortDay(hidden.since)}`:'A year with Pro';
+ return `<div class="pro-history" aria-hidden="true"><div class="pro-history-bar"><span class="pro-history-locked" style="flex-basis:${100-free}%"><em>${count?'Kept for Pro':'Pro'}</em></span><span class="pro-history-free" style="flex-basis:${free}%"><em>Free</em></span></div><div class="pro-history-scale"><span>${esc(left)}</span><span>30 days ago</span><span>Today</span></div></div>`;
+}
+function aiMeter(ai){
+ if(!ai||ai.tier!=='free'||!Number.isFinite(Number(ai.percent)))return '';
+ const pct=Math.max(0,Math.min(100,Math.round(Number(ai.percent))));
+ return `<div class="pro-ai"><div class="pro-ai-row"><span>Free AI this month · ${esc(ai.modelName||'Claude Haiku')}</span><b>${pct}% used</b></div><div class="pro-ai-bar" role="img" aria-label="${pct}% of this month’s free AI used"><span style="width:${pct}%"></span></div><p>Pro switches you to Claude Sonnet with three times the allowance.</p></div>`;
+}
+export function proCard({feature='',title,body,points,status=null,now=Date.now()}={}){
+ const f=FEATURES[feature],hidden=status?.hidden,count=Number(hidden?.readings)||0;
+ const ids=(points||[feature,'full_history','smart_ai','weekly_report','whoop_live']).filter((id,i,a)=>TILES[id]&&a.indexOf(id)===i).slice(0,4);
+ const insight=count?`<p class="pro-insight"><b>${count.toLocaleString('en-GB')}</b> of your readings from before the last 30 days are saved and waiting. Pro shows them again.</p>`:'';
+ const tiles=ids.map(id=>`<li class="pro-tile${id===feature?' is-focus':''}">${icon(id)}<b>${esc(TILES[id][0])}</b><span>${esc(TILES[id][1])}</span></li>`).join('');
+ return `<section class="pro-card" data-feature="${esc(feature)}" aria-label="Xeyo Pro"><div class="pro-card-copy"><span class="pro-badge">Xeyo Pro</span><h3 class="pro-card-title">${esc(title||f?.title||'Get more from your data')}</h3><p class="pro-card-body">${esc(body||f?.value||'')}</p>${insight}</div>${historyStrip(hidden,now)}<ul class="pro-tiles">${tiles}</ul>${aiMeter(status?.usage?.ai)}<div class="pro-card-cta"><button type="button" class="btn pro-card-button" data-action="upgrade" data-feature="${esc(feature)}">Upgrade to Pro · ${PRICE}</button><span class="pro-gate-price">Cancel anytime. Your data stays yours.</span></div></section>`;
 }
 export {upgradeButton};

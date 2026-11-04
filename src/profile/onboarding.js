@@ -187,7 +187,7 @@ const COPY={
  about:['A little about you.','This puts your numbers in context. It is never used to assign a health score.','Just a little context.'],
  community:['Your progress, in perspective.','See where your readings sit among people your age. Participation is optional.','Your preferences can be changed anytime.'],
  insight:['Your first insight.','Built only from your own readings, never from an average person.','From your readings only.'],
- pro_offer:['Xeyo Pro, if you want it.','Free stays free: Garmin and Fitbit sync, file imports, your last 30 days and 3 Ask Xeyo questions a month. Pro adds:','You can upgrade later from Integrations.']
+ pro_offer:['Xeyo Pro, if you want it.','Free stays free: Garmin and Fitbit sync, file imports, your last 30 days and everyday AI with Claude Haiku for meals, questions and your journal. Pro adds:','You can upgrade later from Integrations.']
 };
 
 export function openOnboarding({app,profile,photos=[],save,done,signOut,orb,userId,api,capabilities={},connections=[],plan={pro:false},seats=null,waitlisted=false,firstInsight=null,track=()=>{},startCheckout,openWhoopUpload,openImport,savePreferences,storage=globalThis.localStorage,flow,navigate=url=>location.assign(url)}){

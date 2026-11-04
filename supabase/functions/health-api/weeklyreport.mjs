@@ -110,7 +110,7 @@ export async function weeklyReport({stats,correlations=null,ai=null}={}){
  // No readings means nothing true to say, so the AI is not asked (and cannot invent a week).
  if(!ai?.key||!ai.model||!stats.daysRecorded)return rules;
  try{
-  const text=await complete({provider:ai.provider||'anthropic',model:ai.model,key:ai.key,system:REPORT_SYSTEM,messages:[{role:'user',content:JSON.stringify(aiInput(stats,correlations))}],maxTokens:1200,json:true},ai.fetcher||fetch,{timeout:ai.timeout||30000,timeoutMessage:'The AI report timed out.'});
+  const text=await complete({provider:ai.provider||'anthropic',model:ai.model,key:ai.key,system:REPORT_SYSTEM,messages:[{role:'user',content:JSON.stringify(aiInput(stats,correlations))}],maxTokens:1200,json:true,onUsage:ai.onUsage},ai.fetcher||fetch,{timeout:ai.timeout||30000,timeoutMessage:'The AI report timed out.'});
   return {...base,...parseAIReport(text,actions),generatedBy:'ai',model:ai.model};
  }catch(error){return {...rules,aiError:String(error?.message||'AI unavailable').slice(0,200)}}
 }

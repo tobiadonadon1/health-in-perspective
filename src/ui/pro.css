@@ -99,16 +99,40 @@
 .lock-icon{width:13px;height:13px;margin-right:4px;vertical-align:-2px;fill:none;stroke:currentColor;stroke-width:1.8}
 
 /* The visible offer (pro/gate.js proCard): a real card where a Free member meets a limit, not a chip. */
-.pro-card{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin:16px 0;padding:20px 22px;border-radius:20px;background:linear-gradient(135deg,#1b1b1b 0%,#2a1d17 100%);color:var(--on-dark,#fff);box-shadow:0 10px 30px -18px #ff5a1f99}
-.pro-card-copy{display:flex;flex-direction:column;align-items:flex-start;gap:8px;flex:1 1 280px;min-width:0}
+.pro-card{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;margin:16px 0;padding:22px;border-radius:22px;background:radial-gradient(120% 90% at 100% 0%,#ff5a1f33 0%,transparent 55%),linear-gradient(150deg,#161616 0%,#24180f 100%);color:#fff;box-shadow:0 14px 36px -20px #ff5a1fa6}
+.pro-card-copy{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
 .pro-card .pro-badge{background:#ffffff1f;color:#fff}
-.pro-card-title{font-size:20px;font-weight:400;letter-spacing:-.02em;line-height:1.25;color:#fff}
-.pro-card-body{max-width:52ch;font-size:13px;line-height:1.5;color:#ffffffb8}
-.pro-card-points{display:flex;flex-wrap:wrap;gap:6px 16px;margin:2px 0 0;padding:0;list-style:none;font-size:12px;color:#ffffffcc}
-.pro-card-points li{display:flex;align-items:center;gap:7px}
-.pro-card-points li::before{content:'';width:7px;height:7px;border-radius:2px;background:var(--accent-fill)}
-.pro-card-cta{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.pro-card-title{font-size:21px;font-weight:400;letter-spacing:-.02em;line-height:1.25;color:#fff}
+.pro-card-body{max-width:60ch;font-size:13px;line-height:1.5;color:#ffffffb8}
+.pro-insight{margin:2px 0 0;font-size:13px;line-height:1.45;color:#ffffffd9}
+.pro-insight b{font-size:15px;font-weight:600;color:#ffb48a;font-variant-numeric:tabular-nums}
+/* History timeline: hatched = kept for Pro, lit = the 30 days Free shows. */
+.pro-history{display:flex;flex-direction:column;gap:6px}
+.pro-history-bar{display:flex;height:34px;border-radius:10px;overflow:hidden;box-shadow:inset 0 0 0 1px #ffffff1f}
+.pro-history-bar span{display:flex;align-items:center;min-width:0;padding:0 10px;font-size:11px;letter-spacing:.02em;white-space:nowrap}
+.pro-history-bar em{font-style:normal;overflow:hidden;text-overflow:ellipsis}
+.pro-history-locked{background:repeating-linear-gradient(135deg,#ffffff14 0 6px,#ffffff05 6px 12px);color:#ffffffb3}
+.pro-history-free{justify-content:center;background:var(--accent-fill);color:#fff;font-weight:600}
+.pro-history-free em{overflow:visible}
+.pro-history-scale{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#ffffff80;font-variant-numeric:tabular-nums}
+/* What Pro adds, as tiles. */
+.pro-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;list-style:none}
+.pro-tile{display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:14px;background:#ffffff0d;box-shadow:inset 0 0 0 1px #ffffff14;min-width:0}
+.pro-tile svg{width:20px;height:20px;margin-bottom:6px;color:#ff8f57}
+.pro-tile b{font-size:15px;font-weight:600;letter-spacing:-.01em;color:#fff}
+.pro-tile span{font-size:12px;line-height:1.35;color:#ffffffa6}
+.pro-tile.is-focus{background:#ff5a1f24;box-shadow:inset 0 0 0 1px #ff8f5766}
+/* This month's free AI. */
+.pro-ai{display:flex;flex-direction:column;gap:7px}
+.pro-ai-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#ffffffb3}
+.pro-ai-row b{font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
+.pro-ai-bar{height:6px;border-radius:99px;background:#ffffff1f;overflow:hidden}
+.pro-ai-bar span{display:block;height:100%;border-radius:inherit;background:var(--accent-fill)}
+.pro-ai p{margin:0;font-size:12px;color:#ffffff8c}
+.pro-card-cta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
 .pro-card .pro-gate-price{color:#ffffff99}
+@media(max-width:640px){.pro-card{padding:18px}.pro-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.pro-card-button{width:100%}}
+@media(forced-colors:active){.pro-history-free,.pro-ai-bar span{background:Highlight}.pro-history-locked{background:none}}
 .pro-card-button,.upgrade-cta{background:var(--accent-fill);color:#fff;border:0}
 .pro-card-button:hover,.upgrade-cta:hover{filter:brightness(1.06)}
 /* Top bar: always visible for Free members. */

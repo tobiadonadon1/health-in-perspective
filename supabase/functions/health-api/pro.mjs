@@ -1,6 +1,6 @@
 // Free/Pro actions for the health API: plan status, checkout, WHOOP seats and waitlist, lapses, file-import records,
 // exports, and the server-side gate in front of every Pro feature. index.ts passes its context in.
-import {FREE_LIMITS,PRO_PRICE,PlanError,planFor,requirePro,askUsage,seatSummary,claimSeat,seatCap} from './entitlements.mjs';
+import {FREE_LIMITS,PRO_PRICE,PlanError,planFor,requirePro,aiUsage,meteredAI,seatSummary,claimSeat,seatCap} from './entitlements.mjs';
 import {checkoutUrl,verifyStripeSignature,applyStripeEvent,stripePortal,DEFAULT_PAYMENT_LINK,DEFAULT_PRO_PRODUCT,DEFAULT_PAYMENT_LINK_ID} from './billing.mjs';
 import {disconnectWhoopMember,disconnectAllWhoop} from './whoop-disconnect.mjs';
 import * as imports from './imports.mjs';
@@ -16,17 +16,26 @@ async function linkByEmail(client,user){
  if(!user.email||!user.email_confirmed_at)return;
  await client.from('subscriptions').update({user_id:user.id}).is('user_id',null).eq('customer_email',user.email.toLowerCase());
 }
+// What Free hides right now: the member's own wearable readings older than 30 days (kept, shown again with Pro).
+// Counts only, never values, so the Upgrade card can say what is waiting without revealing it.
+export async function hiddenHistory(client,userId,now=Date.now()){
+ const cutoff=new Date(now-FREE_LIMITS.historyDays*86400000).toISOString();
+ const base=()=>client.from('health_readings').select('observed_at',{count:'exact'}).eq('user_id',userId).neq('source','Manual entry').lt('observed_at',cutoff);
+ const r=await base().order('observed_at',{ascending:true}).limit(1);if(r.error)throw r.error;
+ return {readings:r.count||0,since:r.data?.[0]?.observed_at?.slice(0,10)||null};
+}
 export async function planStatus(client,user,{cap}){
  await linkByEmail(client,user);
  const plan=await planFor(client,user.id);
- const [seats,wait,usage,imports,notices]=await Promise.all([
+ const [seats,wait,usage,imports,notices,hidden]=await Promise.all([
   seatSummary(client,user.id,cap),
   client.from('whoop_waitlist').select('joined_at').eq('user_id',user.id).maybeSingle(),
-  askUsage(client,user.id,plan),
+  aiUsage(client,user.id,plan).catch(()=>null),
   client.from('wearable_imports').select('provider,imported_at,row_count,first_day,last_day').eq('user_id',user.id).order('imported_at',{ascending:false}).limit(20),
-  client.from('account_notices').select('kind,created_at').eq('user_id',user.id).is('seen_at',null)]);
+  client.from('account_notices').select('kind,created_at').eq('user_id',user.id).is('seen_at',null),
+  plan.pro?null:hiddenHistory(client,user.id).catch(()=>null)]);
  const latest={};for(const r of imports.data||[])if(!latest[r.provider])latest[r.provider]=r;
- return {plan,seats,waitlisted:!!wait.data,usage:{ask:usage},limits:FREE_LIMITS,price:PRO_PRICE,imports:latest,notices:(notices.data||[]).map(n=>n.kind)};
+ return {plan,seats,waitlisted:!!wait.data,usage:{ai:usage},hidden,limits:FREE_LIMITS,price:PRO_PRICE,imports:latest,notices:(notices.data||[]).map(n=>n.kind)};
 }
 
 // Enforces a lapse for one member: no live WHOOP without Pro. Readings stay; the seat is freed.
@@ -73,6 +82,8 @@ export async function weeklyReportFor(client,userId,{weekStart,timeZone='UTC',ai
  if(!refresh){const saved=await client.from('weekly_reports').select('content').eq('user_id',userId).eq('week_start',ws).maybeSingle();if(saved.data)return saved.data.content}
  const {readings,result}=await correlationsFor(client,userId,timeZone,{forAI:true}),start=Date.parse(ws+'T00:00:00Z');
  const window=readings.filter(r=>{const t=Date.parse(r.observed_at);return t>=start-29*86400000&&t<=start+8*86400000});
+ // Pro reports use the member's metered Pro AI (Claude Sonnet); past the allowance the report is written by rules.
+ if(ai?.key&&!ai.onUsage)ai=await meteredAI(client,userId,ai.key,{plan:{pro:true}}).then(m=>m&&{...m,fetcher:ai.fetcher}).catch(()=>null);
  const report=await weeklyReport({stats:buildWeeklyStats({readings:window,weekStart:ws,timeZone}),correlations:result,ai});delete report.aiError;
  const w=await client.from('weekly_reports').upsert({user_id:userId,week_start:report.weekStart,content:report,model:report.model||null},{onConflict:'user_id,week_start'});if(w.error)throw Error('Could not save your weekly report.');
  return report;

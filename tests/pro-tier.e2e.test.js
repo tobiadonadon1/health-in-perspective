@@ -12,7 +12,8 @@ import {signStripePayload} from '../supabase/functions/health-api/billing.mjs';
 const run=promisify(execFile);
 const skip=!available()&&'needs postgres, postgrest and deno on PATH';
 let s;
-test.before(async()=>{if(!skip)s=await startStack()});
+// A house key that is never used for a real call here: the allowance check refuses before any request leaves.
+test.before(async()=>{if(!skip)s=await startStack({env:{XEYO_ANTHROPIC_KEY:'sk-ant-test-never-called'}})});
 test.after(async()=>{await s?.stop()});
 
 const q=v=>`'${String(v).replace(/'/g,"''")}'`;
@@ -63,7 +64,7 @@ test('the paywall is enforced on the server for every Pro endpoint, whatever the
  // A free member who somehow still has WHOOP tokens is disconnected on sync rather than synced.
  assert.equal(await count('select count(*) from public.whoop_seats'),0);
  const status=await s.api(free.token,'connections');
- assert.equal(status.plan.pro,false);assert.deepEqual(status.limits,{historyDays:30,askPerMonth:3});assert.equal(status.seats.cap,10);
+ assert.equal(status.plan.pro,false);assert.deepEqual(status.limits,{historyDays:30});assert.equal(status.usage.ai.tier,'free');assert.equal(status.usage.ai.percent,0);assert.equal(status.seats.cap,10);
 });
 
 test('Free members see 30 days of wearable history (RLS); Pro sees everything; everyone can export all of it',{skip},async()=>{
@@ -83,21 +84,24 @@ test('Free members see 30 days of wearable history (RLS); Pro sees everything; e
  assert.deepEqual((await s.rest(other.token,'health_readings?select=id')).body,[]);
 });
 
-test('Ask Xeyo: three free questions a month, atomically; a failed answer gives the question back',{skip},async()=>{
- const [m]=await users(1,'ask');
- const take=()=>s.psql(`select (public.take_feature_use(${q(m.id)},'ask','2026-11',3))->>'ok'`);
- const results=await Promise.all([take(),take(),take(),take(),take()]);
- assert.equal(results.filter(x=>x==='true').length,3);assert.equal(results.filter(x=>x==='false').length,2);
- // Through the API: no AI is configured locally, so the call fails and the use is refunded.
- const [n]=await users(1,'ask2');
- const r=await s.api(n.token,'chat-send',{message:'How did I sleep?',requestId:crypto.randomUUID()});
- assert.notEqual(r.status,200);
- assert.equal(await count(`select coalesce(sum(used),0) from public.feature_usage where user_id=${q(n.id)}`),0);
- await s.psql(`insert into public.feature_usage(user_id,feature,period,used) values(${q(n.id)},'ask',to_char(now(),'YYYY-MM'),3) on conflict(user_id,feature,period) do update set used=3`);
- const out=await s.api(n.token,'chat-send',{message:'One more?',requestId:crypto.randomUUID()});
- assert.equal(out.status,402);assert.equal(out.code,'quota');assert.equal(out.quota,3);
+test('AI allowance: spend adds up atomically; Free past $1 gets the upgrade 402, Pro gets Sonnet; Free sees hidden history counts',{skip},async()=>{
+ const [m]=await users(1,'ai');
+ const add=n=>s.psql(`select public.add_feature_use(${q(m.id)},'ai_spend','2026-11',${n})`);
+ await Promise.all([add(1000),add(2000),add(3000),add(-50)]);
+ assert.equal(await count(`select used from public.feature_usage where user_id=${q(m.id)} and feature='ai_spend'`),6000);
+ // Members cannot add spend themselves.
+ assert.notEqual((await s.rest(m.token,'rpc/add_feature_use',{method:'POST',body:JSON.stringify({owner:m.id,p_feature:'ai_spend',p_period:'2026-11',amount:6000})})).status,200);
+ const [n]=await users(1,'ai2');
+ await s.psql(`insert into public.feature_usage(user_id,feature,period,used) values(${q(n.id)},'ai_spend',to_char(now(),'YYYY-MM'),1000000)`);
+ const out=await s.api(n.token,'chat-send',{message:'One more?',request_id:crypto.randomUUID()});
+ assert.equal(out.status,402);assert.equal(out.code,'quota');assert.equal(out.feature,'smart_ai');
+ const status=await s.api(n.token,'plan-status');assert.equal(status.usage.ai.percent,100);
  await makePro(n);
- assert.notEqual((await s.api(n.token,'chat-send',{message:'Pro?',requestId:crypto.randomUUID()})).code,'quota');
+ const proStatus=await s.api(n.token,'plan-status');assert.equal(proStatus.usage.ai.model,'claude-sonnet-5-5');assert.equal(proStatus.usage.ai.percent,33);assert.equal(proStatus.hidden,null);
+ const [h]=await users(1,'hidden');
+ await s.psql(`insert into public.health_readings(user_id,kind,value,unit,source,external_id,observed_at) values(${q(h.id)},'hrv',50,'ms','WHOOP','a',now()-interval '90 days'),(${q(h.id)},'hrv',52,'ms','WHOOP','b',now()-interval '60 days'),(${q(h.id)},'hrv',55,'ms','WHOOP','c',now()-interval '2 days'),(${q(h.id)},'weight',70,'kg','Manual entry','d',now()-interval '200 days')`);
+ const hidden=(await s.api(h.token,'plan-status')).hidden;
+ assert.equal(hidden.readings,2);assert.equal(hidden.since,new Date(Date.now()-90*86400000).toISOString().slice(0,10));
 });
 
 test('Stripe checkout makes a member Pro; a cancelled subscription disconnects WHOOP, frees the seat and keeps the data',{skip},async()=>{
