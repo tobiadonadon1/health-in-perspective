@@ -282,7 +282,8 @@ export function openOnboarding({app,profile,figure=null,save,saveBoard,done,sign
  async function finish(props={},{checkout=false}={}){
   if(run.finish(props))cleanup();
   const s=run.state,openAfter=openAfterList(s);
-  await done(savedProfile||profile||undefined,{whoopChoice:s.whoopChoice,openAfter,wearables:s.wearables});
+  // firstRun: a full onboarding that ends here (not in Stripe), so Home can show its tour before anything else opens.
+  await done(savedProfile||profile||undefined,{whoopChoice:s.whoopChoice,openAfter,wearables:s.wearables,firstRun:run.mode==='full'&&!checkout});
   if(checkout)return;
   // One dialog at a time: the first thing they asked for opens now; the rest stays one click away in Integrations.
   const first=openAfter[0];

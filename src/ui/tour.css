@@ -1,0 +1,37 @@
+/* First-run tour (tour.js). The page dims around one lit stop; the spotlight glides between stops. The words sit on a
+   soft, irregular ground of warm ink with a fine grain: no card edge, no pill, just a pool of dark that fades out
+   at its rim, so the white text reads on any part of the page. */
+.is-touring{scroll-padding-top:90px}
+.tour-shield{position:fixed;inset:0;z-index:90;cursor:default}
+.tour-hole{position:fixed;z-index:91;pointer-events:none;border-radius:22px;box-shadow:0 0 0 200vmax #170d0880,0 0 0 1.5px #ff8a4de6,0 0 34px 6px #ff6a1a59;transition:left .5s var(--ease,cubic-bezier(.2,.7,.2,1)),top .5s var(--ease,cubic-bezier(.2,.7,.2,1)),width .5s var(--ease,cubic-bezier(.2,.7,.2,1)),height .5s var(--ease,cubic-bezier(.2,.7,.2,1)),border-radius .5s,opacity .25s}
+.tour-hole.is-leaving,.tour-shield.is-leaving{opacity:0}
+
+.tour-tip{position:fixed;left:0;top:0;z-index:92;width:min(380px,calc(100vw - 24px));padding:34px 40px 30px;color:#fff;isolation:isolate;transition:opacity .28s ease,transform .5s var(--ease,cubic-bezier(.2,.7,.2,1))}
+.tour-tip.is-moving{opacity:0}
+.tour-tip:focus{outline:none}
+/* The ground: an irregular pool of warm ink, feathered at the edge, with a faint ember glow at one corner. */
+.tour-ground{position:absolute;inset:-8px -12px;z-index:-2;border-radius:var(--tour-shape,48% 52% 50% 50% / 52% 48% 52% 48%);background:radial-gradient(80% 70% at 8% 0%,#ff6a1a3d 0%,#ff6a1a00 65%),radial-gradient(70% 80% at 100% 100%,#8a221255 0%,#8a221200 70%),linear-gradient(160deg,#2b1911 0%,#170e0a 100%);filter:blur(5px);box-shadow:0 30px 60px -20px #0d0705cc;transition:border-radius .6s ease}
+/* Grain over the ground, faded out before the edge so it never draws a border. */
+.tour-tip::after{content:'';position:absolute;inset:6%;z-index:-1;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");-webkit-mask-image:radial-gradient(closest-side,#000 70%,#0000);mask-image:radial-gradient(closest-side,#000 70%,#0000);mix-blend-mode:overlay;opacity:.8}
+.tour-copy{display:flex;flex-direction:column;gap:10px}
+.tour-meta{display:flex;align-items:center;gap:12px}
+.tour-count{font-size:12px;color:#ffffffa6;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tour-bars{display:flex;gap:4px}
+.tour-bars i{width:14px;height:3px;border-radius:2px;background:#ffffff33;transition:background .3s,width .3s}
+.tour-bars i.done{background:#ffffff8c}
+.tour-bars i.on{width:22px;background:#ff8a4d}
+.tour-tip h2{margin:4px 0 0;font-size:21px;font-weight:400;letter-spacing:-.025em;line-height:1.2;color:#fff}
+.tour-tip p{margin:0;font-size:14px;line-height:1.55;color:#ffffffd9}
+.tour-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+.tour-tip button{font:inherit;cursor:pointer}
+.tour-next{display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0 18px;border:0;border-radius:999px;background:#fff;color:#1d120d;font-size:14px;font-weight:500;transition:transform .15s,background .15s}
+.tour-next:hover{background:#ffe9dc}
+.tour-next:active{transform:scale(.97)}
+.tour-back,.tour-skip{min-height:32px;padding:0 2px;border:0;background:none;color:#ffffffbf;font-size:13px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#ffffff4d}
+.tour-back:hover,.tour-skip:hover{color:#fff}
+.tour-skip{margin-left:auto;text-decoration:none;color:#ffffffa6}
+.tour-skip:hover{text-decoration:underline}
+.tour-tip button:focus-visible{outline:2px solid #ff8a4d;outline-offset:3px}
+@media(max-width:560px){.tour-tip{padding:30px 30px 26px}.tour-tip h2{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.tour-hole,.tour-tip,.tour-ground,.tour-bars i{transition:none}}
+@media(forced-colors:active){.tour-ground{background:Canvas;filter:none;border:2px solid CanvasText}.tour-tip{color:CanvasText}.tour-tip::after{display:none}.tour-hole{outline:3px solid Highlight;box-shadow:none}.tour-next{border:1px solid ButtonText}}
