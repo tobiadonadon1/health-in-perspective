@@ -1,7 +1,7 @@
 // Runs the local backend with three seeded accounts so the real app can be tried end to end:
 //   node tests/local-stack/serve.mjs   then   VITE_SUPABASE_URL=<printed url> VITE_SUPABASE_PUBLISHABLE_KEY=<printed key> npm run dev
 // free@xeyo.test (Free, WHOOP export imported 9 days ago, the "live WHOOP is now Pro" notice), pro@xeyo.test (Pro, live WHOOP
-// + Garmin, 120 days of data), new@xeyo.test (no profile: onboarding). Password for all: test-password-1. SEATS=10 fills every seat.
+// + Garmin, 120 days of data), new@xeyo.test (no profile: onboarding). Password for all: test-password-1. By default only pro@xeyo.test holds a seat; SEATS=10 fills every seat.
 import {writeFileSync} from 'node:fs';
 import {startStack} from './stack.mjs';
 import {createSealer} from '../../supabase/functions/health-api/sealing.mjs';
@@ -30,8 +30,8 @@ await s.psql(`insert into public.subscriptions(stripe_subscription_id,user_id,st
 const sealer=createSealer(s.env.TOKEN_ENCRYPTION_KEY);
 await s.psql(`insert into public.wearable_secrets(user_id,provider,encrypted_tokens,connected_at,last_synced_at) values(${q(pro.id)},'whoop',${q(await sealer.seal({access_token:'local',refresh_token:'local',expires_at:now+3600000}))},now()-interval '20 days',now()-interval '1 hour'),(${q(pro.id)},'garmin',${q(await sealer.seal({access_token:'g',refresh_token:'g',expires_at:now+3600000}))},now()-interval '20 days',now()-interval '3 hours')`);
 await s.psql(`insert into public.whoop_seats(user_id,status) values(${q(pro.id)},'active')`);
-// Other members holding seats: 9 of 10 taken by default (1 left), or all 10 with SEATS=10.
-const others=Number(process.env.SEATS||9)-1;for(let i=0;i<others;i++){const u=await s.createUser(`seat${i}@xeyo.test`);await s.psql(`insert into public.subscriptions(stripe_subscription_id,user_id,status,current_period_end) values('sub_seat${i}',${q(u.id)},'active',now()+interval '30 days');insert into public.whoop_seats(user_id,status) values(${q(u.id)},'active')`)}
+// No other seat holders unless asked: SEATS=10 (with pro@xeyo.test's own seat) fills every seat to test the waitlist.
+const others=Math.max(0,Number(process.env.SEATS||1)-1);for(let i=0;i<others;i++){const u=await s.createUser(`seat${i}@xeyo.test`);await s.psql(`insert into public.subscriptions(stripe_subscription_id,user_id,status,current_period_end) values('sub_seat${i}',${q(u.id)},'active',now()+interval '30 days');insert into public.whoop_seats(user_id,status) values(${q(u.id)},'active')`)}
 const info={url:s.url,anonKey:s.anonKey,users:{free:free.email,pro:pro.email,new:fresh.email},password:'test-password-1',admin:s.env.ADMIN_TASK_SECRET,webhookSecret:s.env.STRIPE_WEBHOOK_SECRET};
 if(process.env.INFO)writeFileSync(process.env.INFO,JSON.stringify(info));
 console.log('local stack ready',JSON.stringify(info));

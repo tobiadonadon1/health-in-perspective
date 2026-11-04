@@ -56,13 +56,13 @@ test('a failed workspace transition does not repeat a confirmed save',async()=>{
 });
 
 // The rebuilt flow: pure step logic, progress that survives an OAuth round trip, and funnel tracking.
-import {onboardingSteps,toggleWearable,toggleFocus,reduceOnboarding,readProgress,writeProgress,progressKey,resumeStep,connectItems,connectHTML,insightHTML,createOnboardingFlow,openAfterList} from '../src/profile/onboarding.js';
+import {FOCUS,FOCUS_GROUPS,figureOf,onboardingSteps,toggleWearable,toggleFocus,reduceOnboarding,readProgress,writeProgress,progressKey,resumeStep,connectItems,connectHTML,insightHTML,createOnboardingFlow,openAfterList} from '../src/profile/onboarding.js';
 const memory=()=>{const m=new Map();return {m,getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)}};
 const uid='10000000-0000-4000-8000-0000000000bb';
 
 test('steps: one question per screen, Pro members skip the offer, editing a profile is the short flow',()=>{
- assert.deepEqual(onboardingSteps({wearables:['whoop']}),['wearables','focus','connect','about','community','insight','pro_offer']);
- assert.deepEqual(onboardingSteps({wearables:['none'],plan:{pro:true}}),['wearables','focus','connect','about','community','insight']);
+ assert.deepEqual(onboardingSteps({wearables:['whoop']}),['wearables','focus','connect','about','community','pro_offer']);
+ assert.deepEqual(onboardingSteps({wearables:['none'],plan:{pro:true}}),['wearables','focus','connect','about','community']);
  assert.deepEqual(onboardingSteps({flow:'profile'}),['about','community']);
 });
 test('wearable choice: None is exclusive and the order follows the list',()=>{
@@ -76,7 +76,7 @@ test('reducer moves through the steps and keeps choices',()=>{
  s=reduceOnboarding(s,{type:'whoop',choice:'import',steps});s=reduceOnboarding(s,{type:'whoop',choice:'bogus',steps});assert.equal(s.whoopChoice,'import');
  s=reduceOnboarding(s,{type:'open_after',id:'apple',on:true,steps});assert.deepEqual(s.openAfter,['apple']);
  s=reduceOnboarding(s,{type:'back',steps});s=reduceOnboarding(s,{type:'back',steps});assert.equal(s.step,'wearables');
- assert.deepEqual(openAfterList({...s,wearables:['whoop','apple']}),['whoop','apple']);
+ assert.deepEqual(openAfterList({...s,wearables:['whoop','apple']}),['apple']);
  assert.deepEqual(openAfterList({...s,wearables:['apple']}),['apple']);
  const last={...s,step:'pro_offer'};assert.equal(reduceOnboarding(last,{type:'next',steps}).step,'pro_offer');
 });
@@ -94,8 +94,9 @@ test('progress: written without the photo file, read back cleanly, stale or corr
 });
 test('resume: a step that no longer applies moves forward; steps after the save need a profile',()=>{
  const pro=onboardingSteps({plan:{pro:true}}),free=onboardingSteps({});
- assert.equal(resumeStep('pro_offer',pro,{hasProfile:true}),'insight');
- assert.equal(resumeStep('insight',free,{hasProfile:false}),'community');
+ assert.equal(resumeStep('pro_offer',pro,{hasProfile:true}),'community');
+ const legacy=memory();legacy.setItem(progressKey(uid),JSON.stringify({v:1,at:Date.now(),step:'insight',wearables:[],draft:{}}));assert.equal(readProgress(legacy,uid).step,'pro_offer');
+ assert.equal(resumeStep('pro_offer',free,{hasProfile:false}),'community');
  assert.equal(resumeStep('connect',free),'connect');
 });
 test('connect: seats left, seats full with waitlist, already connected, providers not switched on',()=>{
@@ -159,4 +160,11 @@ test('what to follow: up to six signals in the order picked, unknown ids ignored
  assert.deepEqual(flow.state.focus,full);flow.dispatch({type:'toggle_focus',id:'strain'});flow.dispatch({type:'toggle_focus',id:'spo2'});
  assert.deepEqual(createOnboardingFlow({userId:uid,storage}).state.focus,['recovery','hrv','resting_hr','sleep','heart_rate','spo2']);
  assert.equal(createOnboardingFlow({userId:uid,storage}).state.draft.representation,'digital');
+});
+
+test('what to follow lists every signal in four groups; the figure is a choice that defaults from gender',()=>{
+ assert.ok(FOCUS.length>=24);assert.ok(!FOCUS.some(f=>f.id==='weight'));
+ for(const f of FOCUS){assert.ok(FOCUS_GROUPS.some(([g])=>g===f.group));assert.ok(f.note.length>5)}
+ assert.equal(figureOf({gender:'woman'}),'woman');assert.equal(figureOf({gender:'nonbinary'}),'man');assert.equal(figureOf({gender:'man',figure:'woman'}),'woman');
+ const storage=memory();const flow=createOnboardingFlow({userId:uid,storage,figure:'woman'});assert.equal(flow.state.draft.figure,'woman');
 });
