@@ -3,7 +3,7 @@
 export const GOOGLE_HEALTH_SCOPES=['sleep.readonly','health_metrics_and_measurements.readonly','activity_and_fitness.readonly'].map(s=>'https://www.googleapis.com/auth/googlehealth.'+s);
 export const GOOGLE_STATE_PREFIX='gh.';
 const API='https://health.googleapis.com/v4/users/me';
-export const googleRedirect=origin=>origin+'/google-callback.html';
+export const googleRedirect=origin=>`${origin}/google-callback.html`;
 
 export function googleAuthUrl({clientId,origin,state}){
  const u=new URL('https://accounts.google.com/o/oauth2/v2/auth');

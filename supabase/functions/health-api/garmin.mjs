@@ -26,7 +26,7 @@ export const GARMIN_API='https://'+GARMIN_API_HOST+'/wellness-api/rest';
 // member did not allow historical data). Push key → backfill path; at most 30 days per request.
 export const GARMIN_BACKFILL_TYPES={dailies:'dailies',sleeps:'sleeps',hrv:'hrv',bodyComps:'bodyComps',pulseox:'pulseOx',allDayRespiration:'respiration',activities:'activities'};
 export const GARMIN_BACKFILL_MAX_DAYS=30;
-export const garminRedirect=origin=>origin+'/garmin-callback.html';
+export const garminRedirect=origin=>`${origin}/garmin-callback.html`;
 const RECONNECT='Garmin access expired or was revoked. Reconnect Garmin.';
 
 const b64url=bytes=>{let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
