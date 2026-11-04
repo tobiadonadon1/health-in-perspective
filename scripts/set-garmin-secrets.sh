@@ -1,11 +1,11 @@
 #!/bin/sh
-# Switches Garmin on: asks for the Garmin consumer key and secret (typing stays hidden), makes a random webhook token,
+# Switches Garmin on: asks for the Garmin Client ID and Client Secret (typing stays hidden), makes a random webhook token,
 # stores all three as Supabase secrets, and prints the two URLs to paste into the Garmin developer portal.
 # Run it in your own Terminal:  sh scripts/set-garmin-secrets.sh
 set -e
 REF=pisvrssqmlspuahyvbrx
-printf 'Garmin consumer key: '; stty -echo; read KEY; stty echo; echo
-printf 'Garmin consumer secret: '; stty -echo; read SECRET; stty echo; echo
+printf 'Garmin Client ID: '; stty -echo; read KEY; stty echo; echo
+printf 'Garmin Client Secret: '; stty -echo; read SECRET; stty echo; echo
 [ -n "$KEY" ] && [ -n "$SECRET" ] || { echo 'Both values are needed.'; exit 1; }
 TOKEN=$(openssl rand -hex 32)
 F=$(mktemp); chmod 600 "$F"
