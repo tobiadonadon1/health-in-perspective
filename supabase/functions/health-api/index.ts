@@ -8,7 +8,7 @@ import {collectWhoopData,mapWhoopReadings,allowedOrigin} from './whoop.mjs';
 import {handleProAction,handleStripeHook,sendWeeklyEmails,PRO_ACTIONS,CREDIT_FREE,planStatus,enforceLapse,sweepLapsed,whoopSeatForConnect,whoopSeatForComplete,disconnectAllWhoop,disconnectWhoopMember} from './pro.mjs';
 import {planFor,meterAsk,seatCap,requirePro,ACTION_FEATURE} from './entitlements.mjs';
 import {createSealer} from './sealing.mjs';
-import {GARMIN_STATE_PREFIX,garminRedirect,garminPkceForState,garminAuthUrl,garminToken,garminUserId,garminPermissions,garminDeregister,requestGarminBackfill,handleGarminPush,garminHookAuthorized} from './garmin.mjs';
+import {GARMIN_STATE_PREFIX,garminRedirect,garminPkceForState,garminAuthUrl,garminToken,garminUserId,garminPermissions,garminDeregister,requestGarminBackfill,handleGarminPush,garminHookAuthorized,garminHookToken} from './garmin.mjs';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 // Provided by the Supabase Edge runtime for background work after the response.
 declare const EdgeRuntime:{waitUntil(promise:Promise<unknown>):void};
@@ -55,7 +55,7 @@ async function googleHealthSync(client:any,userId:string){requireEnv('GOOGLE_HEA
   const saved=await client.from('wearable_secrets').update({last_synced_at:new Date().toISOString()}).eq('user_id',userId).eq('provider','google_health');if(saved.error)throw Error('Could not save synchronization status.');
   return {imported:rows.length};
  }finally{await client.from('wearable_secrets').update({sync_started_at:null,sync_id:null}).eq('user_id',userId).eq('provider','google_health').eq('sync_id',lease)}}
-// Garmin (free for everyone). Garmin pushes data to ?hook=garmin; the app's sync only refreshes the grant, checks
+// Garmin (free for everyone). Garmin pushes data to /health-api/garmin/<token>; the app's sync only refreshes the grant, checks
 // permissions and asks Garmin to resend recent days when pushes seem to have been missed.
 const garminCreds=()=>({clientId:env('GARMIN_CLIENT_ID'),clientSecret:env('GARMIN_CLIENT_SECRET')});
 // Garmin replaces the refresh token on every refresh, so the new one is saved at once.
@@ -75,8 +75,9 @@ async function grantedCycles(client:any,userId:string){try{const stored=await cl
 async function whoopSync(client:any,userId:string){const claim=await client.rpc('claim_whoop_sync',{owner:userId});if(claim.error)throw Error('Unable to start WHOOP sync. Reconnect if this continues.');if(!claim.data.lease)return {imported:0,skipped:true,reason:claim.data.reason,cycles:await grantedCycles(client,userId)};try{return await performWhoopSync(client,userId)}finally{await client.from('wearable_secrets').update({sync_started_at:null,sync_id:null}).eq('user_id',userId).eq('provider','whoop').eq('sync_id',claim.data.lease)}}
 Deno.serve(async(req)=>{const requestOrigin=allowedOrigin(req.headers.get('origin'),origin,[env('ALLOWED_ORIGINS')||'http://localhost:3001',PRODUCTION_ORIGIN].join(','));const headers:Record<string,string>={...baseHeaders,...(requestOrigin?{'Access-Control-Allow-Origin':requestOrigin}:{})};const respond=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status,headers});try{if(!origin)return respond({error:'Application origin is not configured.'},503);const client=admin();const url=new URL(req.url);
  // Garmin pushes: no browser origin or member token; a long secret token in the registered URL authenticates Garmin.
- if(req.method==='POST'&&url.searchParams.get('hook')==='garmin'){
-  if(!garminHookAuthorized({token:url.searchParams.get('token')||'',expected:env('GARMIN_WEBHOOK_TOKEN'),clientIdHeader:req.headers.get('garmin-client-id'),clientId:env('GARMIN_CLIENT_ID')}))return new Response(null,{status:401});
+ const garminPushKey=req.method==='POST'?garminHookToken(url):null;
+ if(garminPushKey!==null){
+  if(!garminHookAuthorized({token:garminPushKey,expected:env('GARMIN_WEBHOOK_TOKEN'),clientIdHeader:req.headers.get('garmin-client-id'),clientId:env('GARMIN_CLIENT_ID')}))return new Response(null,{status:401});
   const text=await req.text();if(text.length>25000000)return new Response(null,{status:413});
   const result=await handleGarminPush(text,{
    lookupUser:async(gid:string)=>{const r=await client.from('wearable_secrets').select('user_id').eq('provider','garmin').eq('external_user_id',gid).maybeSingle();if(r.error)throw r.error;return r.data?.user_id||null},

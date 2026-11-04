@@ -65,7 +65,7 @@ Re-running is safe. Add `--force` only if WHOOP refuses a revoke and you still w
 - Redirect URL: `https://app.xeyo.ai/garmin-callback.html`
 - Push URL (every summary type set to PUSH: Dailies, Sleeps, HRV, Body Comps, Pulse Ox, Respiration, Activities,
   Manually Updated Activities, Deregistrations, User Permissions Change):
-  `https://pisvrssqmlspuahyvbrx.supabase.co/functions/v1/health-api?hook=garmin&token=<GARMIN_WEBHOOK_TOKEN>`
+  `https://pisvrssqmlspuahyvbrx.supabase.co/functions/v1/health-api/garmin/<GARMIN_WEBHOOK_TOKEN>` (Garmin drops anything after `?`)
 - If the first token exchange fails, the token host is the one unverified constant: switch `GARMIN_TOKEN_URL` in
   `supabase/functions/health-api/garmin.mjs` between `connectapi.garmin.com` and `diauth.garmin.com`.
 

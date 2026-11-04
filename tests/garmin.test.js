@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {GARMIN_STATE_PREFIX,GARMIN_TOKEN_URL,garminRedirect,createPkce,pkceChallenge,garminPkceForState,garminAuthUrl,garminToken,garminUserId,garminPermissions,garminDeregister,requestGarminBackfill,mapGarmin,handleGarminPush,garminHookAuthorized,garminCallbackAllowed} from '../supabase/functions/health-api/garmin.mjs';
+import {GARMIN_STATE_PREFIX,GARMIN_TOKEN_URL,garminRedirect,createPkce,pkceChallenge,garminPkceForState,garminAuthUrl,garminToken,garminUserId,garminPermissions,garminDeregister,requestGarminBackfill,mapGarmin,handleGarminPush,garminHookAuthorized,garminHookToken,garminCallbackAllowed} from '../supabase/functions/health-api/garmin.mjs';
 
 const json=(body,status=200)=>new Response(body===null?null:JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
 const ts=s=>Date.parse(s)/1000;
@@ -243,4 +243,16 @@ test('the callback page moves the code into the fragment and reports refusals', 
  assert.equal(run('?state=gm.xyz'),'/?connection=garmin-denied');
  assert.equal(run('?error=server_error'),'/?connection=garmin-failed');
  assert.match(html,/name="referrer" content="no-referrer"/);
+});
+
+test('the push token is read from the path (Garmin drops query strings) or the old query form', () => {
+ const base='https://x.supabase.co/functions/v1/health-api';
+ assert.equal(garminHookToken(base+'/garmin/abc123'),'abc123');
+ assert.equal(garminHookToken(base+'/garmin/abc123/'),'abc123');
+ assert.equal(garminHookToken('http://localhost/health-api/garmin/abc123'),'abc123');
+ assert.equal(garminHookToken(base+'?hook=garmin&token=abc123'),'abc123');
+ assert.equal(garminHookToken(base+'?hook=garmin'),'');
+ assert.equal(garminHookToken(base),null);
+ assert.equal(garminHookToken(base+'?hook=stripe'),null);
+ assert.equal(garminHookToken(base+'/garmin'),null);
 });

@@ -7,7 +7,7 @@
 //   (long random string, e.g. `openssl rand -hex 32`). TOKEN_ENCRYPTION_KEY is reused for sealing tokens and deriving PKCE.
 // - OAuth redirect URLs: https://app.xeyo.ai/garmin-callback.html (plus any ALLOWED_ORIGINS used for staging/localhost).
 // - Endpoint Configuration (apis.garmin.com/tools/endpoints): for each type below choose PUSH (not PING) and set the URL
-//   <SUPABASE_URL>/functions/v1/health-api?hook=garmin&token=<GARMIN_WEBHOOK_TOKEN>
+//   <SUPABASE_URL>/functions/v1/health-api/garmin/<GARMIN_WEBHOOK_TOKEN>
 //   Health API: Dailies, Sleeps, HRV Summary, Body Compositions, Pulse Ox, Respiration (allDayRespiration).
 //   Activity API: Activities, Manually Updated Activities. Common: Deregistrations, User Permissions Change.
 //   Leave off (nothing maps to our kinds, and they are large): Epochs, Stress Details, Activity Details, Activity Files,
@@ -104,6 +104,13 @@ export async function requestGarminBackfill(token,{days=GARMIN_BACKFILL_MAX_DAYS
  return result;
 }
 
+// Garmin's portal drops query strings from endpoint URLs, so the push URL puts the token in the path:
+//   <SUPABASE_URL>/functions/v1/health-api/garmin/<GARMIN_WEBHOOK_TOKEN>   (?hook=garmin&token=… still works).
+export function garminHookToken(url){
+ const u=typeof url==='string'?new URL(url):url;
+ if(u.searchParams.get('hook')==='garmin')return u.searchParams.get('token')||'';
+ const m=u.pathname.match(/\/garmin\/([^/]+)\/?$/);return m?decodeURIComponent(m[1]):null;
+}
 // The push URL carries GARMIN_WEBHOOK_TOKEN; Garmin also sends its consumer key as the garmin-client-id header (checked when present).
 const sameText=(a,b)=>{if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};
 export function garminHookAuthorized({token,expected,clientIdHeader,clientId}){

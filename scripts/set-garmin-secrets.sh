@@ -17,6 +17,6 @@ echo '1. OAuth redirect URL:'
 echo '   https://app.xeyo.ai/garmin-callback.html'
 echo
 echo '2. Endpoint Configuration: set every summary type to PUSH with this URL:'
-echo "   https://$REF.supabase.co/functions/v1/health-api?hook=garmin&token=$TOKEN"
+echo "   https://$REF.supabase.co/functions/v1/health-api/garmin/$TOKEN"
 echo '   (Dailies, Sleeps, HRV Summary, Body Compositions, Pulse Ox, Respiration, Activities,'
 echo '    Manually Updated Activities, Deregistrations, User Permissions Change)'
