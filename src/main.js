@@ -231,7 +231,7 @@ function monthCard(){
  const now=new Date(),image=hasRepresentation()?portraitURL||(profile?.representation==='digital'?digitalFigure(figureGender()).src:'/images/human-portrait.webp'):null;
  const logged=new Set([...readings.map(r=>localDay(new Date(r.observed_at))),...journalData.map(e=>e.logged_on),...mealData.map(m=>m.created_at&&localDay(new Date(m.created_at)))]);
  const days=Array.from({length:10},(_,i)=>{const d=new Date(now);d.setDate(now.getDate()-9+i);return d});
- return `<section class="card month-card ${image?'':'no-image'}" aria-labelledby="month-title">${image?`<img class="month-figure" src="${esc(image)}" alt="">`:''}<div class="month-panel"><h2 id="month-title">${now.toLocaleDateString(dateLocale,{month:'long'})} <span>${now.getFullYear()}</span></h2><ol class="month-days">${days.map((d,i)=>{const has=logged.has(localDay(d));return `<li class="${has?'has-data':''} ${i===days.length-1?'today':''}" aria-label="${d.toLocaleDateString(dateLocale,{month:'short',day:'numeric'})}: ${has?'data recorded':'nothing recorded'}">${String(d.getDate()).padStart(2,'0')}</li>`}).join('')}</ol>${todayPanel()}</div></section>`;
+ return `<section class="card month-card ${image?'':'no-image'} ${image&&profile?.representation==='digital'&&!portraitURL?'is-digital':''}" aria-labelledby="month-title">${image?`<img class="month-figure" src="${esc(image)}" alt="">`:''}<div class="month-panel"><h2 id="month-title">${now.toLocaleDateString(dateLocale,{month:'long'})} <span>${now.getFullYear()}</span></h2><ol class="month-days">${days.map((d,i)=>{const has=logged.has(localDay(d));return `<li class="${has?'has-data':''} ${i===days.length-1?'today':''}" aria-label="${d.toLocaleDateString(dateLocale,{month:'short',day:'numeric'})}: ${has?'data recorded':'nothing recorded'}">${String(d.getDate()).padStart(2,'0')}</li>`}).join('')}</ol>${todayPanel()}</div></section>`;
 }
 // Today, inside the month card: the readiness read and tonight's sleep need, then the changes worth a look, each
 // opening its signal. Without fresh readings it falls back to the month's shortcuts.
@@ -374,6 +374,16 @@ function openWeeklyReport(){const r=proInsights.report;if(!r)return;const pats=p
 function noticeBanner(){const kind=(account.notices||[]).find(k=>noticeCopy[k]);if(!kind)return '';const [title,text]=noticeCopy[kind];return `<section class="notice-banner" role="status" aria-labelledby="notice-title"><div><h2 id="notice-title">${title}</h2><p>${text}</p></div><div class="notice-actions">${button('Import WHOOP export','whoop-upload','light small')}${isPro()?'':button('See Pro','upgrade-whoop','small')}<button class="text-button" data-dismiss-notice="${kind}">Dismiss</button></div></section>`}
 function pageLead(){const signals=metrics.filter(m=>m.group!=='sleep'&&m.group!=='body'&&reading(m.kind)).length,night=reading('sleep');return ({Vitals:signals?`${signals} ${signals===1?'signal':'signals'} from ${esc(mainSource()||'your connected sources')} · compared with your own recent days.`:'Connect a source to see your signals.',Sleep:night?'Your last recorded night · '+new Date(night.observed_at).toLocaleDateString(dateLocale,{weekday:'long',month:'long',day:'numeric'})+' · from '+esc(night.source):'Connect a wearable to see your sleep.',Body:'Measurements you add. Progress you can see.',Nutrition:'A conversation about what nourishes you.',Journal:'Private check-ins that connect your day to your data.','Blood records':'Blood results and original reports, saved to your private account.',Integrations:'Your account. Your measurements. Your choice.',Profile:'Your preferences, AI connections and data.','WHOOP import':'Free for everyone: your whole WHOOP history, from WHOOP’s own data export.'})[page]||''}
 function pageActions(){if(page==='Vitals'||page==='Sleep')return `<button class="btn light" data-nav="Integrations">Manage sources ${icon('arrow')}</button>`;if(page==='Body')return `<button class="btn light" data-action="profile-settings">Change view ${icon('arrow')}</button>`;if(page==='Blood records')return button(icon('plus')+'<span>Add blood result</span>','lab')+button(icon('upload')+'<span>Upload report</span>','upload','light');if(page==='Nutrition')return `<label class="nutrition-day-control"><span>Viewing</span><input aria-label="Nutrition day" id="nutrition-day" type="date" max="${localDay()}" value="${nutritionDay}"></label>`+button(icon('plus')+'<span>Add manually</span>','meal-manual','light');return ''}
+// What the welcome film shows of the member: their first three signals with data (and two weeks of each), their
+// week for the first signal recorded on at least four of the last seven days, their Home picks and their sources.
+function tourContext(){
+ const ids=currentBoard().widgets.map(w=>w.id),unit=m=>m.unit==='hours'?'h':m.unit;
+ const signals=ids.map(k=>{const r=reading(k),m=metrics.find(x=>x.kind===k);if(!r||!m)return null;return {name:m.name,value:formatValue(r.value,k),unit:unit(m),series:lastDays(k,14).map(d=>d.value)}}).filter(Boolean).slice(0,3);
+ let week=null;
+ for(const k of ['recovery','sleep','hrv','resting_hr','steps']){const m=metrics.find(x=>x.kind===k),days=lastDays(k,7);if(m&&days.length>=4){week={label:m.name,unit:unit(m),days:days.map(d=>[new Date(d.day+'T12:00:00').toLocaleDateString(dateLocale,{weekday:'short'}),Number(formatValue(d.value,k))||d.value])};break}}
+ const names={whoop:'WHOOP',garmin:'Garmin',google_health:'Fitbit'};
+ return {name:data.user?.user_metadata?.name||'',signals,week,focus:ids.map(k=>metrics.find(x=>x.kind===k)?.name).filter(Boolean),connected:connections.map(c=>names[c.provider]).filter(Boolean)};
+}
 // The Home tour: from onboarding once, or from the account menu anytime. Remembered in the member's preferences.
 let touring=false;
 async function runTour(from){
@@ -382,7 +392,7 @@ async function runTour(from){
   closeModal();document.querySelector('.account-menu[open]')?.removeAttribute('open');
   if(page!=='Home'||boardDraft){boardDraft=null;page='Home';await render();}
   window.scrollTo(0,0);track('tour_started',{from});
-  await startTour({track});
+  await startTour({ctx:tourContext(),track});
   data.savePreferences({tour_done:true}).catch(()=>{});
  }finally{touring=false}
 }

@@ -225,3 +225,8 @@
 @media(max-width:640px){.home-bar.is-editing{border-radius:20px;padding:12px}.home-bar-actions{width:100%}.home-bar-actions .btn{flex:1}}
 /* Narrow screens: the week card grows with its content, so each average gets two lines instead of being cut. */
 @media(max-width:900px){.week-sums li{flex-wrap:wrap;gap:0 5px;white-space:normal;overflow:visible}.week-sums em{flex-basis:100%}}
+
+/* The digital figure on the month card: a clean ivory figure in warm light, never greyed or multiplied into the
+   orange (that turns it into a muddy ghost). Shown whole, arms in view, above the glass panel. */
+.month-card.is-digital{background:radial-gradient(70% 55% at 50% 30%,#ffb37a 0%,#ffb37a00 70%),linear-gradient(160deg,#ff9a4d 0%,#ff6a1a 48%,#d9480b 100%)}
+.month-card.is-digital .month-figure,.home-grid .month-card.is-digital .month-figure{left:50%;top:1%;bottom:auto;width:100%;height:auto;max-height:none;transform:translateX(-50%);filter:sepia(.18) saturate(1.15) drop-shadow(0 24px 36px #8a2a0359);mix-blend-mode:normal;opacity:.97}

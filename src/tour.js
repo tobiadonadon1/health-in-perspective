@@ -1,104 +1,74 @@
-// The first-run tour of Home: six stops, one spotlight that glides from stop to stop, and the words on a soft grained
-// backdrop beside each stop. It runs once after onboarding (and again from the account menu), never blocks anything
-// it cannot find, and returns how it ended: 'done' or 'skipped'.
+// The welcome film: six short chapters shown once after onboarding (and from the account menu). Each chapter is its
+// own colour field with a small animated scene built from the member's own numbers where they exist, so it reads as
+// a designed introduction, not a dimmed screenshot. Resolves 'done' or 'skipped'.
 
-export const TOUR_STEPS=[
- {id:'signals',targets:['.home-grid > .tile','.home-grid > .start-card'],title:'Your signals, at a glance.',text:'The ones you picked, each with its last two weeks. Tap any tile for the full chart and what it means.'},
- {id:'edit',targets:['.home-edit'],title:'Make Home yours.',text:'Swap, add or reorder signals whenever your focus changes.'},
- {id:'ask',targets:['#ask-form'],title:'Ask about any number.',text:'Plain questions, answered from your own readings. Try “Why was my recovery lower today?”'},
- {id:'week',targets:['.week-card'],title:'Your week in one view.',text:'Seven days side by side, today highlighted, and how this week compares with the last. Check in your mood from here too.'},
- {id:'meals',targets:['.calories-card'],title:'Log what you eat.',text:'Describe a meal or snap a photo. Xeyo estimates calories and macros in seconds.'},
- {id:'sync',targets:['#sync-control'],title:'Fresh data, one tap.',text:'Refresh pulls in what your wearables recorded. New sources and file uploads live in Integrations.'}
+export const TOUR_CHAPTERS=[
+ {id:'signals',eyebrow:'Your signals',title:'Everything you chose, at a glance.',text:'Each tile shows today’s number and its last two weeks. Tap one for the full story.'},
+ {id:'edit',eyebrow:'Edit Home',title:'Home changes when you do.',text:'Swap, add or reorder signals whenever your focus moves.'},
+ {id:'ask',eyebrow:'Ask Xeyo',title:'Ask anything about your numbers.',text:'Plain questions, answered from your own readings in seconds.'},
+ {id:'week',eyebrow:'Your week',title:'Seven days, side by side.',text:'Today highlighted, last week for comparison, and your mood check-in in the same place.'},
+ {id:'meals',eyebrow:'Meals',title:'Describe a meal. We do the maths.',text:'Type it or snap it. Calories and macros arrive in seconds.'},
+ {id:'sources',eyebrow:'Your sources',title:'Every wearable, in one place.',text:'Refresh pulls in what they recorded. Add more anytime in Integrations.'}
 ];
 
-// Where the words go: below the stop if they fit, else above, beside, or (on a small screen, or when the stop fills
-// the view) pinned to the edge of the screen the stop is not using. Pure, so it is tested on its own.
-export function placeTip(r,view,size,{gap=18,margin=12}={}){
- const {w,h}=view,{bw,bh}=size,clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
- const cx=clamp(r.left+r.width/2-bw/2,margin,w-bw-margin),cy=clamp(r.top+r.height/2-bh/2,margin,h-bh-margin);
- if(r.bottom+gap+bh<=h-margin&&r.bottom>=0)return {x:cx,y:r.bottom+gap,side:'below'};
- if(r.top-gap-bh>=margin&&r.top<=h)return {x:cx,y:r.top-gap-bh,side:'above'};
- if(r.right+gap+bw<=w-margin)return {x:r.right+gap,y:cy,side:'right'};
- if(r.left-gap-bw>=margin)return {x:r.left-gap-bw,y:cy,side:'left'};
- const lowerHalfFree=r.top+r.height/2<h/2;
- return {x:clamp((w-bw)/2,margin,w-bw-margin),y:lowerHalfFree?h-bh-margin:margin,side:'overlay'};
-}
-// One rectangle around every element of a stop (the signal tiles are several cards read as one area).
-export function unionRect(rects){
- const list=rects.filter(r=>r&&r.width>0&&r.height>0);if(!list.length)return null;
- const left=Math.min(...list.map(r=>r.left)),top=Math.min(...list.map(r=>r.top)),right=Math.max(...list.map(r=>r.right)),bottom=Math.max(...list.map(r=>r.bottom));
- return {left,top,right,bottom,width:right-left,height:bottom-top};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+
+// A smooth line through the values, drawn into a w×h box (pathLength 1, so CSS can draw it in).
+export function sparkPath(values,{w=160,h=44,pad=4}={}){
+ const v=values.filter(Number.isFinite);if(v.length<2)return '';
+ const lo=Math.min(...v),hi=Math.max(...v),span=hi-lo||1;
+ const pts=v.map((n,i)=>[pad+i*(w-pad*2)/(v.length-1),h-pad-(n-lo)/span*(h-pad*2)]);
+ return pts.map(([x,y],i)=>{if(!i)return `M${x.toFixed(1)} ${y.toFixed(1)}`;const [px,py]=pts[i-1],mx=(px+x)/2;return `C${mx.toFixed(1)} ${py.toFixed(1)} ${mx.toFixed(1)} ${y.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`}).join(' ');
 }
 
-// Irregular, never a circle or a rectangle: each stop gets a slightly different outline, so the ground feels poured.
-const SHAPES=['38% 46% 42% 40% / 44% 40% 46% 38%','46% 38% 40% 44% / 40% 46% 38% 44%','40% 42% 46% 36% / 46% 38% 44% 40%','42% 40% 36% 46% / 38% 44% 40% 46%'];
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+// What the scenes show when the member has no readings yet: clearly marked examples, never presented as theirs.
+const EXAMPLE={
+ signals:[{name:'Recovery',value:'78',unit:'%',series:[62,66,71,58,64,70,74,69,72,77,73,80,75,78]},{name:'HRV',value:'61',unit:'ms',series:[54,58,55,60,57,62,59,63,58,61,64,60,62,61]},{name:'Sleep',value:'7.6',unit:'h',series:[6.8,7.2,7.5,6.4,7.9,7.1,7.4,8.1,6.9,7.7,7.3,7.8,7.0,7.6]}],
+ week:{label:'Recovery',unit:'%',days:[['Thu',64],['Fri',71],['Sat',58],['Sun',76],['Mon',81],['Tue',73],['Wed',78]]}
+};
+const scene={
+ signals:c=>{const list=(c.signals?.length?c.signals:EXAMPLE.signals).slice(0,3);return `<div class="w-signals">${list.map((s,i)=>`<div class="w-tile" style="--i:${i}"><span class="w-tile-name">${esc(s.name)}</span><b class="w-tile-num">${esc(s.value)}<small>${esc(s.unit)}</small></b><svg viewBox="0 0 160 44" aria-hidden="true"><path d="${sparkPath(s.series||[])}" pathLength="1"/></svg><span class="w-tile-foot">Last 14 days</span></div>`).join('')}</div>${c.signals?.length?'':'<span class="w-example">Example</span>'}`},
+ edit:c=>{const names=[...(c.focus||[]),'Recovery','HRV','Resting heart rate','Sleep','Strain','Heart rate'].filter((n,i,a)=>a.indexOf(n)===i).slice(0,6);return `<div class="w-grid">${names.map((n,i)=>`<span class="w-cell w-cell-${i}"><i></i>${esc(n)}</span>`).join('')}</div><span class="w-edit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg>Edit Home</span>`},
+ ask:()=>`<div class="w-chat"><p class="w-q"><span>Why was my recovery lower today?</span></p><div class="w-a"><span class="w-a-head"><i></i>Xeyo <em>· example answer</em></span><p>Your HRV was <b>12% below</b> your 30-day average after a late, hard session. Your resting heart rate stayed steady, so this looks like short-term load, not illness.</p></div></div>`,
+ week:c=>{const w=c.week?.days?.length?c.week:EXAMPLE.week,max=Math.max(...w.days.map(d=>d[1]),1);return `<div class="w-week"><span class="w-week-label">${esc(w.label)}${w.unit?` · ${esc(w.unit)}`:''}</span><ol>${w.days.map(([d,v],i)=>`<li class="${i===w.days.length-1?'is-today':''}" style="--h:${Math.max(.12,v/max).toFixed(3)};--i:${i}"><b>${esc(typeof v==='number'?(Math.round(v*10)/10).toLocaleString('en-GB'):v)}</b><span class="w-bar"></span><small>${esc(d)}</small></li>`).join('')}</ol></div>${c.week?.days?.length?'':'<span class="w-example">Example</span>'}`},
+ meals:()=>`<div class="w-meal"><p class="w-meal-input"><span>Salmon, rice and greens</span></p><div class="w-macros">${[['Protein','38 g',.72],['Carbs','54 g',.58],['Fat','19 g',.41]].map(([n,g,p],i)=>`<div class="w-ring" style="--p:${p};--i:${i}"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" pathLength="1"/><circle class="w-ring-fill" cx="32" cy="32" r="26" pathLength="1"/></svg><b>${g}</b><small>${n}</small></div>`).join('')}</div><p class="w-kcal"><b>560</b> kcal · estimated · example</p></div>`,
+ sources:c=>{const all=['WHOOP','Garmin','Fitbit','Apple Health'],on=new Set(c.connected||[]);return `<div class="w-orbit"><svg class="w-orbit-ring" viewBox="0 0 400 400" aria-hidden="true"><circle cx="200" cy="200" r="150" pathLength="1"/><circle cx="200" cy="200" r="96" pathLength="1"/></svg><img class="w-orb" src="/images/xeyo-orb.webp" alt="" width="132" height="132">${all.map((n,i)=>`<span class="w-source w-source-${i}${on.has(n)?' is-on':''}"><i></i>${esc(n)}</span>`).join('')}${all.map((_,i)=>`<span class="w-pulse w-pulse-${i}" aria-hidden="true"></span>`).join('')}</div>`}
+};
 
-export function startTour({steps=TOUR_STEPS,doc=globalThis.document,win=globalThis.window,track=()=>{}}={}){
+export function startTour({ctx={},chapters=TOUR_CHAPTERS,doc=globalThis.document,win=globalThis.window,track=()=>{}}={}){
  return new Promise(resolve=>{
-  const found=s=>{for(const sel of s.targets){const els=[...doc.querySelectorAll(sel)].filter(el=>el.getClientRects().length);if(els.length)return fit(els)}return null};
-  // A stop made of several cards lights as many as leave room for the words (on a phone the tiles stack up).
-  const fit=list=>{if(list.length<2)return list;const max=win.innerHeight-(win.innerWidth<600?380:300),out=[list[0]];for(const el of list.slice(1)){const r=unionRect([...out,el].map(x=>x.getBoundingClientRect()));if(r&&r.height>max)break;out.push(el)}return out};
-  const live=steps.filter(found);
-  if(!live.length){resolve('skipped');return}
-  const still=win.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const before=doc.activeElement;
-  const shield=doc.createElement('div');shield.className='tour-shield';
-  const hole=doc.createElement('div');hole.className='tour-hole';hole.setAttribute('aria-hidden','true');
-  const tip=doc.createElement('div');tip.className='tour-tip is-moving';tip.setAttribute('role','dialog');tip.setAttribute('aria-modal','true');tip.setAttribute('aria-labelledby','tour-title');tip.setAttribute('aria-describedby','tour-text');
-  doc.body.append(shield,hole,tip);doc.documentElement.classList.add('is-touring');
-  let i=0,els=[],frame=0,ended=false,timer=0,watch=0;
-
-  const measure=()=>{
-   // Home redraws itself when fresh data arrives: find the stop again instead of measuring cards that are gone.
-   if(!els.length||els.some(el=>!el.isConnected))els=found(live[i])||[];
-   const r=unionRect(els.map(el=>el.getBoundingClientRect()));if(!r)return;
-   const pad=10,radius=Math.min(28,parseFloat(win.getComputedStyle(els[0]).borderTopLeftRadius)||16)+(els.length>1?6:pad/2);
-   const pill=els.length===1&&r.height<=56;
-   Object.assign(hole.style,{left:`${r.left-pad}px`,top:`${r.top-pad}px`,width:`${r.width+pad*2}px`,height:`${r.height+pad*2}px`,borderRadius:pill?'999px':`${radius}px`});
-   const view={w:win.innerWidth,h:win.innerHeight},size={bw:tip.offsetWidth,bh:tip.offsetHeight};
-   const p=placeTip({left:r.left-pad,top:r.top-pad,right:r.right+pad,bottom:r.bottom+pad,width:r.width+pad*2,height:r.height+pad*2},view,size);
-   tip.style.transform=`translate(${Math.round(p.x)}px,${Math.round(p.y)}px)`;tip.dataset.side=p.side;
-  };
-  const onMove=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(measure)};
-  const bringIntoView=()=>{
-   const r=unionRect(els.map(el=>el.getBoundingClientRect()));if(!r)return 0;
-   const h=win.innerHeight,room=Math.max(tip.offsetHeight,240)+48;
-   // Leave room for the words: the stop sits a little above the middle, or at the top when it is taller than the view.
-   const fits=r.top>=72&&r.bottom<=h-room;if(fits)return 0;
-   const target=r.height>h-room-90?r.top-80:r.top-(h-room-r.height)/2;
-   win.scrollTo({top:Math.max(0,win.scrollY+target),behavior:still?'auto':'smooth'});return still?0:420;
-  };
-  const html=s=>{const n=live.length,at=live.indexOf(s),last=at===n-1;return `<div class="tour-ground" aria-hidden="true"></div><div class="tour-copy"><div class="tour-meta"><span class="tour-count">${at+1} of ${n}</span><span class="tour-bars" aria-hidden="true">${live.map((_,k)=>`<i class="${k<at?'done':k===at?'on':''}"></i>`).join('')}</span>${last?'':'<button type="button" class="tour-skip" data-tour="skip">Skip</button>'}</div><h2 id="tour-title">${esc(s.title)}</h2><p id="tour-text">${esc(s.text)}</p><div class="tour-actions">${at?'<button type="button" class="tour-back" data-tour="back">← Back</button>':'<span></span>'}<button type="button" class="tour-next" data-tour="next">${last?'Start exploring':'Next'}<span aria-hidden="true"> →</span></button></div></div>`};
+  const still=win.matchMedia?.('(prefers-reduced-motion: reduce)').matches,before=doc.activeElement,n=chapters.length;
+  const root=doc.createElement('div');root.className='welcome';root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-labelledby','welcome-title');
+  root.innerHTML=`<div class="welcome-grain" aria-hidden="true"></div><header class="welcome-top"><span class="welcome-brand"><img src="/images/xeyo-orb.webp" alt="" width="28" height="28">${ctx.name?`Welcome, ${esc(ctx.name)}`:'Welcome to Xeyo'}</span><button type="button" class="welcome-skip" data-w="skip">Skip</button></header><div class="welcome-body"><section class="welcome-copy" aria-live="polite"></section><div class="welcome-stage" aria-hidden="true"></div></div><footer class="welcome-foot"><nav class="welcome-steps" aria-label="Chapters">${chapters.map((c,k)=>`<button type="button" data-w="go" data-k="${k}" aria-label="${k+1}. ${esc(c.eyebrow)}"><i></i></button>`).join('')}</nav><span class="welcome-nav"><button type="button" class="welcome-back" data-w="back">Back</button><button type="button" class="welcome-next" data-w="next">Next</button></span></footer>`;
+  doc.body.append(root);doc.documentElement.classList.add('is-welcoming');
+  const $=s=>root.querySelector(s);
+  let i=-1,ended=false;
+  const fit=()=>{const st=$('.welcome-stage');if(!st)return;const r=st.getBoundingClientRect();st.style.setProperty('--s',String(Math.max(.4,Math.min(1.1,r.width*.94/520,r.height*.9/440))))};
   const show=k=>{
-   i=k;const s=live[i];els=found(s)||[];
-   if(!els.length){k<live.length-1?show(k+1):end('done');return}
-   tip.classList.add('is-moving');clearTimeout(timer);
-   const wait=bringIntoView();
-   timer=setTimeout(()=>{
-    tip.innerHTML=html(s);tip.style.setProperty('--tour-shape',SHAPES[i%SHAPES.length]);measure();
-    requestAnimationFrame(()=>{tip.classList.remove('is-moving');tip.querySelector('.tour-next')?.focus({preventScroll:true})});
-    try{track('tour_step',{step:s.id,index:i+1,of:live.length})}catch{}
-   },wait+(still?0:120));
+   if(k<0||k>=n||k===i)return;i=k;const c=chapters[i];
+   root.dataset.chapter=c.id;
+   $('.welcome-copy').innerHTML=`<span class="welcome-eyebrow">${String(i+1).padStart(2,'0')} · ${esc(c.eyebrow)}</span><h2 id="welcome-title">${esc(c.title)}</h2><p>${esc(c.text)}</p>`;
+   $('.welcome-stage').innerHTML=`<div class="w-scene" data-scene="${c.id}">${scene[c.id](ctx)}</div>`;fit();
+   root.querySelectorAll('.welcome-steps button').forEach((b,m)=>{b.classList.toggle('done',m<i);b.classList.toggle('on',m===i);b.toggleAttribute('aria-current',m===i)});
+   $('.welcome-back').hidden=i===0;$('.welcome-next').textContent=i===n-1?'Start exploring':'Next';
+   $('.welcome-next').focus({preventScroll:true});
+   try{track('tour_step',{step:c.id,index:i+1,of:n})}catch{}
   };
   const end=how=>{
-   if(ended)return;ended=true;clearTimeout(timer);cancelAnimationFrame(frame);clearInterval(watch);
-   win.removeEventListener('resize',onMove);win.removeEventListener('scroll',onMove,true);doc.removeEventListener('keydown',onKey,true);
-   try{track(how==='done'?'tour_completed':'tour_skipped',{index:i+1,of:live.length})}catch{}
-   tip.classList.add('is-moving');hole.classList.add('is-leaving');shield.classList.add('is-leaving');
-   setTimeout(()=>{shield.remove();hole.remove();tip.remove();doc.documentElement.classList.remove('is-touring');if(before&&doc.contains(before))before.focus?.({preventScroll:true});resolve(how)},still?0:260);
+   if(ended)return;ended=true;doc.removeEventListener('keydown',onKey,true);win.removeEventListener('resize',fit);
+   try{track(how==='done'?'tour_completed':'tour_skipped',{index:i+1,of:n})}catch{}
+   root.classList.add('is-leaving');
+   setTimeout(()=>{root.remove();doc.documentElement.classList.remove('is-welcoming');if(before&&doc.contains(before))before.focus?.({preventScroll:true});resolve(how)},still?0:480);
   };
-  const go=d=>{const k=i+d;if(k<0)return;k>=live.length?end('done'):show(k)};
+  const go=d=>{const k=i+d;if(k>=n)end('done');else show(k)};
   function onKey(e){
-   if(e.key==='Escape'){e.preventDefault();end('skipped');return}
-   if(e.key==='ArrowRight'){e.preventDefault();go(1);return}
-   if(e.key==='ArrowLeft'){e.preventDefault();go(-1);return}
-   if(e.key==='Tab'){const b=[...tip.querySelectorAll('button')];if(!b.length)return;const at=b.indexOf(doc.activeElement);e.preventDefault();b[(at+(e.shiftKey?-1:1)+b.length)%b.length].focus()}
+   if(e.key==='Escape'){e.preventDefault();end('skipped')}
+   else if(e.key==='ArrowRight'){e.preventDefault();go(1)}
+   else if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}
+   else if(e.key==='Tab'){const b=[...root.querySelectorAll('button:not([hidden])')];const at=b.indexOf(doc.activeElement);e.preventDefault();b[(at+(e.shiftKey?-1:1)+b.length)%b.length]?.focus()}
   }
-  tip.addEventListener('click',e=>{const a=e.target.closest('[data-tour]')?.dataset.tour;if(a==='next')go(1);else if(a==='back')go(-1);else if(a==='skip')end('skipped')});
-  win.addEventListener('resize',onMove);win.addEventListener('scroll',onMove,true);doc.addEventListener('keydown',onKey,true);
-  // A light check twice a second keeps the spotlight on its stop through redraws and late-loading cards.
-  watch=setInterval(()=>{if(!tip.classList.contains('is-moving'))measure()},500);
+  root.addEventListener('click',e=>{const b=e.target.closest('[data-w]');if(!b)return;const a=b.dataset.w;if(a==='next')go(1);else if(a==='back')go(-1);else if(a==='skip')end('skipped');else if(a==='go')show(Number(b.dataset.k))});
+  doc.addEventListener('keydown',onKey,true);win.addEventListener('resize',fit);
   show(0);
  });
 }
