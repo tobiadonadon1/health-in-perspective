@@ -10,7 +10,7 @@ export const FEATURES={
  correlations:{title:'Correlations across wearables',value:'See how your late workouts and short nights move your HRV and recovery.'},
  full_history:{title:'Full history',value:'Every reading you have ever synced, with 90-day and 1-year charts instead of the last 30 days.'},
  csv_export:{title:'CSV export',value:'Take every reading into a spreadsheet, one row per measurement.'},
- smart_ai:{title:'Claude Sonnet for your AI',value:'Your questions, meal photos and journal reflections answered by Claude Sonnet, a deeper model than Free’s Claude Haiku, with three times the monthly AI allowance.'}
+ smart_ai:{title:'A frontier AI model',value:'Your questions, meal photos and journal reflections answered by a frontier AI model, sharper than Free’s everyday AI, with three times the monthly AI allowance.'}
 };
 const ORDER=['full_history','smart_ai','weekly_report','correlations','whoop_live','csv_export'];
 const known=id=>Object.hasOwn(FEATURES,id);
@@ -70,7 +70,7 @@ const ICONS={
 };
 const TILES={
  full_history:['1 year+','of charts, not 30 days'],
- smart_ai:['Sonnet','deeper AI, 3× the allowance'],
+ smart_ai:['Frontier AI','sharper answers, 3× the allowance'],
  weekly_report:['Weekly','report on what changed and why'],
  correlations:['Patterns','what moves your HRV and recovery'],
  whoop_live:['Live','WHOOP sync, no more uploads'],
@@ -87,7 +87,7 @@ export function historyStrip(hidden,now=Date.now()){
 function aiMeter(ai){
  if(!ai||ai.tier!=='free'||!Number.isFinite(Number(ai.percent)))return '';
  const pct=Math.max(0,Math.min(100,Math.round(Number(ai.percent))));
- return `<div class="pro-ai"><div class="pro-ai-row"><span>Free AI this month · ${esc(ai.modelName||'Claude Haiku')}</span><b>${pct}% used</b></div><div class="pro-ai-bar" role="img" aria-label="${pct}% of this month’s free AI used"><span style="width:${pct}%"></span></div><p>Pro switches you to Claude Sonnet with three times the allowance.</p></div>`;
+ return `<div class="pro-ai"><div class="pro-ai-row"><span>Free AI this month</span><b>${pct}% used</b></div><div class="pro-ai-bar" role="img" aria-label="${pct}% of this month’s free AI used"><span style="width:${pct}%"></span></div><p>Pro switches you to a frontier AI model with three times the allowance.</p></div>`;
 }
 export function proCard({feature='',title,body,points,status=null,now=Date.now()}={}){
  const f=FEATURES[feature],hidden=status?.hidden,count=Number(hidden?.readings)||0;

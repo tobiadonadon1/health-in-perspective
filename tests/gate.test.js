@@ -72,7 +72,7 @@ test('tracker: fire-and-forget, valid names only, no health values or free text'
 
 test('Pro card: the member’s hidden history as a count and a timeline, four tiles, the AI meter and one checkout button',()=>{
  const now=Date.parse('2026-11-04T12:00:00Z');
- const status={hidden:{readings:1284,since:'2025-11-04'},usage:{ai:{tier:'free',model:'claude-haiku-5-5',modelName:'Claude Haiku',percent:34}}};
+ const status={hidden:{readings:1284,since:'2025-11-04'},usage:{ai:{tier:'free',model:'claude-haiku-5-5',modelName:'Everyday AI',percent:34}}};
  const html=proCard({feature:'full_history',title:'See your HRV over a year',body:'Free shows 30 days.',status,now});
  assert.match(html,/<b>1,284<\/b> of your readings from before the last 30 days are saved and waiting/);
  assert.match(html,/Since 4 Nov 2025/);
@@ -96,4 +96,8 @@ test('Pro showcase: moving glass with the price, six tiles, the focused feature 
  assert.match(html,/data-pro-pick="correlations"[^>]*aria-pressed="true"/);assert.match(html,/<b>Correlations across wearables<\/b>/);
  assert.match(html,/3 of 10 live seats left/);assert.ok(!html.includes('$'));
  assert.match(proCard({feature:'full_history'}),/class="pro-card pro-live"/);
+});
+test('members never see a model name: Pro is a frontier AI model, Free is everyday AI',()=>{
+ const html=[upgradeDialog({feature:'smart_ai'}),proShowcase({}),proCard({feature:'smart_ai',status:{usage:{ai:{tier:'free',percent:10}}}}),JSON.stringify(FEATURES)].join('');
+ assert.ok(!/Sonnet|Haiku|Opus/.test(html));assert.match(html,/frontier AI model/);assert.match(html,/Frontier AI/);
 });

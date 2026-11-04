@@ -58,7 +58,7 @@ test('AI cost is counted in micro-dollars from the answer’s token usage', () =
 });
 test('the allowance picks the model by plan and spend', () => {
   const now=Date.parse('2026-11-04T12:00:00Z');
-  assert.deepEqual(aiAllowance({pro:false},250000,now),{tier:'free',model:'claude-haiku-5-5',modelName:'Claude Haiku',percent:25,left:750000,daily:60,resets:'2026-12-01'});
+  assert.deepEqual(aiAllowance({pro:false},250000,now),{tier:'free',model:'claude-haiku-5-5',modelName:'Everyday AI',percent:25,left:750000,daily:60,resets:'2026-12-01'});
   assert.equal(aiAllowance({pro:true},0,now).model,'claude-sonnet-5-5');
   assert.equal(aiAllowance({pro:true},AI_PLAN.pro.premiumUntil,now).model,'claude-haiku-5-5');
   assert.equal(aiAllowance({pro:true},AI_PLAN.pro.budget+5,now).left,0);
@@ -77,7 +77,7 @@ test('meteredAI gives Free Haiku, records each answer’s cost, and refuses past
   assert.deepEqual(added,[{name:'add_feature_use',args:{owner:'u',p_feature:'ai_spend',p_period:'2026-11',amount:2000}}]);
   assert.equal(await meteredAI(client,'u','',{plan:{pro:false}}),null);
   const full=spendClient(AI_PLAN.free.budget);
-  await assert.rejects(meteredAI(full.client,'u','house',{plan:{pro:false}}),e=>e.status===402&&e.code==='quota'&&e.feature==='smart_ai'&&e.pro===false&&/Claude Sonnet/.test(e.message));
+  await assert.rejects(meteredAI(full.client,'u','house',{plan:{pro:false}}),e=>e.status===402&&e.code==='quota'&&e.feature==='smart_ai'&&e.pro===false&&/frontier AI model/.test(e.message)&&!/Sonnet|Haiku/.test(e.message));
   const pro=spendClient(AI_PLAN.free.budget);
   assert.equal((await meteredAI(pro.client,'u','house',{plan:{pro:true}})).model,'claude-sonnet-5-5');
   await assert.rejects(meteredAI(spendClient(AI_PLAN.pro.budget).client,'u','house',{plan:{pro:true}}),e=>e.pro===true&&/resets on/.test(e.message));

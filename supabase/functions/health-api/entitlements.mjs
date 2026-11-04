@@ -8,7 +8,7 @@ export const PRO_FEATURES={
  correlations:'Cross-wearable correlations',
  full_history:'Full history with 90-day and 1-year charts',
  csv_export:'CSV export',
- smart_ai:'Claude Sonnet and 3× the AI allowance',
+ smart_ai:'A frontier AI model and 3× the AI allowance',
 };
 // Actions that only Pro members may run. The included AI is metered by cost instead, see meteredAI.
 /** @type {Record<string,string>} */
@@ -49,7 +49,8 @@ export function aiCostMicros(model,usage){
  const long=!!r.longIn&&input+write+read>100000,pin=long?r.longIn:r.in,pout=long?r.longOut:r.out;
  return Math.ceil(input*pin+write*pin*1.25+read*pin*.1+out*pout);
 }
-export const AI_MODEL_NAMES={'claude-haiku-5-5':'Claude Haiku','claude-sonnet-5-5':'Claude Sonnet','claude-opus-5-5':'Claude Opus'};
+// Members see a plain name, never the model id: everyday AI on Free, a frontier model on Pro.
+export const AI_MODEL_NAMES={'claude-haiku-5-5':'Everyday AI','claude-sonnet-5-5':'Frontier AI','claude-opus-5-5':'Frontier AI'};
 const nextMonth=now=>{const d=new Date(now);return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1))};
 export const resetLabel=(now=Date.now())=>nextMonth(now).toLocaleDateString('en-GB',{day:'numeric',month:'long',timeZone:'UTC'});
 export function aiAllowance(plan,spent,now=Date.now()){
@@ -67,7 +68,7 @@ export async function meteredAI(client,userId,key,{plan=null,now=Date.now()}={})
  if(!key)return null;
  plan=plan||await planFor(client,userId);
  const a=aiAllowance(plan,await aiSpend(client,userId,now),now);
- if(a.left<=0)throw new PlanError(plan.pro?`You have used this month’s AI allowance. It resets on ${resetLabel(now)}.`:`You have used this month’s free AI. It resets on ${resetLabel(now)}. Pro answers with Claude Sonnet and has three times the allowance.`,402,{code:'quota',feature:'smart_ai',used:a.percent,quota:100,pro:!!plan.pro,resets:a.resets});
+ if(a.left<=0)throw new PlanError(plan.pro?`You have used this month’s AI allowance. It resets on ${resetLabel(now)}.`:`You have used this month’s free AI. It resets on ${resetLabel(now)}. Pro answers with a frontier AI model and has three times the allowance.`,402,{code:'quota',feature:'smart_ai',used:a.percent,quota:100,pro:!!plan.pro,resets:a.resets});
  return {provider:'anthropic',model:a.model,key,included:true,tier:a.tier,daily:a.daily,
   onUsage:async(usage,model)=>{const amount=aiCostMicros(model,usage);if(amount>0){const r=await client.rpc('add_feature_use',{owner:userId,p_feature:'ai_spend',p_period:monthKey(now),amount});if(r.error)console.error('ai-spend',r.error.message)}}};
 }
