@@ -2,6 +2,8 @@
 // Checkout carries the member's id as client_reference_id; Stripe's webhooks keep public.subscriptions current.
 export const DEFAULT_PAYMENT_LINK='https://buy.stripe.com/4gMeVcevV71hce2g0j0RG04';
 export const DEFAULT_PRO_PRODUCT='prod_VYwqqND3EY7S3r';
+// The Stripe account also bills other businesses: a checkout counts only when it is for the Xeyo product or came from this link.
+export const DEFAULT_PAYMENT_LINK_ID='plink_1UXozfB7HQhkKmiFQafwm1uD';
 const STATUSES=['active','trialing','past_due','canceled','unpaid','incomplete','incomplete_expired','paused'];
 const enc=new TextEncoder();
 const hex=buf=>Array.from(new Uint8Array(buf),b=>b.toString(16).padStart(2,'0')).join('');
@@ -47,16 +49,17 @@ export async function stripePortal({secretKey,customer,returnUrl,fetcher=fetch,a
 
 // Applies one verified Stripe event. Returns the member ids whose plan may have changed, so the caller can
 // enforce a lapse (disconnect WHOOP, free the seat). Unrelated products and event types are ignored.
-export async function applyStripeEvent(event,{client,secretKey,product=DEFAULT_PRO_PRODUCT,fetcher=fetch,apiBase}){
+export async function applyStripeEvent(event,{client,secretKey,product=DEFAULT_PRO_PRODUCT,paymentLinkId=DEFAULT_PAYMENT_LINK_ID,fetcher=fetch,apiBase}){
  const type=event?.type,obj=event?.data?.object;if(!type||!obj)return {ignored:true,users:[]};
  const users=new Set();
- const save=async(row,userId,email)=>{
+ const save=async(row,userId,email,linkOnly=false)=>{
   const existing=await client.from('subscriptions').select('user_id,customer_email').eq('stripe_subscription_id',row.stripe_subscription_id).maybeSingle();
   if(existing.error)throw Error('Could not read the subscription.');
   let owner=userId||existing.data?.user_id||null;const mail=(email||existing.data?.customer_email||'').toLowerCase()||null;
   // Paid from the website without signing in: match the verified account with the paying email.
   if(!owner&&mail){const m=await client.rpc('user_id_by_email',{p_email:mail});if(!m.error&&m.data)owner=m.data}
-  const w=await client.from('subscriptions').upsert({...row,user_id:owner,customer_email:mail},{onConflict:'stripe_subscription_id'});
+  // A keyless checkout only knows "active": when subscription.* already stored the real state, it only links the member.
+  const w=linkOnly&&existing.data?await client.from('subscriptions').update({user_id:owner,customer_email:mail}).eq('stripe_subscription_id',row.stripe_subscription_id):await client.from('subscriptions').upsert({...row,user_id:owner,customer_email:mail},{onConflict:'stripe_subscription_id'});
   if(w.error)throw Error('Could not save the subscription.');if(owner)users.add(owner);
  };
  if(type==='checkout.session.completed'){
@@ -66,9 +69,11 @@ export async function applyStripeEvent(event,{client,secretKey,product=DEFAULT_P
   let sub=typeof obj.subscription==='object'?obj.subscription:null;
   if(!sub?.status&&secretKey)sub=await stripeGet('subscriptions/'+encodeURIComponent(id),{secretKey,fetcher,apiBase});
   if(sub&&productOf(sub)&&product&&productOf(sub)!==product)return {ignored:true,users:[]};
+  // Without the subscription's product (no API key), only checkouts from the Xeyo payment link are trusted.
+  if(!(sub&&productOf(sub))){const link=typeof obj.payment_link==='string'?obj.payment_link:obj.payment_link?.id;if(!paymentLinkId||link!==paymentLinkId)return {ignored:true,users:[]}}
   // Without the secret key the period is unknown until customer.subscription.* arrives; a completed checkout is active.
   const row=sub?.status?subscriptionRow(sub):{stripe_subscription_id:id,stripe_customer_id:typeof obj.customer==='string'?obj.customer:null,status:'active',price_id:null,current_period_end:null,cancel_at_period_end:false,updated_at:new Date().toISOString()};
-  await save(row,ref,email);
+  await save(row,ref,email,!sub?.status);
  }else if(['customer.subscription.created','customer.subscription.updated','customer.subscription.deleted','customer.subscription.paused','customer.subscription.resumed'].includes(type)){
   if(productOf(obj)&&product&&productOf(obj)!==product)return {ignored:true,users:[]};
   // Stripe may deliver events out of order (created after updated); the current object from the API is the truth.

@@ -1,7 +1,7 @@
 // Free/Pro actions for the health API: plan status, checkout, WHOOP seats and waitlist, lapses, file-import records,
 // exports, and the server-side gate in front of every Pro feature. index.ts passes its context in.
 import {FREE_LIMITS,PRO_PRICE,PlanError,planFor,requirePro,askUsage,seatSummary,claimSeat,seatCap} from './entitlements.mjs';
-import {checkoutUrl,verifyStripeSignature,applyStripeEvent,stripePortal,DEFAULT_PAYMENT_LINK,DEFAULT_PRO_PRODUCT} from './billing.mjs';
+import {checkoutUrl,verifyStripeSignature,applyStripeEvent,stripePortal,DEFAULT_PAYMENT_LINK,DEFAULT_PRO_PRODUCT,DEFAULT_PAYMENT_LINK_ID} from './billing.mjs';
 import {disconnectWhoopMember,disconnectAllWhoop} from './whoop-disconnect.mjs';
 import * as imports from './imports.mjs';
 import {computeCorrelations} from './correlations.mjs';
@@ -50,7 +50,7 @@ export async function sweepLapsed(client,ctx){
 // POST ?hook=stripe — Stripe webhooks. Signature checked on the raw body before anything is parsed or stored.
 export async function handleStripeHook(rawBody,signature,ctx){
  const event=await verifyStripeSignature(rawBody,signature,ctx.env('STRIPE_WEBHOOK_SECRET'));
- const result=await applyStripeEvent(event,{client:ctx.client,secretKey:ctx.env('STRIPE_SECRET_KEY'),product:ctx.env('STRIPE_PRO_PRODUCT')||DEFAULT_PRO_PRODUCT,fetcher:ctx.fetcher,apiBase:ctx.env('STRIPE_API_BASE')||undefined});
+ const result=await applyStripeEvent(event,{client:ctx.client,secretKey:ctx.env('STRIPE_SECRET_KEY'),product:ctx.env('STRIPE_PRO_PRODUCT')||DEFAULT_PRO_PRODUCT,paymentLinkId:ctx.env('STRIPE_PAYMENT_LINK_ID')||DEFAULT_PAYMENT_LINK_ID,fetcher:ctx.fetcher,apiBase:ctx.env('STRIPE_API_BASE')||undefined});
  const lapses=[];for(const id of result.users)lapses.push(await enforceLapse(ctx.client,id,ctx));
  return {received:true,ignored:result.ignored,lapsed:lapses.filter(l=>l.lapsed).length};
 }
