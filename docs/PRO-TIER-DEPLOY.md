@@ -1,6 +1,11 @@
 # Deploying Free and Pro (branch `pro-tier-whoop`)
 
-Nothing here has been run against production yet except the read-only dry run of the WHOOP disconnect.
+**Deployed 4 November 2026:** steps 1–5, 7 and 8 are done (migration, secrets, API, WHOOP disconnect of all 11 members,
+Stripe webhook `we_1UY5xyB7HQhkKmiFBSuF0Y34` + payment-link redirect, web app, schedules via
+`supabase/migrations/20261104120000_pro_schedules.sql`). Still open: `STRIPE_SECRET_KEY` (restricted key, enables
+"Manage plan"), the Stripe customer portal, Garmin (step 6 + keys), Google Health keys, Resend for report emails.
+The Stripe account also bills other businesses: without `STRIPE_SECRET_KEY`, a checkout only counts when it came from
+the Xeyo payment link (`STRIPE_PAYMENT_LINK_ID`, default `plink_1UXozfB7HQhkKmiFQafwm1uD`).
 Do the steps in this order: the database first, then secrets, then the API, then the WHOOP disconnect, then the web app.
 
 ## 0. Before you start
