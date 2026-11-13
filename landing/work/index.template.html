@@ -110,11 +110,11 @@ location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
             <div class="bars" aria-hidden="true"><i style="--h:.72"></i><i style="--h:.58"></i><i style="--h:.81"></i><i style="--h:.64"></i><i style="--h:.42"></i><i style="--h:.55"></i><i style="--h:.86"></i><i class="now" style="--h:.66"></i></div>
             <p class="cell-foot">Your normal is 72%</p>
           </div>
-          <div class="cell" role="img" aria-label="Example: 1,540 kcal eaten today, 97 grams of protein">
+          <div class="cell" role="img" aria-label="Example: 1,500 kcal eaten today, 102 grams of protein">
             <p class="cell-k">Eaten today</p>
-            <p class="cell-num">1,540<small>kcal</small></p>
-            <div class="meter" aria-hidden="true"><i style="--f:.56"></i></div>
-            <p class="cell-foot">97 g protein · 2,768 burned</p>
+            <p class="cell-num">1,500<small>kcal</small></p>
+            <div class="meter" aria-hidden="true"><i style="--f:.54"></i></div>
+            <p class="cell-foot">102 g protein · 2,768 burned</p>
           </div>
           <div class="cell" role="img" aria-label="Example: vitamin D 22 nanograms per millilitre, below the lab's range of 30 to 100">
             <p class="cell-k">Vitamin D</p>
@@ -180,7 +180,7 @@ location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
           <div class="chip-ui lg list">
             <p><span>Recovery</span><b>64%</b></p>
             <p><span>Sleep</span><b>7.9 h</b></p>
-            <p><span>Eaten</span><b>1,540 kcal</b></p>
+            <p><span>Eaten</span><b>1,500 kcal</b></p>
             <p><span>Vitamin D</span><b>22 ng/mL</b></p>
           </div>
         </div>
@@ -203,22 +203,9 @@ location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
           <h3 id="fh-1">Wearable data you can read at a glance</h3>
           <p>Sleep, recovery, HRV and strain, each next to your own 30-day normal, in plain words.</p>
         </div>
-        <figure class="feat-shot board lg" aria-label="Example: last night's sleep and this morning's readings">
-          <p class="board-head"><span>Last night · Monday</span><span class="tag">Example</span></p>
-          <div class="board-main">
-            <div>
-              <p class="big">7.9<small>hours asleep</small></p>
-              <p class="note">8 minutes more than your normal</p>
-              <div class="stages" aria-hidden="true"><i style="--f:.2"></i><i style="--f:.27"></i><i style="--f:.53"></i></div>
-              <ul class="legend"><li>Deep 1.6 h</li><li>REM 2.1 h</li><li>Light 4.2 h</li></ul>
-            </div>
-            <div class="nights" aria-hidden="true"><i style="--h:.78"></i><i style="--h:.62"></i><i style="--h:.84"></i><i style="--h:.7"></i><i style="--h:.55"></i><i style="--h:.9"></i><i style="--h:.74"></i><i style="--h:.8"></i><i style="--h:.66"></i><i style="--h:.88"></i><i style="--h:.72"></i><i style="--h:.6"></i><i style="--h:.82"></i><i class="now" style="--h:.86"></i></div>
-          </div>
-          <ul class="tiles3">
-            <li><span>Recovery</span><b>64%</b><em>Normal 72%</em></li>
-            <li><span>HRV</span><b>71 ms</b><em>22% above normal</em></li>
-            <li><span>Resting heart rate</span><b>65 bpm</b><em>Steady</em></li>
-          </ul>
+        <figure class="feat-shot app-shot">
+          <picture><source media="(max-width: 760px)" srcset="/img/app-home-m.webp" width="780" height="1400"><img src="/img/app-home.webp" alt="The Xeyo Home screen with example data: recovery 64%, HRV 71 ms, resting heart rate 65 bpm, 7.9 hours of sleep, strain 11.5 and heart rate 64 bpm, each with a two-week chart and its average." width="1600" height="1376" loading="lazy" decoding="async"></picture>
+          <figcaption class="tag">Example data</figcaption>
         </figure>
     </div>
   </article>
@@ -231,28 +218,9 @@ location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
           <h3 id="fh-2">The nutrition your wearable app leaves out</h3>
           <p>Describe a meal, say it or snap it. See what you ate next to what you burned.</p>
         </div>
-        <figure class="feat-shot board lg" aria-label="Example: a meal logged from one sentence, and the day's totals">
-          <p class="board-head"><span>Nutrition · today</span><span class="tag">Example</span></p>
-          <div class="board-split">
-            <div class="meal">
-              <p class="msg me">Salmon poke bowl with avocado</p>
-              <div class="logged">
-                <p class="logged-name">Salmon poke bowl</p>
-                <p class="big">680<small>kcal</small></p>
-                <ul class="macro-row"><li><b>37 g</b>Protein</li><li><b>65 g</b>Carbs</li><li><b>31 g</b>Fat</li></ul>
-              </div>
-            </div>
-            <div class="day">
-              <p class="day-k">Eaten</p><p class="big">1,540<small>kcal</small></p>
-              <div class="burn" aria-hidden="true"><i style="--f:.56"></i></div>
-              <p class="note">Burned 2,768 kcal · 1,228 under</p>
-              <ul class="macros big-macros" aria-hidden="true">
-                <li style="--w:.26"><span>Protein</span><b>97 g</b></li>
-                <li style="--w:.40"><span>Carbs</span><b>149 g</b></li>
-                <li style="--w:.35"><span>Fat</span><b>58 g</b></li>
-              </ul>
-            </div>
-          </div>
+        <figure class="feat-shot app-shot">
+          <picture><source media="(max-width: 760px)" srcset="/img/app-food-m.webp" width="780" height="1400"><img src="/img/app-food.webp" alt="The Xeyo Nutrition screen with example data: a box to describe a meal, a daily balance of 1,500 kcal with protein, carbs and fat, and a food journal of three meals." width="1600" height="1376" loading="lazy" decoding="async"></picture>
+          <figcaption class="tag">Example data</figcaption>
         </figure>
     </div>
   </article>
@@ -265,13 +233,9 @@ location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
           <h3 id="fh-3">Blood work you can actually read</h3>
           <p>Every marker against the lab's range, with how it has moved since your last test.</p>
         </div>
-        <figure class="feat-shot board lg" aria-label="Example: three blood markers against the lab's range">
-          <p class="board-head"><span>Blood results · Sep 14</span><span class="tag">Example</span></p>
-          <ul class="markers">
-            <li><div><b>Vitamin D</b><span class="flag">Below range</span></div><p class="big">22<small>ng/mL</small></p><div class="range" aria-hidden="true"><i style="--at:.06"></i></div><p class="note">Lab range 30 to 100 · first result</p></li>
-            <li><div><b>Ferritin</b><span class="ok-t">In range</span></div><p class="big">84<small>ng/mL</small></p><div class="range" aria-hidden="true"><i style="--at:.17"></i></div><p class="note">Lab range 30 to 400 · up 23 since March</p></li>
-            <li><div><b>HbA1c</b><span class="ok-t">In range</span></div><p class="big">5.2<small>%</small></p><div class="range" aria-hidden="true"><i style="--at:.75"></i></div><p class="note">Lab range 4.0 to 5.6 · unchanged</p></li>
-          </ul>
+        <figure class="feat-shot app-shot">
+          <picture><source media="(max-width: 760px)" srcset="/img/app-blood-m.webp" width="780" height="1400"><img src="/img/app-blood.webp" alt="The Xeyo Blood records screen with example data: ferritin 84 ng/mL within the lab reference, up 23 since March, and vitamin D 22 ng/mL below the reference of 30 to 100." width="1600" height="1376" loading="lazy" decoding="async"></picture>
+          <figcaption class="tag">Example data</figcaption>
         </figure>
     </div>
   </article>
@@ -284,14 +248,9 @@ location.replace('https://app.xeyo.ai'+location.pathname+q+h)})();
           <h3 id="fh-4">An AI that knows your numbers</h3>
           <p>Ask why you slept badly or what to eat tonight. It answers from your own data.</p>
         </div>
-        <figure class="feat-shot board lg chat-shot" aria-label="Example conversation with Ask Xeyo">
-          <p class="board-head"><span>Ask Xeyo</span><span class="tag">Example</span></p>
-          <div class="chat">
-            <p class="msg me">Why do I feel so tired today?</p>
-            <p class="msg xeyo">You slept 6.2 hours, 1.6 hours under your normal, and your HRV is 14% below your 30-day average. You also ate about 900 kcal less than you burned yesterday. An easy day and an earlier night should help.</p>
-            <p class="msg me">What should I eat tonight?</p>
-            <p class="msg xeyo">You're at 52 g of protein today, well under your usual 95 g. Something like salmon with rice and greens would close most of that gap.</p>
-          </div>
+        <figure class="feat-shot app-shot">
+          <picture><source media="(max-width: 760px)" srcset="/img/app-ask-m.webp" width="780" height="1400"><img src="/img/app-ask.webp" alt="Ask Xeyo with an example conversation: asked why you feel tired, it answers from last night's 6.2 hours of sleep, a lower HRV and yesterday's calories, then suggests a dinner to close a protein gap." width="1600" height="1376" loading="lazy" decoding="async"></picture>
+          <figcaption class="tag">Example data</figcaption>
         </figure>
     </div>
   </article>

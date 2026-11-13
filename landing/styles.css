@@ -217,6 +217,12 @@ h1{font-size:clamp(46px,6.2vw,92px);font-weight:400;line-height:.98;letter-spaci
 .feat-copy h3{font-size:clamp(30px,3.2vw,46px);font-weight:400;line-height:1.05;letter-spacing:-.035em;text-wrap:balance}
 .feat-copy p:not(.feat-k){margin-top:16px;font-size:17px;color:var(--w2);max-width:34ch}
 .feat-shot{border-radius:26px}
+/* The real app, as members see it: a light screen in a thin glass bezel on the night card. */
+.app-shot{display:grid;gap:14px;justify-items:end}
+.app-shot picture{display:block;width:100%;border-radius:22px;overflow:hidden;background:#f3f1ee;box-shadow:0 0 0 1px rgb(255 255 255 / .28),0 0 0 8px rgb(255 255 255 / .07),0 44px 90px -34px rgb(0 0 0 / .9)}
+.app-shot img{width:100%;height:auto}
+.app-shot .tag{color:var(--w2)}
+@media (max-width:760px){.app-shot{justify-items:center}.app-shot picture{max-width:340px;border-radius:26px}}
 .board{display:grid;gap:16px;padding:clamp(18px,2vw,26px)}
 .board-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;color:var(--white)}
 .board .big{font-size:clamp(40px,3.6vw,54px);font-weight:300;line-height:1;letter-spacing:-.045em}
