@@ -4,6 +4,10 @@ export const DEFAULT_PAYMENT_LINK='https://buy.stripe.com/4gMeVcevV71hce2g0j0RG0
 export const DEFAULT_PRO_PRODUCT='prod_VYwqqND3EY7S3r';
 // The Stripe account also bills other businesses: a checkout counts only when it is for the Xeyo product or came from this link.
 export const DEFAULT_PAYMENT_LINK_ID='plink_1UXozfB7HQhkKmiFQafwm1uD';
+// Pro at €3 a month: everything except live WHOOP sync, whose seats are kept for the €5 plan.
+export const NO_WHOOP_PRICE='price_1UbNllB7HQhkKmiFIf9x9KkS';
+export const NO_WHOOP_PAYMENT_LINK='https://buy.stripe.com/00w5kC87xfxN7XM01l0RG07';
+export const NO_WHOOP_PAYMENT_LINK_ID='plink_1UbNlvB7HQhkKmiFZrHYY2sj';
 const STATUSES=['active','trialing','past_due','canceled','unpaid','incomplete','incomplete_expired','paused'];
 const enc=new TextEncoder();
 const hex=buf=>Array.from(new Uint8Array(buf),b=>b.toString(16).padStart(2,'0')).join('');
@@ -70,9 +74,10 @@ export async function applyStripeEvent(event,{client,secretKey,product=DEFAULT_P
   if(!sub?.status&&secretKey)sub=await stripeGet('subscriptions/'+encodeURIComponent(id),{secretKey,fetcher,apiBase});
   if(sub&&productOf(sub)&&product&&productOf(sub)!==product)return {ignored:true,users:[]};
   // Without the subscription's product (no API key), only checkouts from the Xeyo payment link are trusted.
-  if(!(sub&&productOf(sub))){const link=typeof obj.payment_link==='string'?obj.payment_link:obj.payment_link?.id;if(!paymentLinkId||link!==paymentLinkId)return {ignored:true,users:[]}}
+  const link=typeof obj.payment_link==='string'?obj.payment_link:obj.payment_link?.id;
+  if(!(sub&&productOf(sub))&&!(link&&[paymentLinkId,NO_WHOOP_PAYMENT_LINK_ID].includes(link)))return {ignored:true,users:[]};
   // Without the secret key the period is unknown until customer.subscription.* arrives; a completed checkout is active.
-  const row=sub?.status?subscriptionRow(sub):{stripe_subscription_id:id,stripe_customer_id:typeof obj.customer==='string'?obj.customer:null,status:'active',price_id:null,current_period_end:null,cancel_at_period_end:false,updated_at:new Date().toISOString()};
+  const row=sub?.status?subscriptionRow(sub):{stripe_subscription_id:id,stripe_customer_id:typeof obj.customer==='string'?obj.customer:null,status:'active',price_id:link===NO_WHOOP_PAYMENT_LINK_ID?NO_WHOOP_PRICE:null,current_period_end:null,cancel_at_period_end:false,updated_at:new Date().toISOString()};
   await save(row,ref,email,!sub?.status);
  }else if(['customer.subscription.created','customer.subscription.updated','customer.subscription.deleted','customer.subscription.paused','customer.subscription.resumed'].includes(type)){
   if(productOf(obj)&&product&&productOf(obj)!==product)return {ignored:true,users:[]};

@@ -1,5 +1,6 @@
 // Free and Pro. Every protected action is checked here on the server, before it runs; the app only mirrors the result.
 // History is also enforced in the database (health_readings RLS: 30 days for Free), so nothing relies on hidden UI.
+import {NO_WHOOP_PRICE} from './billing.mjs';
 export const FREE_LIMITS={historyDays:30};
 export const PRO_PRICE={amount:5,currency:'EUR',label:'€5/month'};
 export const PRO_FEATURES={
@@ -74,6 +75,9 @@ export async function meteredAI(client,userId,key,{plan=null,now=Date.now()}={})
 }
 // Seat for live WHOOP sync. 'pending' while the member is at WHOOP's consent screen; 'active' once connected.
 export async function claimSeat(client,userId,cap,{activate=false}={}){
+ // The €3 plan has no live WHOOP: a member whose every live subscription is on that price gets a clear answer, no seat.
+ const subs=await client.from('subscriptions').select('price_id').eq('user_id',userId).in('status',['active','trialing','past_due']);
+ if(!subs.error&&subs.data?.length&&subs.data.every(x=>x.price_id===NO_WHOOP_PRICE))throw new PlanError('Live WHOOP sync is in the €5 plan. Your €3 plan covers everything else, and uploading your WHOOP export stays free.',402,{code:'whoop_plan_required',feature:'whoop_live'});
  const r=await client.rpc('claim_whoop_seat',{owner:userId,cap,activate});if(r.error)throw Error('Could not reserve a live WHOOP seat. Try again.');
  if(r.data.ok)return r.data;
  if(r.data.reason==='pro_required')throw new PlanError('Live WHOOP sync is part of Xeyo Pro.',402,{code:'pro_required',feature:'whoop_live'});
